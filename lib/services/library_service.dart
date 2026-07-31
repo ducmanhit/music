@@ -11,6 +11,8 @@ import 'package:path_provider/path_provider.dart';
 import '../models/playlist.dart';
 import '../models/song.dart';
 
+enum MusicImportSource { files, googleDrive, oneDrive }
+
 class ImportResult {
   const ImportResult({
     required this.imported,
@@ -49,6 +51,12 @@ class LibraryService extends ChangeNotifier {
   bool _isImporting = false;
 
   List<Song> get songs => List.unmodifiable(_songs);
+  Song? songById(String id) {
+    for (final song in _songs) {
+      if (song.id == id) return song;
+    }
+    return null;
+  }
   List<MusicPlaylist> get playlists => List.unmodifiable(_playlists);
   bool get isReady => _isReady;
   bool get isImporting => _isImporting;
@@ -121,12 +129,23 @@ class LibraryService extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future<ImportResult> importFromFiles() async {
+  Future<ImportResult> importFromFiles() =>
+      importFromPicker(MusicImportSource.files);
+
+  Future<ImportResult> importFromPicker(
+    MusicImportSource source,
+  ) async {
     if (_isImporting) {
       return const ImportResult(imported: 0, skipped: 0, failed: 0);
     }
 
+    final dialogTitle = switch (source) {
+      MusicImportSource.files => 'Chọn file nhạc',
+      MusicImportSource.googleDrive => 'Chọn nhạc từ Google Drive',
+      MusicImportSource.oneDrive => 'Chọn nhạc từ OneDrive',
+    };
     final result = await FilePicker.pickFiles(
+      dialogTitle: dialogTitle,
       type: FileType.custom,
       allowMultiple: true,
       allowedExtensions: supportedExtensions,
@@ -322,6 +341,111 @@ class LibraryService extends ChangeNotifier {
     final file = File(p.join(_artworkDirectory!.path, '$id$extension'));
     await file.writeAsBytes(bytes, flush: true);
     return file.path;
+  }
+
+
+  Future<void> updateSongDetails(
+    String songId, {
+    required String title,
+    required String artist,
+    required String album,
+  }) async {
+    final index = _songs.indexWhere((song) => song.id == songId);
+    if (index < 0) return;
+    _songs[index] = _songs[index].copyWith(
+      title: title.trim().isEmpty ? _songs[index].title : title.trim(),
+      artist: artist.trim().isEmpty ? 'Nghệ sĩ không rõ' : artist.trim(),
+      album: album.trim().isEmpty ? 'Không rõ album' : album.trim(),
+    );
+    _sortSongs();
+    await _save();
+    notifyListeners();
+  }
+
+  Future<void> replaceArtworkFromFile(String songId, File source) async {
+    if (_artworkDirectory == null || !await source.exists()) return;
+    final length = await source.length();
+    if (length <= 0 || length > 15 * 1024 * 1024) {
+      throw Exception('Ảnh phải nhỏ hơn 15 MB.');
+    }
+
+    final extension = _safeImageExtension(source.path);
+    final destination = File(
+      p.join(
+        _artworkDirectory!.path,
+        '${songId}_${DateTime.now().microsecondsSinceEpoch}$extension',
+      ),
+    );
+    await source.copy(destination.path);
+    await _replaceArtworkPath(songId, destination.path);
+  }
+
+  Future<void> replaceArtworkFromBytes(
+    String songId,
+    Uint8List bytes, {
+    String extension = '.jpg',
+  }) async {
+    if (_artworkDirectory == null || bytes.isEmpty) return;
+    if (bytes.length > 15 * 1024 * 1024) {
+      throw Exception('Ảnh phải nhỏ hơn 15 MB.');
+    }
+    final safeExtension = _safeImageExtension('cover$extension');
+    final destination = File(
+      p.join(
+        _artworkDirectory!.path,
+        '${songId}_${DateTime.now().microsecondsSinceEpoch}$safeExtension',
+      ),
+    );
+    await destination.writeAsBytes(bytes, flush: true);
+    await _replaceArtworkPath(songId, destination.path);
+  }
+
+  Future<void> removeArtwork(String songId) async {
+    final index = _songs.indexWhere((song) => song.id == songId);
+    if (index < 0) return;
+    final oldPath = _songs[index].artworkPath;
+    _songs[index] = _songs[index].copyWith(clearArtwork: true);
+    await _save();
+    await _deleteArtwork(oldPath);
+    notifyListeners();
+  }
+
+  Future<void> _replaceArtworkPath(String songId, String newPath) async {
+    final index = _songs.indexWhere((song) => song.id == songId);
+    if (index < 0) {
+      await _deleteArtwork(newPath);
+      return;
+    }
+    final oldPath = _songs[index].artworkPath;
+    _songs[index] = _songs[index].copyWith(artworkPath: newPath);
+    await _save();
+    if (oldPath != newPath) await _deleteArtwork(oldPath);
+    notifyListeners();
+  }
+
+  Future<void> _deleteArtwork(String? path) async {
+    if (path == null || path.isEmpty) return;
+    final file = File(path);
+    if (await file.exists()) {
+      try {
+        await file.delete();
+      } catch (_) {
+        // Không chặn thao tác nếu file ảnh cũ không thể xóa.
+      }
+    }
+  }
+
+  String _safeImageExtension(String fileName) {
+    final extension = p.extension(fileName).toLowerCase();
+    return switch (extension) {
+      '.png' => '.png',
+      '.webp' => '.webp',
+      '.heic' => '.heic',
+      '.heif' => '.heif',
+      '.jpeg' => '.jpg',
+      '.jpg' => '.jpg',
+      _ => '.jpg',
+    };
   }
 
   Future<void> toggleFavorite(String songId) async {

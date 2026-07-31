@@ -11,11 +11,13 @@ class WaveformSeekBar extends StatelessWidget {
     required this.position,
     required this.duration,
     required this.onSeek,
+    this.waveHeight = 86,
   });
 
   final Duration position;
   final Duration duration;
   final ValueChanged<Duration> onSeek;
+  final double waveHeight;
 
   @override
   Widget build(BuildContext context) {
@@ -24,7 +26,7 @@ class WaveformSeekBar extends StatelessWidget {
     return Column(
       children: [
         SizedBox(
-          height: 86,
+          height: waveHeight,
           child: Stack(
             alignment: Alignment.center,
             children: [

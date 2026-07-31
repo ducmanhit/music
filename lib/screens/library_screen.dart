@@ -7,6 +7,7 @@ import '../services/player_controller.dart';
 import '../utils/app_theme.dart';
 import '../widgets/song_artwork.dart';
 import '../widgets/song_tile.dart';
+import '../widgets/import_music_sheet.dart';
 import 'song_collection_screen.dart';
 
 class LibraryScreen extends StatefulWidget {
@@ -164,11 +165,10 @@ class _LibraryScreenState extends State<LibraryScreen> {
     );
   }
 
-  Future<void> _import() async {
-    final result = await widget.libraryService.importFromFiles();
-    if (!mounted) return;
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(result.message)));
-  }
+  Future<void> _import() => showImportMusicSheet(
+        context,
+        libraryService: widget.libraryService,
+      );
 
   Future<void> _rescan() async {
     final result = await widget.libraryService.rescanMusicFolder();
@@ -246,6 +246,7 @@ class _SongsTab extends StatelessWidget {
                   context,
                   song: song,
                   libraryService: libraryService,
+                  playerController: playerController,
                 ),
               );
             },

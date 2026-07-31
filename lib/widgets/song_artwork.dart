@@ -20,26 +20,44 @@ class SongArtwork extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final artwork = song.artworkPath;
-    return ClipRRect(
-      borderRadius: BorderRadius.circular(borderRadius),
-      child: SizedBox(
-        width: size,
-        height: size,
-        child: artwork != null && File(artwork).existsSync()
-            ? Image.file(
-                File(artwork),
-                fit: BoxFit.cover,
-                gaplessPlayback: true,
-                errorBuilder: (_, __, ___) => _Placeholder(song: song),
-              )
-            : _Placeholder(song: song),
+    final artworkFile = artwork == null ? null : File(artwork);
+    final artworkKey = '${song.id}:${artwork ?? 'placeholder'}';
+
+    return SizedBox(
+      width: size,
+      height: size,
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(borderRadius),
+        child: AnimatedSwitcher(
+          duration: const Duration(milliseconds: 260),
+          switchInCurve: Curves.easeOutCubic,
+          switchOutCurve: Curves.easeInCubic,
+          child: artworkFile != null && artworkFile.existsSync()
+              ? Image.file(
+                  artworkFile,
+                  key: ValueKey<String>(artworkKey),
+                  width: size,
+                  height: size,
+                  fit: BoxFit.cover,
+                  gaplessPlayback: true,
+                  filterQuality: FilterQuality.medium,
+                  errorBuilder: (_, __, ___) => _Placeholder(
+                    key: ValueKey<String>('placeholder:${song.id}'),
+                    song: song,
+                  ),
+                )
+              : _Placeholder(
+                  key: ValueKey<String>('placeholder:${song.id}'),
+                  song: song,
+                ),
+        ),
       ),
     );
   }
 }
 
 class _Placeholder extends StatelessWidget {
-  const _Placeholder({required this.song});
+  const _Placeholder({super.key, required this.song});
 
   final Song song;
 
@@ -53,13 +71,43 @@ class _Placeholder extends StatelessWidget {
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
           colors: [
-            HSLColor.fromAHSL(1, hue, .48, .28).toColor(),
-            HSLColor.fromAHSL(1, (hue + 55) % 360, .58, .12).toColor(),
+            HSLColor.fromAHSL(1, hue, .58, .32).toColor(),
+            HSLColor.fromAHSL(1, (hue + 58) % 360, .62, .12).toColor(),
           ],
         ),
       ),
-      child: const Center(
-        child: Icon(Icons.music_note_rounded, color: AppColors.text, size: 30),
+      child: Stack(
+        fit: StackFit.expand,
+        children: [
+          Positioned(
+            top: -22,
+            right: -18,
+            child: Container(
+              width: 90,
+              height: 90,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                color: Colors.white.withValues(alpha: .08),
+              ),
+            ),
+          ),
+          Center(
+            child: DecoratedBox(
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                color: Colors.black.withValues(alpha: .18),
+              ),
+              child: const Padding(
+                padding: EdgeInsets.all(12),
+                child: Icon(
+                  Icons.music_note_rounded,
+                  color: AppColors.text,
+                  size: 30,
+                ),
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }

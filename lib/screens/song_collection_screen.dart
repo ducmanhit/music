@@ -4,6 +4,7 @@ import '../models/song.dart';
 import '../services/library_service.dart';
 import '../services/player_controller.dart';
 import '../utils/app_theme.dart';
+import 'cover_editor_screen.dart';
 import '../widgets/song_tile.dart';
 
 class SongCollectionScreen extends StatefulWidget {
@@ -79,6 +80,7 @@ class _SongCollectionScreenState extends State<SongCollectionScreen> {
                     context,
                     song: song,
                     libraryService: widget.libraryService,
+                    playerController: widget.playerController,
                   ),
                 );
               },
@@ -94,6 +96,7 @@ Future<void> showSongActions(
   BuildContext context, {
   required Song song,
   required LibraryService libraryService,
+  required PlayerController playerController,
 }) async {
   final rootContext = context;
   await showModalBottomSheet<void>(
@@ -110,6 +113,22 @@ Future<void> showSongActions(
               onTap: () async {
                 Navigator.pop(sheetContext);
                 await libraryService.toggleFavorite(song.id);
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.image_outlined),
+              title: const Text('Sửa ảnh bìa & thông tin'),
+              onTap: () {
+                Navigator.pop(sheetContext);
+                Navigator.of(rootContext).push(
+                  MaterialPageRoute<void>(
+                    builder: (_) => CoverEditorScreen(
+                      songId: song.id,
+                      libraryService: libraryService,
+                      playerController: playerController,
+                    ),
+                  ),
+                );
               },
             ),
             ListTile(
@@ -136,7 +155,10 @@ Future<void> showSongActions(
                     ],
                   ),
                 );
-                if (confirmed == true) await libraryService.deleteSong(song.id);
+                if (confirmed == true) {
+                  await libraryService.deleteSong(song.id);
+                  await playerController.refreshQueueMetadata();
+                }
               },
             ),
           ],

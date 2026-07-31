@@ -24,8 +24,9 @@ info['UIBackgroundModes'] = sorted(set(info.get('UIBackgroundModes', []) + ['aud
 info['UIFileSharingEnabled'] = True
 info['LSSupportsOpeningDocumentsInPlace'] = True
 info['UISupportsDocumentBrowser'] = False
-info['NSLocalNetworkUsageDescription'] = (
-    'Offline Music cần truy cập mạng nội bộ để nhận file nhạc từ máy tính qua Wi-Fi.'
+info.pop('NSLocalNetworkUsageDescription', None)
+info['NSPhotoLibraryUsageDescription'] = (
+    'Offline Music cần quyền truy cập thư viện ảnh để bạn chọn ảnh bìa bài hát.'
 )
 
 with info_path.open('wb') as handle:

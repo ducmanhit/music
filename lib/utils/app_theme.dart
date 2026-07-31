@@ -1,16 +1,42 @@
 import 'package:flutter/material.dart';
 
 abstract final class AppColors {
-  static const background = Color(0xFF070D10);
-  static const surface = Color(0xFF10171C);
-  static const surfaceRaised = Color(0xFF161E24);
-  static const search = Color(0xFF222A33);
-  static const line = Color(0xFF263038);
-  static const accent = Color(0xFF5BE0CF);
-  static const accentDark = Color(0xFF153D3A);
-  static const text = Color(0xFFF1F4F5);
-  static const muted = Color(0xFF9AA4AC);
-  static const danger = Color(0xFFFF6B7A);
+  static const background = Color(0xFF050A0D);
+  static const backgroundSoft = Color(0xFF081116);
+  static const surface = Color(0xFF0E171D);
+  static const surfaceRaised = Color(0xFF152129);
+  static const search = Color(0xFF1B252D);
+  static const line = Color(0xFF26343D);
+  static const accent = Color(0xFF61E8D5);
+  static const accentBright = Color(0xFF8BFFE9);
+  static const accentDark = Color(0xFF143D3A);
+  static const violet = Color(0xFF8F82FF);
+  static const text = Color(0xFFF4F7F8);
+  static const muted = Color(0xFF97A5AE);
+  static const danger = Color(0xFFFF7182);
+  static const ink = Color(0xFF04100E);
+}
+
+abstract final class AppGradients {
+  static const background = LinearGradient(
+    begin: Alignment.topCenter,
+    end: Alignment.bottomCenter,
+    colors: [
+      Color(0xFF0B171A),
+      AppColors.background,
+      AppColors.background,
+    ],
+    stops: [0, .42, 1],
+  );
+
+  static const accentSurface = LinearGradient(
+    begin: Alignment.topLeft,
+    end: Alignment.bottomRight,
+    colors: [
+      Color(0xFF132A2B),
+      Color(0xFF101C25),
+    ],
+  );
 }
 
 ThemeData buildDarkTheme() {
@@ -27,6 +53,7 @@ ThemeData buildDarkTheme() {
     scaffoldBackgroundColor: AppColors.background,
     colorScheme: scheme,
     fontFamily: '.SF Pro Display',
+    splashFactory: InkRipple.splashFactory,
     appBarTheme: const AppBarTheme(
       backgroundColor: AppColors.background,
       foregroundColor: AppColors.text,
@@ -35,22 +62,24 @@ ThemeData buildDarkTheme() {
       elevation: 0,
       titleTextStyle: TextStyle(
         color: AppColors.text,
-        fontSize: 28,
-        fontWeight: FontWeight.w800,
-        letterSpacing: -0.6,
+        fontSize: 27,
+        fontWeight: FontWeight.w900,
+        letterSpacing: -0.7,
       ),
     ),
     navigationBarTheme: NavigationBarThemeData(
-      height: 74,
-      backgroundColor: const Color(0xFF101419),
+      height: 72,
+      backgroundColor: const Color(0xFF0C1217),
       indicatorColor: AppColors.accentDark,
+      elevation: 0,
+      shadowColor: Colors.transparent,
       labelTextStyle: WidgetStateProperty.resolveWith(
         (states) => TextStyle(
           color: states.contains(WidgetState.selected)
               ? AppColors.accent
               : AppColors.muted,
           fontSize: 11,
-          fontWeight: FontWeight.w700,
+          fontWeight: FontWeight.w800,
         ),
       ),
       iconTheme: WidgetStateProperty.resolveWith(
@@ -65,27 +94,29 @@ ThemeData buildDarkTheme() {
     inputDecorationTheme: const InputDecorationTheme(
       filled: true,
       fillColor: AppColors.search,
+      labelStyle: TextStyle(color: AppColors.muted),
       hintStyle: TextStyle(color: AppColors.muted),
       prefixIconColor: AppColors.muted,
       border: OutlineInputBorder(
-        borderRadius: BorderRadius.all(Radius.circular(28)),
+        borderRadius: BorderRadius.all(Radius.circular(20)),
         borderSide: BorderSide.none,
       ),
       enabledBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.all(Radius.circular(28)),
-        borderSide: BorderSide.none,
+        borderRadius: BorderRadius.all(Radius.circular(20)),
+        borderSide: BorderSide(color: Color(0x3326343D)),
       ),
       focusedBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.all(Radius.circular(28)),
-        borderSide: BorderSide(color: AppColors.accent, width: 1),
+        borderRadius: BorderRadius.all(Radius.circular(20)),
+        borderSide: BorderSide(color: AppColors.accent, width: 1.2),
       ),
-      contentPadding: EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+      contentPadding: EdgeInsets.symmetric(horizontal: 18, vertical: 16),
     ),
     filledButtonTheme: FilledButtonThemeData(
       style: FilledButton.styleFrom(
-        foregroundColor: const Color(0xFF07110F),
+        foregroundColor: AppColors.ink,
         backgroundColor: AppColors.accent,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+        disabledBackgroundColor: AppColors.surfaceRaised,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
         padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 15),
         textStyle: const TextStyle(fontSize: 15, fontWeight: FontWeight.w900),
       ),
@@ -94,8 +125,23 @@ ThemeData buildDarkTheme() {
       style: OutlinedButton.styleFrom(
         foregroundColor: AppColors.text,
         side: const BorderSide(color: AppColors.line),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
         padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 15),
+      ),
+    ),
+    textButtonTheme: TextButtonThemeData(
+      style: TextButton.styleFrom(
+        foregroundColor: AppColors.accent,
+        textStyle: const TextStyle(fontWeight: FontWeight.w800),
+      ),
+    ),
+    cardTheme: CardThemeData(
+      color: AppColors.surface,
+      surfaceTintColor: Colors.transparent,
+      elevation: 0,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(18),
+        side: const BorderSide(color: AppColors.line),
       ),
     ),
     dividerTheme: const DividerThemeData(color: AppColors.line, thickness: 1),
@@ -103,14 +149,15 @@ ThemeData buildDarkTheme() {
       activeTrackColor: AppColors.accent,
       inactiveTrackColor: AppColors.line,
       thumbColor: AppColors.accent,
-      overlayColor: Color(0x335BE0CF),
+      overlayColor: Color(0x3361E8D5),
       trackHeight: 3,
     ),
     bottomSheetTheme: const BottomSheetThemeData(
       backgroundColor: AppColors.surface,
       surfaceTintColor: Colors.transparent,
+      showDragHandle: false,
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+        borderRadius: BorderRadius.vertical(top: Radius.circular(26)),
       ),
     ),
     dialogTheme: const DialogThemeData(
@@ -120,6 +167,7 @@ ThemeData buildDarkTheme() {
     snackBarTheme: const SnackBarThemeData(
       backgroundColor: AppColors.surfaceRaised,
       contentTextStyle: TextStyle(color: AppColors.text),
+      behavior: SnackBarBehavior.floating,
     ),
   );
 }

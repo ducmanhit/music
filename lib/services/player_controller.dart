@@ -110,6 +110,28 @@ class PlayerController extends ChangeNotifier {
     notifyListeners();
   }
 
+
+  Future<void> refreshQueueMetadata() async {
+    if (_queue.isEmpty) return;
+    final currentId = currentSong?.id;
+    final position = player.position;
+    final wasPlaying = player.playing;
+    final latestById = {
+      for (final song in libraryService.songs) song.id: song,
+    };
+    final refreshed = _queue
+        .map((song) => latestById[song.id])
+        .whereType<Song>()
+        .toList(growable: false);
+    await setQueue(
+      refreshed,
+      startSongId: currentId,
+      initialPosition: position,
+      autoPlay: false,
+    );
+    if (wasPlaying) await player.play();
+  }
+
   Future<void> playSong(List<Song> source, Song song) async {
     final sameQueue = _queue.length == source.length &&
         _queue.asMap().entries.every(

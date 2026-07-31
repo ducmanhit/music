@@ -7,6 +7,7 @@ import '../utils/app_theme.dart';
 import '../utils/formatters.dart';
 import '../widgets/song_artwork.dart';
 import '../widgets/song_tile.dart';
+import '../widgets/import_music_sheet.dart';
 import 'song_collection_screen.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -92,6 +93,7 @@ class _HomeScreenState extends State<HomeScreen> {
                           context,
                           song: song,
                           libraryService: library,
+                          playerController: widget.playerController,
                         ),
                       );
                     },
@@ -177,14 +179,10 @@ class _HomeScreenState extends State<HomeScreen> {
                   SliverToBoxAdapter(
                     child: _EmptyHome(
                       importing: library.isImporting,
-                      onImport: () async {
-                        final result = await library.importFromFiles();
-                        if (context.mounted) {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(content: Text(result.message)),
-                          );
-                        }
-                      },
+                      onImport: () => showImportMusicSheet(
+                        context,
+                        libraryService: library,
+                      ),
                     ),
                   )
                 else ...[
