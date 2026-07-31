@@ -58,10 +58,10 @@ class _HomeScreenState extends State<HomeScreen> {
                               Text(
                                 'Offline Music',
                                 style: TextStyle(
-                                  color: AppColors.accent,
-                                  fontSize: 13,
+                                  color: AppColors.muted,
+                                  fontSize: 12,
                                   fontWeight: FontWeight.w800,
-                                  letterSpacing: .3,
+                                  letterSpacing: 1.0,
                                 ),
                               ),
                               SizedBox(height: 4),
@@ -120,7 +120,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                 padding: const EdgeInsets.only(bottom: 8),
                                 child: DecoratedBox(
                                   decoration: BoxDecoration(
-                                    color: Colors.white.withValues(alpha: .24),
+                                    color: Colors.white.withValues(alpha: .48),
                                     borderRadius: BorderRadius.circular(18),
                                     border: Border.all(color: AppColors.line),
                                   ),
@@ -334,109 +334,69 @@ class _LibraryHero extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Material(
-      color: Colors.transparent,
-      child: InkWell(
-        onTap: onTap,
-        borderRadius: BorderRadius.circular(28),
-        child: Ink(
-          height: 154,
-          decoration: BoxDecoration(
-            gradient: AppGradients.hero,
-            borderRadius: BorderRadius.circular(28),
-            boxShadow: const [
-              BoxShadow(
-                color: Color(0x330A84FF),
-                blurRadius: 30,
-                offset: Offset(0, 14),
+    return GlassPanel(
+      onTap: onTap,
+      borderRadius: 30,
+      blur: 34,
+      opacity: .58,
+      tint: AppColors.graphite,
+      padding: const EdgeInsets.all(22),
+      child: SizedBox(
+        height: 112,
+        child: Row(
+          children: [
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const Text(
+                    'Thư viện của bạn',
+                    style: TextStyle(
+                      color: AppColors.text,
+                      fontSize: 23,
+                      fontWeight: FontWeight.w800,
+                      letterSpacing: -.45,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    '${library.songs.length} bài hát  •  ${library.favoriteCount} yêu thích',
+                    style: const TextStyle(
+                      color: AppColors.muted,
+                      fontSize: 13,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    '${compactCount(library.totalPlayCount)} lượt nghe',
+                    style: const TextStyle(
+                      color: AppColors.mutedSoft,
+                      fontSize: 12,
+                    ),
+                  ),
+                ],
               ),
-            ],
-          ),
-          child: Stack(
-            children: [
-              Positioned(
-                right: -28,
-                top: -42,
-                child: Container(
-                  width: 160,
-                  height: 160,
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    color: Colors.white.withValues(alpha: .13),
+            ),
+            SizedBox.square(
+              dimension: 62,
+              child: GlassPanel(
+                borderRadius: 21,
+                blur: 22,
+                opacity: .72,
+                shadow: false,
+                tint: AppColors.graphite,
+                child: const Center(
+                  child: Icon(
+                    Icons.library_music_rounded,
+                    color: AppColors.graphite,
+                    size: 29,
                   ),
                 ),
               ),
-              Positioned(
-                right: 35,
-                bottom: -55,
-                child: Container(
-                  width: 130,
-                  height: 130,
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    color: Colors.white.withValues(alpha: .1),
-                  ),
-                ),
-              ),
-              Padding(
-                padding: const EdgeInsets.all(22),
-                child: Row(
-                  children: [
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          const Text(
-                            'Thư viện của bạn',
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontSize: 23,
-                              fontWeight: FontWeight.w800,
-                              letterSpacing: -.45,
-                            ),
-                          ),
-                          const SizedBox(height: 8),
-                          Text(
-                            '${library.songs.length} bài hát  •  ${library.favoriteCount} yêu thích',
-                            style: const TextStyle(
-                              color: Color(0xE6FFFFFF),
-                              fontSize: 13,
-                              fontWeight: FontWeight.w600,
-                            ),
-                          ),
-                          const SizedBox(height: 4),
-                          Text(
-                            '${compactCount(library.totalPlayCount)} lượt nghe',
-                            style: const TextStyle(
-                              color: Color(0xBFFFFFFF),
-                              fontSize: 12,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    Container(
-                      width: 58,
-                      height: 58,
-                      decoration: BoxDecoration(
-                        color: Colors.white.withValues(alpha: .2),
-                        borderRadius: BorderRadius.circular(20),
-                        border: Border.all(
-                          color: Colors.white.withValues(alpha: .35),
-                        ),
-                      ),
-                      child: const Icon(
-                        Icons.library_music_rounded,
-                        color: Colors.white,
-                        size: 30,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );
@@ -473,10 +433,10 @@ class _QuickCard extends StatelessWidget {
               width: 38,
               height: 38,
               decoration: BoxDecoration(
-                color: AppColors.accentDark,
+                color: const Color(0x19787880),
                 borderRadius: BorderRadius.circular(13),
               ),
-              child: Icon(icon, color: AppColors.accent, size: 21),
+              child: Icon(icon, color: AppColors.graphite, size: 21),
             ),
             const Spacer(),
             Text(

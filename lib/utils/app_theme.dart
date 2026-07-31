@@ -2,65 +2,71 @@ import 'dart:ui';
 
 import 'package:flutter/material.dart';
 
+/// Neutral iOS-inspired palette. Saturated colours are deliberately limited to
+/// the system blue used for selected states and primary actions.
 abstract final class AppColors {
-  static const background = Color(0xFFF2F7FF);
-  static const backgroundSoft = Color(0xFFE8F1FF);
-  static const surface = Color(0x66FFFFFF);
-  static const surfaceRaised = Color(0xA8FFFFFF);
-  static const search = Color(0x52FFFFFF);
-  static const line = Color(0x59FFFFFF);
-  static const lineStrong = Color(0x8FFFFFFF);
-  static const accent = Color(0xFF087CFF);
-  static const accentBright = Color(0xFF55B8FF);
-  static const accentDark = Color(0x21087CFF);
-  static const cyan = Color(0xFF51D7E8);
-  static const violet = Color(0xFF8878FF);
-  static const pink = Color(0xFFFF8DC7);
-  static const text = Color(0xFF10203A);
-  static const muted = Color(0xFF60708B);
-  static const mutedSoft = Color(0xFF93A0B5);
+  static const background = Color(0xFFF2F2F7);
+  static const backgroundSoft = Color(0xFFF8F8FA);
+  static const surface = Color(0x8FFFFFFF);
+  static const surfaceRaised = Color(0xC7FFFFFF);
+  static const search = Color(0xA8FFFFFF);
+  static const line = Color(0x8FFFFFFF);
+  static const lineStrong = Color(0xD9FFFFFF);
+  static const accent = Color(0xFF007AFF);
+  static const accentBright = Color(0xFF5AC8FA);
+  static const accentDark = Color(0x14007AFF);
+  static const graphite = Color(0xFF1C1C1E);
+  static const graphiteSoft = Color(0xFF3A3A3C);
+
+  // Kept for API compatibility with older screens. These are intentionally
+  // neutral so no cyan/violet/pink cast leaks into the glass surfaces.
+  static const cyan = Color(0xFFEDEDEF);
+  static const violet = Color(0xFFE5E5EA);
+  static const pink = Color(0xFFF5F5F7);
+
+  static const text = Color(0xFF111114);
+  static const muted = Color(0xFF6E6E73);
+  static const mutedSoft = Color(0xFF9A9AA0);
   static const danger = Color(0xFFFF3B30);
-  static const success = Color(0xFF30B66B);
+  static const success = Color(0xFF34C759);
   static const ink = Colors.white;
 }
 
 abstract final class AppGradients {
+  /// Quiet neutral canvas, close to the iOS grouped background.
   static const background = LinearGradient(
     begin: Alignment.topLeft,
     end: Alignment.bottomRight,
     colors: [
-      Color(0xFFF7FBFF),
-      Color(0xFFEAF4FF),
-      Color(0xFFF5EDFF),
-      Color(0xFFEAFBFA),
+      Color(0xFFFBFBFC),
+      Color(0xFFF2F2F6),
+      Color(0xFFECECF1),
+      Color(0xFFF7F7F9),
     ],
-    stops: [0, .38, .72, 1],
+    stops: [0, .38, .74, 1],
   );
 
   static const accentSurface = LinearGradient(
     begin: Alignment.topLeft,
     end: Alignment.bottomRight,
-    colors: [
-      Color(0x9FFFFFFF),
-      Color(0x3DF5FAFF),
-      Color(0x26BCEAFF),
-    ],
+    colors: [Color(0xEFFFFFFF), Color(0x9AFFFFFF), Color(0x70EAEAEE)],
   );
 
+  /// Used by a few hero elements that expect white foreground content.
   static const hero = LinearGradient(
     begin: Alignment.topLeft,
     end: Alignment.bottomRight,
-    colors: [Color(0xFF4AB8FF), Color(0xFF8178FF), Color(0xFFFF8DC7)],
+    colors: [Color(0xFF151517), Color(0xFF2C2C2E)],
   );
 
   static const glassBorder = LinearGradient(
     begin: Alignment.topLeft,
     end: Alignment.bottomRight,
     colors: [
-      Color(0xF2FFFFFF),
-      Color(0x70FFFFFF),
-      Color(0x38A7CFFF),
-      Color(0xA6FFFFFF),
+      Color(0xFFFFFFFF),
+      Color(0xB8FFFFFF),
+      Color(0x58FFFFFF),
+      Color(0x9AFFFFFF),
     ],
     stops: [0, .34, .70, 1],
   );
@@ -71,7 +77,7 @@ ThemeData buildLightTheme() {
     seedColor: AppColors.accent,
     brightness: Brightness.light,
     primary: AppColors.accent,
-    surface: Colors.white.withValues(alpha: .72),
+    surface: Colors.white.withValues(alpha: .78),
     error: AppColors.danger,
   );
 
@@ -98,25 +104,28 @@ ThemeData buildLightTheme() {
       ),
     ),
     navigationBarTheme: NavigationBarThemeData(
-      height: 65,
+      height: 67,
       backgroundColor: Colors.transparent,
-      indicatorColor: Colors.white.withValues(alpha: .42),
+      indicatorColor: Colors.white.withValues(alpha: .86),
       elevation: 0,
       shadowColor: Colors.transparent,
+      labelBehavior: NavigationDestinationLabelBehavior.alwaysShow,
       labelTextStyle: WidgetStateProperty.resolveWith(
         (states) => TextStyle(
           color: states.contains(WidgetState.selected)
               ? AppColors.accent
-              : AppColors.muted,
+              : AppColors.graphiteSoft,
           fontSize: 11,
-          fontWeight: FontWeight.w700,
+          fontWeight: states.contains(WidgetState.selected)
+              ? FontWeight.w800
+              : FontWeight.w600,
         ),
       ),
       iconTheme: WidgetStateProperty.resolveWith(
         (states) => IconThemeData(
           color: states.contains(WidgetState.selected)
               ? AppColors.accent
-              : AppColors.muted,
+              : AppColors.graphiteSoft,
           size: 24,
         ),
       ),
@@ -129,16 +138,16 @@ ThemeData buildLightTheme() {
       prefixIconColor: AppColors.muted,
       suffixIconColor: AppColors.muted,
       border: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(22),
+        borderRadius: BorderRadius.circular(23),
         borderSide: const BorderSide(color: AppColors.line),
       ),
       enabledBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(22),
+        borderRadius: BorderRadius.circular(23),
         borderSide: const BorderSide(color: AppColors.lineStrong),
       ),
       focusedBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(22),
-        borderSide: const BorderSide(color: AppColors.accent, width: 1.25),
+        borderRadius: BorderRadius.circular(23),
+        borderSide: const BorderSide(color: AppColors.accent, width: 1.1),
       ),
       contentPadding: const EdgeInsets.symmetric(horizontal: 17, vertical: 15),
     ),
@@ -146,7 +155,7 @@ ThemeData buildLightTheme() {
       style: FilledButton.styleFrom(
         foregroundColor: Colors.white,
         backgroundColor: AppColors.accent,
-        disabledBackgroundColor: const Color(0xFFD5DCE7),
+        disabledBackgroundColor: const Color(0xFFD5D5DA),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
         padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 15),
         textStyle: const TextStyle(fontSize: 15, fontWeight: FontWeight.w800),
@@ -157,7 +166,7 @@ ThemeData buildLightTheme() {
       style: OutlinedButton.styleFrom(
         foregroundColor: AppColors.text,
         side: const BorderSide(color: AppColors.lineStrong),
-        backgroundColor: Colors.white.withValues(alpha: .28),
+        backgroundColor: Colors.white.withValues(alpha: .45),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
         padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 15),
       ),
@@ -179,57 +188,61 @@ ThemeData buildLightTheme() {
       ),
     ),
     listTileTheme: const ListTileThemeData(
-      iconColor: AppColors.muted,
+      iconColor: AppColors.graphiteSoft,
       textColor: AppColors.text,
       contentPadding: EdgeInsets.symmetric(horizontal: 14),
     ),
-    dividerTheme: const DividerThemeData(color: Color(0x2A74829A), thickness: 1),
+    dividerTheme: const DividerThemeData(color: Color(0x16787880), thickness: 1),
     sliderTheme: SliderThemeData(
-      activeTrackColor: AppColors.accent,
-      inactiveTrackColor: Colors.white.withValues(alpha: .50),
+      activeTrackColor: AppColors.graphite,
+      inactiveTrackColor: const Color(0x33787880),
       thumbColor: Colors.white,
-      overlayColor: AppColors.accent.withValues(alpha: .12),
+      overlayColor: AppColors.graphite.withValues(alpha: .08),
       trackHeight: 4,
       thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 7),
     ),
-    bottomSheetTheme: BottomSheetThemeData(
-      backgroundColor: Colors.white.withValues(alpha: .80),
+    bottomSheetTheme: const BottomSheetThemeData(
+      backgroundColor: Color(0xEAF7F7F9),
       surfaceTintColor: Colors.transparent,
       showDragHandle: false,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(32)),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(34)),
       ),
     ),
-    dialogTheme: DialogThemeData(
-      backgroundColor: Colors.white.withValues(alpha: .88),
+    dialogTheme: const DialogThemeData(
+      backgroundColor: Color(0xEFF9F9FA),
       surfaceTintColor: Colors.transparent,
+      elevation: 18,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.all(Radius.circular(30)),
+      ),
     ),
     snackBarTheme: const SnackBarThemeData(
-      backgroundColor: Color(0xE81F2937),
+      backgroundColor: Color(0xE81C1C1E),
       contentTextStyle: TextStyle(color: Colors.white),
       behavior: SnackBarBehavior.floating,
       elevation: 0,
     ),
     popupMenuTheme: PopupMenuThemeData(
-      color: Colors.white.withValues(alpha: .92),
+      color: Colors.white.withValues(alpha: .94),
       surfaceTintColor: Colors.transparent,
-      elevation: 8,
+      elevation: 12,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(25)),
       textStyle: const TextStyle(color: AppColors.text),
     ),
     tabBarTheme: const TabBarThemeData(
       labelColor: AppColors.accent,
       unselectedLabelColor: AppColors.muted,
       indicatorColor: AppColors.accent,
-      dividerColor: Color(0x2874829A),
+      dividerColor: Color(0x16787880),
       labelStyle: TextStyle(fontWeight: FontWeight.w800),
       unselectedLabelStyle: TextStyle(fontWeight: FontWeight.w700),
     ),
   );
 }
 
-/// A vivid background is essential for believable liquid glass. The colored
-/// shapes remain behind every translucent surface so blur and refraction are
-/// visible instead of looking like plain white cards.
+/// Neutral background with enough luminance variation for the backdrop blur to
+/// look like real glass, without coloured aurora blobs.
 class AppBackdrop extends StatelessWidget {
   const AppBackdrop({super.key, required this.child});
 
@@ -243,46 +256,46 @@ class AppBackdrop extends StatelessWidget {
         fit: StackFit.expand,
         children: [
           const Positioned(
-            top: -108,
-            right: -92,
-            child: _AuroraBlob(
-              width: 310,
-              height: 300,
-              colors: [Color(0x8A49C7FF), Color(0x667B77FF)],
-              angle: .35,
-            ),
-          ),
-          const Positioned(
-            left: -148,
-            top: 250,
-            child: _AuroraBlob(
+            top: -120,
+            right: -100,
+            child: _NeutralOrb(
               width: 330,
+              height: 320,
+              colors: [Color(0xFFFFFFFF), Color(0x80D9D9DE)],
+              angle: .22,
+            ),
+          ),
+          const Positioned(
+            left: -180,
+            top: 245,
+            child: _NeutralOrb(
+              width: 390,
+              height: 430,
+              colors: [Color(0xBFFFFFFF), Color(0x6AC7C7CC)],
+              angle: -.38,
+            ),
+          ),
+          const Positioned(
+            right: -150,
+            bottom: 35,
+            child: _NeutralOrb(
+              width: 360,
               height: 390,
-              colors: [Color(0x74FF91C8), Color(0x595AAFFF)],
-              angle: -.42,
+              colors: [Color(0xAFFFFFFF), Color(0x5AB8B8BE)],
+              angle: .48,
             ),
           ),
           const Positioned(
-            right: -130,
-            bottom: 90,
-            child: _AuroraBlob(
-              width: 310,
-              height: 350,
-              colors: [Color(0x7053E3CF), Color(0x664CB6FF)],
-              angle: .6,
+            left: 85,
+            bottom: -170,
+            child: _NeutralOrb(
+              width: 320,
+              height: 310,
+              colors: [Color(0xCFFFFFFF), Color(0x34AEAEB4)],
+              angle: -.16,
             ),
           ),
-          const Positioned(
-            left: 72,
-            bottom: -125,
-            child: _AuroraBlob(
-              width: 260,
-              height: 260,
-              colors: [Color(0x5DFFF0A8), Color(0x38FFFFFF)],
-              angle: -.2,
-            ),
-          ),
-          const Positioned.fill(child: _PrismaticVeil()),
+          const Positioned.fill(child: _OpticalVeil()),
           child,
         ],
       ),
@@ -290,8 +303,8 @@ class AppBackdrop extends StatelessWidget {
   }
 }
 
-/// A reusable liquid-glass surface. It combines strong backdrop blur, a low
-/// opacity material tint, a prismatic inner glow and asymmetric lens highlights.
+/// Reusable neutral liquid-glass surface with strong blur, a glossy upper rim,
+/// subtle lower refraction and a physically softer shadow.
 class GlassPanel extends StatelessWidget {
   const GlassPanel({
     super.key,
@@ -299,7 +312,7 @@ class GlassPanel extends StatelessWidget {
     this.padding,
     this.borderRadius = 24,
     this.blur = 30,
-    this.opacity = .30,
+    this.opacity = .42,
     this.onTap,
     this.shadow = true,
     this.tint,
@@ -319,7 +332,7 @@ class GlassPanel extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final radius = BorderRadius.circular(borderRadius);
-    final effectiveTint = tint ?? AppColors.accent;
+    final refractiveTint = tint ?? AppColors.graphite;
 
     Widget panel = Container(
       decoration: BoxDecoration(
@@ -328,23 +341,25 @@ class GlassPanel extends StatelessWidget {
         boxShadow: shadow
             ? [
                 BoxShadow(
-                  color: const Color(0xFF29486F).withValues(alpha: .14),
-                  blurRadius: 30,
-                  spreadRadius: -8,
-                  offset: const Offset(0, 18),
+                  color: const Color(0xFF3A3A3C).withValues(alpha: .11),
+                  blurRadius: 34,
+                  spreadRadius: -10,
+                  offset: const Offset(0, 19),
                 ),
                 BoxShadow(
-                  color: Colors.white.withValues(alpha: .50),
-                  blurRadius: 10,
-                  spreadRadius: -5,
+                  color: Colors.white.withValues(alpha: .74),
+                  blurRadius: 12,
+                  spreadRadius: -6,
                   offset: const Offset(-5, -5),
                 ),
               ]
             : null,
       ),
-      padding: const EdgeInsets.all(1.15),
+      padding: const EdgeInsets.all(1.1),
       child: ClipRRect(
-        borderRadius: BorderRadius.circular((borderRadius - 1.15).clamp(0, 999).toDouble()),
+        borderRadius: BorderRadius.circular(
+          (borderRadius - 1.1).clamp(0, 999).toDouble(),
+        ),
         child: BackdropFilter(
           filter: ImageFilter.blur(sigmaX: blur, sigmaY: blur),
           child: Stack(
@@ -353,13 +368,13 @@ class GlassPanel extends StatelessWidget {
                 child: DecoratedBox(
                   decoration: BoxDecoration(
                     gradient: LinearGradient(
-                      begin: const Alignment(-1.1, -1.15),
+                      begin: const Alignment(-1.0, -1.15),
                       end: const Alignment(1.0, 1.05),
                       colors: [
-                        Colors.white.withValues(alpha: opacity + .18),
-                        Colors.white.withValues(alpha: opacity * .56),
-                        effectiveTint.withValues(alpha: .075),
-                        Colors.white.withValues(alpha: opacity * .78),
+                        Colors.white.withValues(alpha: (opacity + .20).clamp(0, 1).toDouble()),
+                        Colors.white.withValues(alpha: opacity * .82),
+                        const Color(0xFFE5E5EA).withValues(alpha: opacity * .30),
+                        Colors.white.withValues(alpha: opacity * .68),
                       ],
                       stops: const [0, .34, .72, 1],
                     ),
@@ -368,45 +383,45 @@ class GlassPanel extends StatelessWidget {
               ),
               if (highlight) ...[
                 Positioned(
-                  left: -borderRadius * .35,
-                  top: -borderRadius * .72,
-                  width: borderRadius * 4.1,
-                  height: borderRadius * 2.35,
+                  left: -borderRadius * .42,
+                  top: -borderRadius * .84,
+                  width: borderRadius * 4.6,
+                  height: borderRadius * 2.7,
                   child: IgnorePointer(
                     child: DecoratedBox(
                       decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(borderRadius * 2),
+                        borderRadius: BorderRadius.circular(borderRadius * 2.2),
                         gradient: RadialGradient(
-                          center: const Alignment(-.25, -.35),
-                          radius: .82,
+                          center: const Alignment(-.28, -.42),
+                          radius: .86,
                           colors: [
-                            Colors.white.withValues(alpha: .58),
-                            Colors.white.withValues(alpha: .16),
+                            Colors.white.withValues(alpha: .78),
+                            Colors.white.withValues(alpha: .20),
                             Colors.transparent,
                           ],
-                          stops: const [0, .46, 1],
+                          stops: const [0, .48, 1],
                         ),
                       ),
                     ),
                   ),
                 ),
                 Positioned(
-                  right: -borderRadius * .90,
-                  bottom: -borderRadius * 1.22,
-                  width: borderRadius * 4.5,
-                  height: borderRadius * 3.15,
+                  right: -borderRadius * 1.0,
+                  bottom: -borderRadius * 1.24,
+                  width: borderRadius * 4.7,
+                  height: borderRadius * 3.25,
                   child: IgnorePointer(
                     child: DecoratedBox(
                       decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(borderRadius * 2),
+                        borderRadius: BorderRadius.circular(borderRadius * 2.2),
                         gradient: RadialGradient(
-                          center: const Alignment(.15, .10),
+                          center: const Alignment(.12, .10),
                           colors: [
-                            effectiveTint.withValues(alpha: .15),
-                            effectiveTint.withValues(alpha: .05),
+                            refractiveTint.withValues(alpha: .035),
+                            const Color(0xFF8E8E93).withValues(alpha: .028),
                             Colors.transparent,
                           ],
-                          stops: const [0, .48, 1],
+                          stops: const [0, .50, 1],
                         ),
                       ),
                     ),
@@ -417,10 +432,7 @@ class GlassPanel extends StatelessWidget {
               Positioned.fill(
                 child: IgnorePointer(
                   child: CustomPaint(
-                    painter: _LiquidLensPainter(
-                      radius: borderRadius - 1.2,
-                      tint: effectiveTint,
-                    ),
+                    painter: _LiquidLensPainter(radius: borderRadius - 1.2),
                   ),
                 ),
               ),
@@ -431,7 +443,11 @@ class GlassPanel extends StatelessWidget {
     );
 
     if (onTap != null) {
-      panel = GestureDetector(behavior: HitTestBehavior.opaque, onTap: onTap, child: panel);
+      panel = GestureDetector(
+        behavior: HitTestBehavior.opaque,
+        onTap: onTap,
+        child: panel,
+      );
     }
     return panel;
   }
@@ -458,28 +474,28 @@ class GlassIconButton extends StatelessWidget {
     Widget result = SizedBox.square(
       dimension: size,
       child: GlassPanel(
-        borderRadius: size * .37,
-        blur: 22,
-        opacity: selected ? .34 : .20,
+        borderRadius: size * .38,
+        blur: 25,
+        opacity: selected ? .62 : .46,
         shadow: false,
-        tint: selected ? AppColors.accent : AppColors.cyan,
+        tint: AppColors.graphite,
         onTap: onPressed,
         child: Center(
           child: Icon(
             icon,
-            size: size * .48,
-            color: selected ? AppColors.accent : AppColors.text,
+            size: size * .47,
+            color: selected ? AppColors.accent : AppColors.graphite,
           ),
         ),
       ),
     );
     if (tooltip != null) result = Tooltip(message: tooltip!, child: result);
-    return Opacity(opacity: onPressed == null ? .45 : 1, child: result);
+    return Opacity(opacity: onPressed == null ? .42 : 1, child: result);
   }
 }
 
-class _AuroraBlob extends StatelessWidget {
-  const _AuroraBlob({
+class _NeutralOrb extends StatelessWidget {
+  const _NeutralOrb({
     required this.width,
     required this.height,
     required this.colors,
@@ -496,7 +512,7 @@ class _AuroraBlob extends StatelessWidget {
     return Transform.rotate(
       angle: angle,
       child: ImageFiltered(
-        imageFilter: ImageFilter.blur(sigmaX: 42, sigmaY: 42),
+        imageFilter: ImageFilter.blur(sigmaX: 48, sigmaY: 48),
         child: Container(
           width: width,
           height: height,
@@ -514,47 +530,54 @@ class _AuroraBlob extends StatelessWidget {
   }
 }
 
-class _PrismaticVeil extends StatelessWidget {
-  const _PrismaticVeil();
+class _OpticalVeil extends StatelessWidget {
+  const _OpticalVeil();
 
   @override
   Widget build(BuildContext context) {
-    return IgnorePointer(
-      child: CustomPaint(painter: _PrismaticVeilPainter()),
-    );
+    return IgnorePointer(child: CustomPaint(painter: _OpticalVeilPainter()));
   }
 }
 
-class _PrismaticVeilPainter extends CustomPainter {
+class _OpticalVeilPainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
-    final paint = Paint()
+    final bright = Paint()
       ..style = PaintingStyle.stroke
       ..strokeWidth = 1
       ..shader = const LinearGradient(
-        colors: [Color(0x00FFFFFF), Color(0x38FFFFFF), Color(0x00FFFFFF)],
-      ).createShader(Rect.fromLTWH(0, 0, size.width, size.height));
+        colors: [Color(0x00FFFFFF), Color(0xA8FFFFFF), Color(0x00FFFFFF)],
+      ).createShader(Offset.zero & size);
 
-    final path = Path()
-      ..moveTo(-40, size.height * .22)
+    final dark = Paint()
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = .7
+      ..shader = const LinearGradient(
+        colors: [Color(0x00787880), Color(0x16787880), Color(0x00787880)],
+      ).createShader(Offset.zero & size);
+
+    final path1 = Path()
+      ..moveTo(-50, size.height * .20)
       ..cubicTo(
-        size.width * .20,
-        size.height * .12,
+        size.width * .22,
+        size.height * .10,
         size.width * .62,
-        size.height * .42,
-        size.width + 40,
-        size.height * .26,
-      )
-      ..moveTo(-50, size.height * .70)
+        size.height * .39,
+        size.width + 50,
+        size.height * .25,
+      );
+    final path2 = Path()
+      ..moveTo(-55, size.height * .72)
       ..cubicTo(
         size.width * .28,
-        size.height * .58,
-        size.width * .60,
+        size.height * .57,
+        size.width * .62,
         size.height * .88,
-        size.width + 45,
-        size.height * .68,
+        size.width + 52,
+        size.height * .66,
       );
-    canvas.drawPath(path, paint);
+    canvas.drawPath(path1, bright);
+    canvas.drawPath(path2, dark);
   }
 
   @override
@@ -562,33 +585,35 @@ class _PrismaticVeilPainter extends CustomPainter {
 }
 
 class _LiquidLensPainter extends CustomPainter {
-  const _LiquidLensPainter({required this.radius, required this.tint});
+  const _LiquidLensPainter({required this.radius});
 
   final double radius;
-  final Color tint;
 
   @override
   void paint(Canvas canvas, Size size) {
     final rect = Offset.zero & size;
-    final rrect = RRect.fromRectAndRadius(rect.deflate(.65), Radius.circular(radius));
+    final rrect = RRect.fromRectAndRadius(
+      rect.deflate(.65),
+      Radius.circular(radius),
+    );
 
-    final topLens = Paint()
+    final rim = Paint()
       ..style = PaintingStyle.stroke
-      ..strokeWidth = 1.2
-      ..shader = LinearGradient(
+      ..strokeWidth = 1.15
+      ..shader = const LinearGradient(
         begin: Alignment.topLeft,
         end: Alignment.bottomRight,
         colors: [
-          Colors.white.withValues(alpha: .94),
-          Colors.white.withValues(alpha: .22),
-          tint.withValues(alpha: .10),
-          Colors.white.withValues(alpha: .48),
+          Color(0xFFFFFFFF),
+          Color(0x8FFFFFFF),
+          Color(0x28FFFFFF),
+          Color(0xA8FFFFFF),
         ],
-        stops: const [0, .35, .72, 1],
+        stops: [0, .34, .72, 1],
       ).createShader(rect);
-    canvas.drawRRect(rrect, topLens);
+    canvas.drawRRect(rrect, rim);
 
-    final innerRect = rect.deflate(2.2);
+    final innerRect = rect.deflate(2.3);
     if (innerRect.width <= 0 || innerRect.height <= 0) return;
     final inner = RRect.fromRectAndRadius(
       innerRect,
@@ -597,21 +622,17 @@ class _LiquidLensPainter extends CustomPainter {
     final innerPaint = Paint()
       ..style = PaintingStyle.stroke
       ..strokeWidth = .7
-      ..shader = LinearGradient(
+      ..shader = const LinearGradient(
         begin: Alignment.topCenter,
         end: Alignment.bottomCenter,
-        colors: [
-          Colors.white.withValues(alpha: .52),
-          Colors.transparent,
-          tint.withValues(alpha: .13),
-        ],
-        stops: const [0, .58, 1],
+        colors: [Color(0xAFFFFFFF), Color(0x00FFFFFF), Color(0x17787880)],
+        stops: [0, .58, 1],
       ).createShader(innerRect);
     canvas.drawRRect(inner, innerPaint);
   }
 
   @override
   bool shouldRepaint(covariant _LiquidLensPainter oldDelegate) {
-    return oldDelegate.radius != radius || oldDelegate.tint != tint;
+    return oldDelegate.radius != radius;
   }
 }

@@ -137,19 +137,21 @@ class _HomeShellState extends State<HomeShell> {
       bottomNavigationBar: SafeArea(
         top: false,
         minimum: const EdgeInsets.fromLTRB(9, 0, 9, 7),
-        child: GlassPanel(
-          borderRadius: 32,
-          blur: 38,
-          opacity: .17,
-          tint: AppColors.violet,
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              MiniPlayer(
-                libraryService: widget.libraryService,
-                playerController: widget.playerController,
-              ),
-              NavigationBar(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            MiniPlayer(
+              libraryService: widget.libraryService,
+              playerController: widget.playerController,
+            ),
+            const SizedBox(height: 7),
+            GlassPanel(
+              borderRadius: 35,
+              blur: 34,
+              opacity: .56,
+              tint: AppColors.graphite,
+              padding: const EdgeInsets.symmetric(horizontal: 5),
+              child: NavigationBar(
                 selectedIndex: index,
                 onDestinationSelected: navigate,
                 destinations: const [
@@ -175,8 +177,8 @@ class _HomeShellState extends State<HomeShell> {
                   ),
                 ],
               ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );

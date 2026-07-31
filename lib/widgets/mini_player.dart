@@ -32,16 +32,16 @@ class MiniPlayer extends StatelessWidget {
                 .clamp(0.0, 1.0);
 
         return Padding(
-          padding: const EdgeInsets.fromLTRB(7, 7, 7, 0),
+          padding: const EdgeInsets.symmetric(horizontal: 3),
           child: GlassPanel(
-            borderRadius: 23,
-            blur: 34,
-            opacity: .12,
-            tint: AppColors.cyan,
-            shadow: false,
+            borderRadius: 25,
+            blur: 32,
+            opacity: .56,
+            tint: AppColors.graphite,
+            shadow: true,
             onTap: () => _openNowPlaying(context),
             child: SizedBox(
-              height: 67,
+              height: 69,
               child: Stack(
                 children: [
                   Positioned(
@@ -53,9 +53,9 @@ class MiniPlayer extends StatelessWidget {
                       child: LinearProgressIndicator(
                         value: progress,
                         minHeight: 2.5,
-                        backgroundColor: Colors.white.withValues(alpha: .38),
+                        backgroundColor: const Color(0x23787880),
                         valueColor: const AlwaysStoppedAnimation(
-                          AppColors.accent,
+                          AppColors.graphite,
                         ),
                       ),
                     ),
@@ -184,21 +184,38 @@ class _LiquidControlButton extends StatelessWidget {
       message: tooltip,
       child: SizedBox.square(
         dimension: primary ? 42 : 38,
-        child: GlassPanel(
-          borderRadius: primary ? 15 : 14,
-          blur: 18,
-          opacity: primary ? .34 : .10,
-          tint: primary ? AppColors.accent : AppColors.cyan,
-          shadow: false,
-          onTap: onPressed,
-          child: Center(
-            child: Icon(
-              icon,
-              size: primary ? 25 : 23,
-              color: primary ? AppColors.accent : AppColors.text,
-            ),
-          ),
-        ),
+        child: primary
+            ? GestureDetector(
+                onTap: onPressed,
+                child: DecoratedBox(
+                  decoration: BoxDecoration(
+                    color: AppColors.graphite.withValues(alpha: .94),
+                    borderRadius: BorderRadius.circular(15),
+                    border: Border.all(color: Colors.white.withValues(alpha: .72)),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withValues(alpha: .16),
+                        blurRadius: 12,
+                        offset: const Offset(0, 6),
+                      ),
+                    ],
+                  ),
+                  child: Center(
+                    child: Icon(icon, size: 25, color: Colors.white),
+                  ),
+                ),
+              )
+            : GlassPanel(
+                borderRadius: 14,
+                blur: 18,
+                opacity: .50,
+                tint: AppColors.graphite,
+                shadow: false,
+                onTap: onPressed,
+                child: Center(
+                  child: Icon(icon, size: 23, color: AppColors.graphite),
+                ),
+              ),
       ),
     );
   }

@@ -36,9 +36,10 @@ class SettingsScreen extends StatelessWidget {
                       Text(
                         'Tùy chỉnh',
                         style: TextStyle(
-                          color: AppColors.accent,
-                          fontSize: 13,
+                          color: AppColors.muted,
+                          fontSize: 12,
                           fontWeight: FontWeight.w800,
+                          letterSpacing: 1.0,
                         ),
                       ),
                       SizedBox(height: 3),
@@ -135,8 +136,8 @@ class SettingsScreen extends StatelessWidget {
                   children: [
                     _SettingsTile(
                       icon: Icons.blur_on_rounded,
-                      title: 'Giao diện kính trong suốt',
-                      subtitle: 'Sáng, nhẹ và tối ưu cho iPhone',
+                      title: 'Liquid Glass sáng',
+                      subtitle: 'Kính trắng trung tính, đồng bộ phong cách iOS',
                       trailing: Icon(
                         Icons.check_circle_rounded,
                         color: AppColors.accent,
@@ -174,7 +175,7 @@ class SettingsScreen extends StatelessWidget {
                     _SettingsTile(
                       icon: Icons.music_note_rounded,
                       title: 'Offline Music',
-                      subtitle: 'Phiên bản 4.0.0 • Flutter',
+                      subtitle: 'Phiên bản 6.0.0 • Flutter',
                     ),
                     _Divider(),
                     Padding(
@@ -290,7 +291,7 @@ class _SettingsGroup extends StatelessWidget {
           padding: EdgeInsets.zero,
           borderRadius: 23,
           blur: 16,
-          opacity: .22,
+          opacity: .58,
           child: Column(children: children),
         ),
       ],
@@ -325,10 +326,10 @@ class _SettingsTile extends StatelessWidget {
         width: 38,
         height: 38,
         decoration: BoxDecoration(
-          color: (iconColor ?? AppColors.accent).withValues(alpha: .11),
+          color: (iconColor ?? AppColors.graphite).withValues(alpha: .08),
           borderRadius: BorderRadius.circular(12),
         ),
-        child: Icon(icon, color: iconColor ?? AppColors.accent, size: 21),
+        child: Icon(icon, color: iconColor ?? AppColors.graphite, size: 21),
       ),
       title: Text(
         title,
@@ -380,12 +381,12 @@ class _VolumeTile extends StatelessWidget {
             width: 38,
             height: 38,
             decoration: BoxDecoration(
-              color: AppColors.accentDark,
+              color: const Color(0x19787880),
               borderRadius: BorderRadius.circular(12),
             ),
             child: const Icon(
               Icons.volume_up_outlined,
-              color: AppColors.accent,
+              color: AppColors.graphite,
               size: 21,
             ),
           ),

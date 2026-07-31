@@ -46,7 +46,7 @@ Future<void> showImportMusicSheet(
             padding: const EdgeInsets.all(16),
             borderRadius: 20,
             blur: 12,
-            opacity: .24,
+            opacity: .62,
             onTap: () => Navigator.pop(context, true),
             child: const Row(
               children: [
@@ -83,7 +83,7 @@ Future<void> showImportMusicSheet(
           const Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Icon(Icons.shield_outlined, color: AppColors.accent, size: 19),
+              Icon(Icons.shield_outlined, color: AppColors.graphite, size: 19),
               SizedBox(width: 9),
               Expanded(
                 child: Text(
@@ -133,7 +133,7 @@ class _ImportIcon extends StatelessWidget {
         borderRadius: BorderRadius.circular(16),
         boxShadow: const [
           BoxShadow(
-            color: Color(0x2A0A84FF),
+            color: Color(0x241C1C1E),
             blurRadius: 16,
             offset: Offset(0, 7),
           ),

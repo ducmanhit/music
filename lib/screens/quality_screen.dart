@@ -42,9 +42,10 @@ class QualityScreen extends StatelessWidget {
                 const Text(
                   'Âm thanh',
                   style: TextStyle(
-                    color: AppColors.accent,
-                    fontSize: 13,
+                    color: AppColors.muted,
+                    fontSize: 12,
                     fontWeight: FontWeight.w800,
+                    letterSpacing: 1.0,
                   ),
                 ),
                 const SizedBox(height: 3),
@@ -61,7 +62,7 @@ class QualityScreen extends StatelessWidget {
                   padding: const EdgeInsets.all(20),
                   borderRadius: 26,
                   blur: 18,
-                  opacity: .24,
+                  opacity: .58,
                   child: Row(
                     children: [
                       Container(
@@ -232,7 +233,7 @@ class _InfoGroup extends StatelessWidget {
           padding: EdgeInsets.zero,
           borderRadius: 23,
           blur: 16,
-          opacity: .22,
+          opacity: .58,
           child: Column(children: children),
         ),
       ],
@@ -261,10 +262,10 @@ class _SignalRow extends StatelessWidget {
             width: 36,
             height: 36,
             decoration: BoxDecoration(
-              color: AppColors.accentDark,
+              color: const Color(0x19787880),
               borderRadius: BorderRadius.circular(11),
             ),
-            child: Icon(icon, color: AppColors.accent, size: 19),
+            child: Icon(icon, color: AppColors.graphite, size: 19),
           ),
           const SizedBox(width: 12),
           Expanded(child: Text(label)),

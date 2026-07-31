@@ -73,8 +73,8 @@ class NowPlayingScreen extends StatelessWidget {
                             child: GlassPanel(
                               borderRadius: 36,
                               blur: 26,
-                              opacity: .10,
-                              tint: AppColors.pink,
+                              opacity: .46,
+                              tint: AppColors.graphite,
                               padding: const EdgeInsets.all(9),
                               child: Hero(
                                 tag: 'now-playing-art-${song.id}',
@@ -106,8 +106,8 @@ class NowPlayingScreen extends StatelessWidget {
                             ),
                             borderRadius: 32,
                             blur: 38,
-                            opacity: .16,
-                            tint: AppColors.violet,
+                            opacity: .58,
+                            tint: AppColors.graphite,
                             child: Column(
                               children: [
                                 Text(
@@ -495,19 +495,34 @@ class _PlaybackControls extends StatelessWidget {
         ),
         SizedBox.square(
           dimension: compact ? 66 : 74,
-          child: GlassPanel(
-            borderRadius: 99,
-            blur: 30,
-            opacity: .22,
-            tint: AppColors.accent,
+          child: GestureDetector(
             onTap: playerController.playOrPause,
-            child: Center(
-              child: Icon(
-                playerController.player.playing
-                    ? Icons.pause_rounded
-                    : Icons.play_arrow_rounded,
-                size: compact ? 38 : 43,
-                color: AppColors.accent,
+            child: DecoratedBox(
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                color: AppColors.graphite.withValues(alpha: .96),
+                border: Border.all(color: Colors.white.withValues(alpha: .82)),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withValues(alpha: .20),
+                    blurRadius: 24,
+                    offset: const Offset(0, 12),
+                  ),
+                  BoxShadow(
+                    color: Colors.white.withValues(alpha: .55),
+                    blurRadius: 8,
+                    offset: const Offset(-3, -3),
+                  ),
+                ],
+              ),
+              child: Center(
+                child: Icon(
+                  playerController.player.playing
+                      ? Icons.pause_rounded
+                      : Icons.play_arrow_rounded,
+                  size: compact ? 38 : 43,
+                  color: Colors.white,
+                ),
               ),
             ),
           ),

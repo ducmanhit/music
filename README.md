@@ -1,4 +1,4 @@
-# Offline Music V5 – Liquid Glass
+# Offline Music V6 – Liquid Glass
 
 Trình phát nhạc offline cho iPhone được xây dựng bằng Flutter, tối ưu để đóng gói IPA chưa ký bằng GitHub Actions và ký lại bằng ESign.
 
@@ -29,3 +29,13 @@ Vào **Actions → Build iOS unsigned IPA → Run workflow**. Khi hoàn tất, t
 ## Lưu ý
 
 Ứng dụng chỉ phát file âm thanh do người dùng tự nhập. Tính năng tìm ảnh bìa online chỉ tải hình ảnh, không tải nhạc từ các dịch vụ phát trực tuyến.
+
+
+## Giao diện V6
+
+- Liquid Glass sáng, trung tính theo phong cách iOS.
+- Không dùng gradient xanh tím hoặc hiệu ứng neon.
+- Thanh điều hướng dạng viên thuốc kính nổi.
+- Mini Player tách riêng, kính trắng và nút phát màu graphite.
+- Màn hình đang phát giữ bố cục cố định, không trượt xuống.
+- Popup, cài đặt, thư viện và nút điều khiển dùng cùng một hệ kính.

@@ -1,0 +1,17 @@
+OFFLINE MUSIC V6 — PREMIUM iOS LIQUID GLASS
+
+- Gỡ hoàn toàn gradient xanh tím và ánh sáng neon.
+- Nền trắng/xám trung tính kiểu iOS grouped background.
+- Kính blur mạnh, viền phản chiếu trắng và bóng mềm.
+- Thanh điều hướng dạng viên thuốc kính nổi.
+- Mini Player tách riêng, đồng bộ kính trắng.
+- Nút phát trung tâm graphite, chữ và icon rõ hơn.
+- Màn hình đang phát giữ bố cục cố định, không cuộn/trượt xuống.
+- Popup, sheet, cài đặt, thư viện và chất lượng dùng chung một hệ thiết kế.
+- Nâng phiên bản lên 6.0.0+6.
+
+CÁCH DÙNG
+1. Chép toàn bộ nội dung trong thư mục này vào thư mục repo music.
+2. Chọn Replace files in the destination.
+3. GitHub Desktop: Commit to main -> Push origin.
+4. GitHub Actions sẽ build IPA chưa ký.

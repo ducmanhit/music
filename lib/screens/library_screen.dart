@@ -77,9 +77,10 @@ class _LibraryScreenState extends State<LibraryScreen> {
                               Text(
                                 'Bộ sưu tập',
                                 style: TextStyle(
-                                  color: AppColors.accent,
-                                  fontSize: 13,
+                                  color: AppColors.muted,
+                                  fontSize: 12,
                                   fontWeight: FontWeight.w800,
+                                  letterSpacing: 1.0,
                                 ),
                               ),
                               SizedBox(height: 3),
@@ -390,8 +391,8 @@ class _PlaylistTile extends StatelessWidget {
           ? Container(
               width: 56,
               height: 56,
-              decoration: BoxDecoration(color: AppColors.accentDark, borderRadius: BorderRadius.circular(12)),
-              child: const Icon(Icons.queue_music_rounded, color: AppColors.accent),
+              decoration: BoxDecoration(color: const Color(0x19787880), borderRadius: BorderRadius.circular(12)),
+              child: const Icon(Icons.queue_music_rounded, color: AppColors.graphite),
             )
           : SongArtwork(song: songs.first, size: 56, borderRadius: 12),
       title: Text(playlist.name, style: const TextStyle(fontWeight: FontWeight.w800)),

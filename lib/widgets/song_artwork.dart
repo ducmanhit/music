@@ -64,16 +64,13 @@ class _Placeholder extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final seed = song.title.codeUnits.fold<int>(0, (sum, value) => sum + value);
-    final hue = (seed % 360).toDouble();
+    final light = 0xFF222224 + ((seed % 18) << 16) + ((seed % 18) << 8) + (seed % 18);
     return DecoratedBox(
       decoration: BoxDecoration(
         gradient: LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
-          colors: [
-            HSLColor.fromAHSL(1, hue, .58, .32).toColor(),
-            HSLColor.fromAHSL(1, (hue + 58) % 360, .62, .12).toColor(),
-          ],
+          colors: [Color(light), const Color(0xFF09090A)],
         ),
       ),
       child: Stack(
@@ -87,7 +84,7 @@ class _Placeholder extends StatelessWidget {
               height: 90,
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
-                color: Colors.white.withValues(alpha: .08),
+                color: Colors.white.withValues(alpha: .07),
               ),
             ),
           ),
@@ -95,7 +92,8 @@ class _Placeholder extends StatelessWidget {
             child: DecoratedBox(
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
-                color: Colors.white.withValues(alpha: .22),
+                color: Colors.white.withValues(alpha: .18),
+                border: Border.all(color: Colors.white.withValues(alpha: .22)),
               ),
               child: const Padding(
                 padding: EdgeInsets.all(12),
