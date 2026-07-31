@@ -175,22 +175,22 @@ class _LiquidTabBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GlassPanel(
-      borderRadius: 35,
-      blur: 25,
-      opacity: .22,
+      borderRadius: 34,
+      blur: 38,
+      opacity: .075,
       shadow: true,
       highlight: true,
       pressable: false,
-      padding: const EdgeInsets.all(5),
+      padding: const EdgeInsets.all(4),
       child: SizedBox(
-        height: 62,
+        height: 61,
         child: LayoutBuilder(
           builder: (context, constraints) {
             final itemWidth = constraints.maxWidth / items.length;
             return Stack(
               children: [
                 AnimatedPositioned(
-                  duration: const Duration(milliseconds: 360),
+                  duration: const Duration(milliseconds: 420),
                   curve: Curves.easeOutCubic,
                   left: itemWidth * index + 2,
                   top: 1,
@@ -198,9 +198,9 @@ class _LiquidTabBar extends StatelessWidget {
                   height: 55,
                   child: const LiquidLens(
                     borderRadius: 28,
-                    blur: 18,
-                    opacity: .39,
-                    shadow: true,
+                    blur: 34,
+                    opacity: .19,
+                    shadow: false,
                     child: SizedBox.expand(),
                   ),
                 ),
@@ -260,7 +260,7 @@ class _LiquidTabItem extends StatelessWidget {
             AnimatedScale(
               duration: const Duration(milliseconds: 260),
               curve: Curves.easeOutBack,
-              scale: selected ? 1.06 : 1,
+              scale: selected ? 1.055 : 1,
               child: Icon(
                 icon,
                 size: 22,

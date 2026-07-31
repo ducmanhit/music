@@ -95,8 +95,8 @@ class _HomeScreenState extends State<HomeScreen> {
                     padding: const EdgeInsets.fromLTRB(22, 20, 22, 18),
                     child: GlassPanel(
                       borderRadius: 24,
-                      blur: 24,
-                      opacity: .18,
+                      blur: 36,
+                      opacity: .075,
                       shadow: false,
                       child: TextField(
                         onChanged: (value) => setState(() => query = value),
@@ -272,8 +272,8 @@ class _HomeScreenState extends State<HomeScreen> {
         padding: const EdgeInsets.fromLTRB(8, 0, 8, 8),
         child: GlassPanel(
           borderRadius: 36,
-          blur: 32,
-          opacity: .62,
+          blur: 44,
+          opacity: .16,
           child: SafeArea(
             top: false,
             child: Padding(
@@ -337,8 +337,9 @@ class _LibrarySummary extends StatelessWidget {
   Widget build(BuildContext context) {
     return GlassPanel(
       borderRadius: 31,
-      blur: 30,
-      opacity: .20,
+      blur: 36,
+      opacity: .095,
+      shadow: false,
       onTap: onTap,
       padding: const EdgeInsets.fromLTRB(19, 18, 17, 18),
       child: Row(
@@ -347,19 +348,15 @@ class _LibrarySummary extends StatelessWidget {
             width: 58,
             height: 58,
             decoration: BoxDecoration(
-              color: AppColors.graphite,
+              color: Colors.white.withValues(alpha: .42),
               borderRadius: BorderRadius.circular(21),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withValues(alpha: .14),
-                  blurRadius: 18,
-                  offset: const Offset(0, 9),
-                ),
-              ],
+              border: Border.all(
+                color: Colors.white.withValues(alpha: .88),
+              ),
             ),
             child: const Icon(
               CupertinoIcons.music_note_list,
-              color: Colors.white,
+              color: AppColors.accent,
               size: 27,
             ),
           ),
@@ -409,8 +406,8 @@ class _QuickAction extends StatelessWidget {
   Widget build(BuildContext context) {
     return GlassPanel(
       borderRadius: 24,
-      blur: 24,
-      opacity: .17,
+      blur: 34,
+      opacity: .07,
       shadow: false,
       onTap: onTap,
       padding: const EdgeInsets.symmetric(vertical: 14),
@@ -420,9 +417,9 @@ class _QuickAction extends StatelessWidget {
             width: 39,
             height: 39,
             decoration: BoxDecoration(
-              color: Colors.white.withValues(alpha: .38),
+              color: Colors.white.withValues(alpha: .28),
               borderRadius: BorderRadius.circular(15),
-              border: Border.all(color: Colors.white.withValues(alpha: .34)),
+              border: Border.all(color: Colors.white.withValues(alpha: .80)),
             ),
             child: Icon(icon, size: 20, color: AppColors.graphite),
           ),
@@ -574,8 +571,9 @@ class _EmptyHome extends StatelessWidget {
       padding: const EdgeInsets.fromLTRB(22, 35, 22, 0),
       child: GlassPanel(
         borderRadius: 32,
-        blur: 30,
-        opacity: .18,
+        blur: 38,
+        opacity: .08,
+        shadow: false,
         padding: const EdgeInsets.fromLTRB(24, 36, 24, 34),
         child: Column(
           children: [
@@ -583,9 +581,9 @@ class _EmptyHome extends StatelessWidget {
               width: 68,
               height: 68,
               decoration: BoxDecoration(
-                color: Colors.white.withValues(alpha: .34),
-                borderRadius: BorderRadius.circular(999),
-                border: Border.all(color: Colors.white.withValues(alpha: .40)),
+                color: Colors.white.withValues(alpha: .30),
+                borderRadius: BorderRadius.circular(24),
+                border: Border.all(color: Colors.white.withValues(alpha: .82)),
               ),
               child: const Icon(
                 CupertinoIcons.music_note_2,

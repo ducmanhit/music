@@ -104,67 +104,112 @@ Future<void> showSongActions(
   final rootContext = context;
   await showModalBottomSheet<void>(
     context: context,
-    builder: (sheetContext) => SafeArea(
-      child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 10),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            ListTile(
-              leading: Icon(song.isFavorite ? Icons.favorite_rounded : Icons.favorite_border_rounded),
-              title: Text(song.isFavorite ? 'Bỏ yêu thích' : 'Thêm vào yêu thích'),
-              onTap: () async {
-                Navigator.pop(sheetContext);
-                await libraryService.toggleFavorite(song.id);
-              },
-            ),
-            ListTile(
-              leading: const Icon(Icons.image_outlined),
-              title: const Text('Sửa ảnh bìa & thông tin'),
-              onTap: () {
-                Navigator.pop(sheetContext);
-                Navigator.of(rootContext).push(
-                  MaterialPageRoute<void>(
-                    builder: (_) => CoverEditorScreen(
-                      songId: song.id,
+    backgroundColor: Colors.transparent,
+    builder: (sheetContext) => Padding(
+      padding: const EdgeInsets.fromLTRB(8, 0, 8, 8),
+      child: GlassPanel(
+        borderRadius: 34,
+        blur: 44,
+        opacity: .16,
+        shadow: true,
+        pressable: false,
+        child: SafeArea(
+          top: false,
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(10, 10, 10, 14),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Container(
+                  width: 42,
+                  height: 5,
+                  margin: const EdgeInsets.only(bottom: 10),
+                  decoration: BoxDecoration(
+                    color: const Color(0x443C3C43),
+                    borderRadius: BorderRadius.circular(99),
+                  ),
+                ),
+                ListTile(
+                  leading: Icon(
+                    song.isFavorite
+                        ? Icons.favorite_rounded
+                        : Icons.favorite_border_rounded,
+                  ),
+                  title: Text(
+                    song.isFavorite ? 'Bỏ yêu thích' : 'Thêm vào yêu thích',
+                  ),
+                  onTap: () async {
+                    Navigator.pop(sheetContext);
+                    await libraryService.toggleFavorite(song.id);
+                  },
+                ),
+                ListTile(
+                  leading: const Icon(Icons.image_outlined),
+                  title: const Text('Sửa ảnh bìa & thông tin'),
+                  onTap: () {
+                    Navigator.pop(sheetContext);
+                    Navigator.of(rootContext).push(
+                      MaterialPageRoute<void>(
+                        builder: (_) => CoverEditorScreen(
+                          songId: song.id,
+                          libraryService: libraryService,
+                          playerController: playerController,
+                        ),
+                      ),
+                    );
+                  },
+                ),
+                ListTile(
+                  leading: const Icon(Icons.playlist_add_rounded),
+                  title: const Text('Thêm vào playlist'),
+                  onTap: () {
+                    Navigator.pop(sheetContext);
+                    showPlaylistPicker(
+                      rootContext,
+                      song: song,
                       libraryService: libraryService,
-                      playerController: playerController,
-                    ),
+                    );
+                  },
+                ),
+                ListTile(
+                  leading: const Icon(
+                    Icons.delete_outline_rounded,
+                    color: AppColors.danger,
                   ),
-                );
-              },
-            ),
-            ListTile(
-              leading: const Icon(Icons.playlist_add_rounded),
-              title: const Text('Thêm vào playlist'),
-              onTap: () {
-                Navigator.pop(sheetContext);
-                showPlaylistPicker(rootContext, song: song, libraryService: libraryService);
-              },
-            ),
-            ListTile(
-              leading: const Icon(Icons.delete_outline_rounded, color: AppColors.danger),
-              title: const Text('Xóa khỏi ứng dụng', style: TextStyle(color: AppColors.danger)),
-              onTap: () async {
-                Navigator.pop(sheetContext);
-                final confirmed = await showDialog<bool>(
-                  context: rootContext,
-                  builder: (dialogContext) => AlertDialog(
-                    title: const Text('Xóa bài hát?'),
-                    content: Text('File “${song.title}” sẽ bị xóa khỏi bộ nhớ ứng dụng.'),
-                    actions: [
-                      TextButton(onPressed: () => Navigator.pop(dialogContext, false), child: const Text('Hủy')),
-                      FilledButton(onPressed: () => Navigator.pop(dialogContext, true), child: const Text('Xóa')),
-                    ],
+                  title: const Text(
+                    'Xóa khỏi ứng dụng',
+                    style: TextStyle(color: AppColors.danger),
                   ),
-                );
-                if (confirmed == true) {
-                  await libraryService.deleteSong(song.id);
-                  await playerController.refreshQueueMetadata();
-                }
-              },
+                  onTap: () async {
+                    Navigator.pop(sheetContext);
+                    final confirmed = await showDialog<bool>(
+                      context: rootContext,
+                      builder: (dialogContext) => AlertDialog(
+                        title: const Text('Xóa bài hát?'),
+                        content: Text(
+                          'File “${song.title}” sẽ bị xóa khỏi bộ nhớ ứng dụng.',
+                        ),
+                        actions: [
+                          TextButton(
+                            onPressed: () => Navigator.pop(dialogContext, false),
+                            child: const Text('Hủy'),
+                          ),
+                          FilledButton(
+                            onPressed: () => Navigator.pop(dialogContext, true),
+                            child: const Text('Xóa'),
+                          ),
+                        ],
+                      ),
+                    );
+                    if (confirmed == true) {
+                      await libraryService.deleteSong(song.id);
+                      await playerController.refreshQueueMetadata();
+                    }
+                  },
+                ),
+              ],
             ),
-          ],
+          ),
         ),
       ),
     ),
@@ -178,30 +223,58 @@ Future<void> showPlaylistPicker(
 }) async {
   await showModalBottomSheet<void>(
     context: context,
-    builder: (context) => AnimatedBuilder(
-      animation: libraryService,
-      builder: (context, _) => SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.fromLTRB(12, 12, 12, 20),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              const ListTile(
-                title: Text('Chọn playlist', style: TextStyle(fontSize: 22, fontWeight: FontWeight.w900)),
+    backgroundColor: Colors.transparent,
+    builder: (context) => Padding(
+      padding: const EdgeInsets.fromLTRB(8, 0, 8, 8),
+      child: GlassPanel(
+        borderRadius: 34,
+        blur: 44,
+        opacity: .16,
+        shadow: true,
+        pressable: false,
+        child: AnimatedBuilder(
+          animation: libraryService,
+          builder: (context, _) => SafeArea(
+            top: false,
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(12, 12, 12, 20),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Container(
+                    width: 42,
+                    height: 5,
+                    decoration: BoxDecoration(
+                      color: const Color(0x443C3C43),
+                      borderRadius: BorderRadius.circular(99),
+                    ),
+                  ),
+                  const ListTile(
+                    title: Text(
+                      'Chọn playlist',
+                      style: TextStyle(fontSize: 22, fontWeight: FontWeight.w800),
+                    ),
+                  ),
+                  if (libraryService.playlists.isEmpty)
+                    const Padding(
+                      padding: EdgeInsets.all(24),
+                      child: Text(
+                        'Chưa có playlist. Hãy tạo playlist trong Thư viện.',
+                      ),
+                    ),
+                  for (final playlist in libraryService.playlists)
+                    CheckboxListTile(
+                      value: playlist.songIds.contains(song.id),
+                      title: Text(playlist.name),
+                      subtitle: Text('${playlist.songIds.length} bài hát'),
+                      onChanged: (_) => libraryService.toggleSongInPlaylist(
+                        playlist.id,
+                        song.id,
+                      ),
+                    ),
+                ],
               ),
-              if (libraryService.playlists.isEmpty)
-                const Padding(
-                  padding: EdgeInsets.all(24),
-                  child: Text('Chưa có playlist. Hãy tạo playlist trong Thư viện.'),
-                ),
-              for (final playlist in libraryService.playlists)
-                CheckboxListTile(
-                  value: playlist.songIds.contains(song.id),
-                  title: Text(playlist.name),
-                  subtitle: Text('${playlist.songIds.length} bài hát'),
-                  onChanged: (_) => libraryService.toggleSongInPlaylist(playlist.id, song.id),
-                ),
-            ],
+            ),
           ),
         ),
       ),

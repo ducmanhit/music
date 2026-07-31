@@ -149,7 +149,7 @@ class SettingsScreen extends StatelessWidget {
                     _SettingsTile(
                       icon: CupertinoIcons.music_note_2,
                       title: 'Offline Music',
-                      subtitle: 'Phiên bản 8.0.0',
+                      subtitle: 'Phiên bản 9.0.0',
                     ),
                     _GroupDivider(),
                     Padding(
@@ -327,9 +327,9 @@ class _SettingsGroup extends StatelessWidget {
         GlassPanel(
           padding: EdgeInsets.zero,
           borderRadius: 28,
-          blur: 28,
-          opacity: .19,
-          shadow: true,
+          blur: 38,
+          opacity: .075,
+          shadow: false,
           child: Column(children: children),
         ),
       ],
@@ -361,20 +361,12 @@ class _SettingsTile extends StatelessWidget {
     return ListTile(
       minVerticalPadding: 11,
       leading: Container(
-        width: 42,
-        height: 42,
+        width: 40,
+        height: 40,
         decoration: BoxDecoration(
-          color: Colors.white.withValues(alpha: .30),
-          borderRadius: BorderRadius.circular(999),
-          border: Border.all(color: Colors.white.withValues(alpha: .34)),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.white.withValues(alpha: .18),
-              blurRadius: 10,
-              spreadRadius: -4,
-              offset: const Offset(-2, -2),
-            ),
-          ],
+          color: Colors.white.withValues(alpha: .24),
+          borderRadius: BorderRadius.circular(14),
+          border: Border.all(color: Colors.white.withValues(alpha: .82)),
         ),
         child: Icon(icon, color: iconColor ?? AppColors.graphite, size: 21),
       ),
@@ -432,20 +424,12 @@ class _VolumeTile extends StatelessWidget {
       child: Row(
         children: [
           Container(
-            width: 42,
-            height: 42,
+            width: 40,
+            height: 40,
             decoration: BoxDecoration(
-              color: Colors.white.withValues(alpha: .30),
-              borderRadius: BorderRadius.circular(999),
-              border: Border.all(color: Colors.white.withValues(alpha: .34)),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.white.withValues(alpha: .18),
-                  blurRadius: 10,
-                  spreadRadius: -4,
-                  offset: const Offset(-2, -2),
-                ),
-              ],
+              color: Colors.white.withValues(alpha: .24),
+              borderRadius: BorderRadius.circular(14),
+              border: Border.all(color: Colors.white.withValues(alpha: .82)),
             ),
             child: const Icon(
               CupertinoIcons.speaker_2,
@@ -502,8 +486,9 @@ class _LiquidSheet extends StatelessWidget {
       padding: const EdgeInsets.fromLTRB(8, 0, 8, 8),
       child: GlassPanel(
         borderRadius: 36,
-        blur: 32,
-        opacity: .62,
+        blur: 42,
+        opacity: .16,
+        shadow: true,
         child: child,
       ),
     );
@@ -516,7 +501,7 @@ class _SheetHandle extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      width: 46,
+      width: 42,
       height: 5,
       decoration: BoxDecoration(
         color: const Color(0x553C3C43),

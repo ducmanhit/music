@@ -14,8 +14,8 @@ Future<void> showImportMusicSheet(
     backgroundColor: Colors.transparent,
     builder: (context) => GlassPanel(
       borderRadius: 34,
-      blur: 34,
-      opacity: .52,
+      blur: 44,
+      opacity: .16,
       padding: const EdgeInsets.fromLTRB(18, 10, 18, 24),
       child: Column(
         mainAxisSize: MainAxisSize.min,
@@ -49,8 +49,8 @@ Future<void> showImportMusicSheet(
           GlassPanel(
             padding: const EdgeInsets.all(16),
             borderRadius: 20,
-            blur: 12,
-            opacity: .18,
+            blur: 34,
+            opacity: .065,
             onTap: () => Navigator.pop(context, true),
             child: const Row(
               children: [
@@ -130,24 +130,16 @@ class _ImportIcon extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      width: 52,
-      height: 52,
+      width: 50,
+      height: 50,
       decoration: BoxDecoration(
-        color: Colors.white.withValues(alpha: .32),
-        borderRadius: BorderRadius.circular(999),
-        border: Border.all(color: Colors.white.withValues(alpha: .38)),
-        boxShadow: const [
-          BoxShadow(
-            color: Color(0x14000000),
-            blurRadius: 16,
-            spreadRadius: -4,
-            offset: Offset(0, 8),
-          ),
-        ],
+        color: Colors.white.withValues(alpha: .28),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: Colors.white.withValues(alpha: .86)),
       ),
       child: const Icon(
         Icons.folder_open_rounded,
-        color: AppColors.graphite,
+        color: AppColors.accent,
       ),
     );
   }

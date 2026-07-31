@@ -36,8 +36,8 @@ class MiniPlayer extends StatelessWidget {
           padding: const EdgeInsets.symmetric(horizontal: 4),
           child: GlassPanel(
             borderRadius: 29,
-            blur: 25,
-            opacity: .22,
+            blur: 38,
+            opacity: .075,
             shadow: true,
             onTap: () => _openNowPlaying(context),
             child: SizedBox(
@@ -55,7 +55,7 @@ class MiniPlayer extends StatelessWidget {
                         minHeight: 1.7,
                         backgroundColor: const Color(0x163C3C43),
                         valueColor: const AlwaysStoppedAnimation(
-                          AppColors.graphite,
+                          AppColors.accent,
                         ),
                       ),
                     ),
@@ -178,15 +178,15 @@ class _MiniButton extends StatelessWidget {
       dimension: size,
       child: GlassPanel(
         borderRadius: size / 2,
-        blur: 17,
-        opacity: primary ? .42 : .22,
-        shadow: primary,
+        blur: 32,
+        opacity: primary ? .18 : .08,
+        shadow: false,
         onTap: onPressed,
         child: Center(
           child: Icon(
             icon,
             size: primary ? 19 : 18,
-            color: AppColors.graphite,
+            color: primary ? AppColors.accent : AppColors.graphite,
           ),
         ),
       ),

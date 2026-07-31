@@ -38,27 +38,24 @@ class QualityScreen extends StatelessWidget {
                 GlassPanel(
                   padding: const EdgeInsets.fromLTRB(18, 17, 18, 17),
                   borderRadius: 30,
-                  blur: 30,
-                  opacity: .20,
+                  blur: 38,
+                  opacity: .085,
+                  shadow: false,
                   child: Row(
                     children: [
                       Container(
                         width: 58,
                         height: 58,
                         decoration: BoxDecoration(
-                          color: AppColors.graphite,
+                          color: Colors.white.withValues(alpha: .24),
                           borderRadius: BorderRadius.circular(21),
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.black.withValues(alpha: .14),
-                              blurRadius: 18,
-                              offset: const Offset(0, 9),
-                            ),
-                          ],
+                          border: Border.all(
+                            color: Colors.white.withValues(alpha: .88),
+                          ),
                         ),
                         child: const Icon(
                           CupertinoIcons.waveform,
-                          color: Colors.white,
+                          color: AppColors.accent,
                           size: 28,
                         ),
                       ),
@@ -267,8 +264,9 @@ class _InfoGroup extends StatelessWidget {
         GlassPanel(
           padding: EdgeInsets.zero,
           borderRadius: 28,
-          blur: 28,
-          opacity: .18,
+          blur: 36,
+          opacity: .075,
+          shadow: false,
           child: Column(children: children),
         ),
       ],
@@ -297,9 +295,9 @@ class _SignalRow extends StatelessWidget {
             width: 38,
             height: 38,
             decoration: BoxDecoration(
-              color: Colors.white.withValues(alpha: .34),
+              color: Colors.white.withValues(alpha: .24),
               borderRadius: BorderRadius.circular(14),
-              border: Border.all(color: Colors.white.withValues(alpha: .50)),
+              border: Border.all(color: Colors.white.withValues(alpha: .82)),
             ),
             child: Icon(icon, color: AppColors.graphite, size: 19),
           ),

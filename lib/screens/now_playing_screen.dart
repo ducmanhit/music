@@ -103,8 +103,8 @@ class NowPlayingScreen extends StatelessWidget {
                               tag: 'now-playing-art-${song.id}',
                               child: GlassPanel(
                                 borderRadius: compact ? 34 : 40,
-                                blur: 22,
-                                opacity: .12,
+                                blur: 38,
+                                opacity: .045,
                                 shadow: true,
                                 pressable: false,
                                 padding: const EdgeInsets.all(4),
@@ -428,8 +428,8 @@ class _TopBar extends StatelessWidget {
         const Spacer(),
         GlassPanel(
           borderRadius: 24,
-          blur: 20,
-          opacity: .20,
+          blur: 38,
+          opacity: .06,
           shadow: false,
           pressable: false,
           padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 3),
@@ -493,9 +493,9 @@ class _PlayerPanel extends StatelessWidget {
   Widget build(BuildContext context) {
     return GlassPanel(
       borderRadius: compact ? 32 : 37,
-      blur: 28,
-      opacity: .23,
-      shadow: true,
+      blur: 42,
+      opacity: .085,
+      shadow: false,
       pressable: false,
       padding: EdgeInsets.fromLTRB(
         compact ? 17 : 21,
@@ -551,8 +551,8 @@ class _PlayerPanel extends StatelessWidget {
           SizedBox(height: compact ? 6 : 10),
           GlassPanel(
             borderRadius: 24,
-            blur: 18,
-            opacity: .13,
+            blur: 34,
+            opacity: .045,
             shadow: false,
             pressable: false,
             padding: const EdgeInsets.symmetric(vertical: 2),
@@ -670,8 +670,8 @@ class _PlayButton extends StatelessWidget {
       dimension: size,
       child: GlassPanel(
         borderRadius: size / 2,
-        blur: 20,
-        opacity: .48,
+        blur: 38,
+        opacity: .16,
         shadow: true,
         onTap: onTap,
         child: Center(
@@ -729,8 +729,8 @@ class _RoundControl extends StatelessWidget {
       dimension: size,
       child: GlassPanel(
         borderRadius: size / 2,
-        blur: 17,
-        opacity: active ? .39 : .16,
+        blur: 34,
+        opacity: active ? .18 : .055,
         shadow: false,
         onTap: onTap,
         child: Center(
@@ -841,8 +841,8 @@ class _LiquidBottomSheet extends StatelessWidget {
       padding: const EdgeInsets.fromLTRB(8, 0, 8, 8),
       child: GlassPanel(
         borderRadius: 36,
-        blur: 32,
-        opacity: .66,
+        blur: 44,
+        opacity: .18,
         shadow: true,
         pressable: false,
         child: child,

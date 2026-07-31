@@ -1,7 +1,7 @@
 name: offline_music
-description: Trình phát nhạc offline cho iPhone với giao diện iOS Liquid Glass V8 trong suốt, trung tính và có chiều sâu, đóng gói IPA bằng GitHub Actions.
+description: Trình phát nhạc offline cho iPhone với giao diện Ultra Clear Liquid Glass V9 sáng, sạch và gần iOS 26 hơn, đóng gói IPA bằng GitHub Actions.
 publish_to: "none"
-version: 8.0.0+8
+version: 9.0.0+9
 
 environment:
   sdk: ">=3.10.0 <4.0.0"

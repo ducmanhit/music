@@ -124,8 +124,8 @@ class _LibraryScreenState extends State<LibraryScreen> {
                     padding: const EdgeInsets.fromLTRB(20, 12, 20, 12),
                     child: GlassPanel(
                       borderRadius: 24,
-                      blur: 24,
-                      opacity: .18,
+                      blur: 36,
+                      opacity: .075,
                       shadow: false,
                       child: TextField(
                         onChanged: (value) => setState(() => query = value),
@@ -145,18 +145,18 @@ class _LibraryScreenState extends State<LibraryScreen> {
                     child: GlassPanel(
                       padding: const EdgeInsets.all(4),
                       borderRadius: 23,
-                      blur: 25,
-                      opacity: .16,
+                      blur: 36,
+                      opacity: .065,
                       shadow: false,
                       child: TabBar(
                         isScrollable: true,
                         tabAlignment: TabAlignment.start,
                         indicatorSize: TabBarIndicatorSize.tab,
                         indicator: BoxDecoration(
-                          color: Colors.white.withValues(alpha: .32),
+                          color: Colors.white.withValues(alpha: .18),
                           borderRadius: BorderRadius.circular(18),
                           border: Border.all(
-                            color: Colors.white.withValues(alpha: .38),
+                            color: Colors.white.withValues(alpha: .78),
                           ),
                         ),
                         indicatorPadding: const EdgeInsets.symmetric(
@@ -256,8 +256,8 @@ class _SortButton extends StatelessWidget {
         dimension: 46,
         child: GlassPanel(
           borderRadius: 23,
-          blur: 22,
-          opacity: .28,
+          blur: 34,
+          opacity: .08,
           shadow: false,
           child: Center(
             child: Icon(
@@ -371,8 +371,8 @@ class _ActionButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return GlassPanel(
       borderRadius: 22,
-      blur: 24,
-      opacity: primary ? .56 : .31,
+      blur: 34,
+      opacity: primary ? .18 : .07,
       shadow: false,
       onTap: onTap,
       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 13),
@@ -486,8 +486,8 @@ class _PlaylistTile extends StatelessWidget {
       padding: const EdgeInsets.only(bottom: 7),
       child: GlassPanel(
         borderRadius: 22,
-        blur: 22,
-        opacity: .16,
+        blur: 34,
+        opacity: .065,
         shadow: false,
         onTap: onTap,
         padding: const EdgeInsets.fromLTRB(10, 9, 12, 9),
@@ -572,8 +572,8 @@ class _GroupsTab extends StatelessWidget {
           padding: const EdgeInsets.only(bottom: 7),
           child: GlassPanel(
             borderRadius: 22,
-            blur: 22,
-            opacity: .15,
+            blur: 34,
+            opacity: .06,
             shadow: false,
             onTap: () => Navigator.of(context).push(
               CupertinoPageRoute<void>(
@@ -653,9 +653,9 @@ class _EmptyState extends StatelessWidget {
               width: 64,
               height: 64,
               decoration: BoxDecoration(
-                color: Colors.white.withValues(alpha: .32),
+                color: Colors.white.withValues(alpha: .22),
                 borderRadius: BorderRadius.circular(23),
-                border: Border.all(color: Colors.white.withValues(alpha: .34)),
+                border: Border.all(color: Colors.white.withValues(alpha: .82)),
               ),
               child: Icon(icon, size: 28, color: AppColors.graphite),
             ),

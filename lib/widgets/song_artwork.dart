@@ -64,44 +64,47 @@ class _Placeholder extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final seed = song.title.codeUnits.fold<int>(0, (sum, value) => sum + value);
-    final light = 0xFF222224 + ((seed % 18) << 16) + ((seed % 18) << 8) + (seed % 18);
-    return DecoratedBox(
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [Color(light), const Color(0xFF09090A)],
-        ),
-      ),
+    const tones = <Color>[
+      Color(0xFFE8ECF3),
+      Color(0xFFF0ECE8),
+      Color(0xFFE9F0ED),
+      Color(0xFFEEEAF2),
+      Color(0xFFECEEF1),
+    ];
+    final tone = tones[seed % tones.length];
+
+    return ColoredBox(
+      color: tone,
       child: Stack(
         fit: StackFit.expand,
         children: [
           Positioned(
-            top: -22,
-            right: -18,
+            top: -18,
+            right: -14,
             child: Container(
-              width: 90,
-              height: 90,
+              width: 88,
+              height: 88,
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
-                color: Colors.white.withValues(alpha: .07),
+                color: Colors.white.withValues(alpha: .58),
               ),
             ),
           ),
           Center(
-            child: DecoratedBox(
+            child: Container(
+              width: 54,
+              height: 54,
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
-                color: Colors.white.withValues(alpha: .18),
-                border: Border.all(color: Colors.white.withValues(alpha: .22)),
-              ),
-              child: const Padding(
-                padding: EdgeInsets.all(12),
-                child: Icon(
-                  Icons.music_note_rounded,
-                  color: Colors.white,
-                  size: 30,
+                color: Colors.white.withValues(alpha: .52),
+                border: Border.all(
+                  color: Colors.white.withValues(alpha: .86),
                 ),
+              ),
+              child: const Icon(
+                Icons.music_note_rounded,
+                color: AppColors.graphiteSoft,
+                size: 29,
               ),
             ),
           ),

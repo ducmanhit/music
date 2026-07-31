@@ -761,7 +761,7 @@ class _WideActionCard extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
-          gradient: AppGradients.accentSurface,
+          color: Colors.white.withValues(alpha: .42),
           borderRadius: BorderRadius.circular(18),
           border: Border.all(color: AppColors.accent.withValues(alpha: .25)),
         ),
