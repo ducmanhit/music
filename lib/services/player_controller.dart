@@ -102,7 +102,6 @@ class PlayerController extends ChangeNotifier {
       sources,
       initialIndex: initialIndex,
       initialPosition: initialPosition,
-      useLazyPreparation: true,
     );
     _currentIndex = initialIndex;
     await player.setShuffleModeEnabled(_shuffleEnabled);
