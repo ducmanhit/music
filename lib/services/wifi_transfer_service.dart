@@ -144,7 +144,9 @@ class WifiTransferService extends ChangeNotifier {
 
     final tempDirectory = await getTemporaryDirectory();
     final pending = <({File file, String name})>[];
-    final parts = request.transform(MimeMultipartTransformer(boundary));
+    final parts = MimeMultipartTransformer(
+      boundary,
+    ).bind(request.cast<List<int>>());
 
     await for (final part in parts) {
       final disposition = part.headers['content-disposition'] ?? '';
