@@ -102,15 +102,16 @@ class NowPlayingScreen extends StatelessWidget {
                             child: Hero(
                               tag: 'now-playing-art-${song.id}',
                               child: GlassPanel(
-                                borderRadius: compact ? 33 : 38,
-                                blur: 28,
-                                opacity: .28,
+                                borderRadius: compact ? 34 : 40,
+                                blur: 22,
+                                opacity: .12,
                                 shadow: true,
-                                padding: const EdgeInsets.all(7),
+                                pressable: false,
+                                padding: const EdgeInsets.all(4),
                                 child: SongArtwork(
                                   song: song,
                                   size: artworkSize,
-                                  borderRadius: compact ? 27 : 31,
+                                  borderRadius: compact ? 30 : 36,
                                 ),
                               ),
                             ),
@@ -191,7 +192,7 @@ class NowPlayingScreen extends StatelessWidget {
                       child: DecoratedBox(
                         decoration: BoxDecoration(
                           color: selected
-                              ? Colors.white.withValues(alpha: .56)
+                              ? Colors.white.withValues(alpha: .36)
                               : Colors.transparent,
                           borderRadius: BorderRadius.circular(19),
                         ),
@@ -419,17 +420,48 @@ class _TopBar extends StatelessWidget {
   Widget build(BuildContext context) {
     return Row(
       children: [
-        GlassIconButton(icon: CupertinoIcons.chevron_down, onPressed: onBack),
-        const Spacer(),
         GlassIconButton(
-          icon: CupertinoIcons.music_note_list,
-          onPressed: onQueue,
+          icon: CupertinoIcons.chevron_down,
+          onPressed: onBack,
+          size: 44,
         ),
-        const SizedBox(width: 8),
-        GlassIconButton(icon: CupertinoIcons.pencil, onPressed: onEdit),
-        const SizedBox(width: 8),
-        GlassIconButton(icon: CupertinoIcons.ellipsis, onPressed: onMore),
+        const Spacer(),
+        GlassPanel(
+          borderRadius: 24,
+          blur: 20,
+          opacity: .20,
+          shadow: false,
+          pressable: false,
+          padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 3),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              _TopAction(icon: CupertinoIcons.music_note_list, onTap: onQueue),
+              _TopAction(icon: CupertinoIcons.pencil, onTap: onEdit),
+              _TopAction(icon: CupertinoIcons.ellipsis, onTap: onMore),
+            ],
+          ),
+        ),
       ],
+    );
+  }
+}
+
+class _TopAction extends StatelessWidget {
+  const _TopAction({required this.icon, required this.onTap});
+
+  final IconData icon;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      behavior: HitTestBehavior.opaque,
+      onTap: onTap,
+      child: SizedBox.square(
+        dimension: 39,
+        child: Icon(icon, size: 20, color: AppColors.graphite),
+      ),
     );
   }
 }
@@ -460,15 +492,16 @@ class _PlayerPanel extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GlassPanel(
-      borderRadius: compact ? 31 : 35,
-      blur: 32,
-      opacity: .48,
+      borderRadius: compact ? 32 : 37,
+      blur: 28,
+      opacity: .23,
       shadow: true,
+      pressable: false,
       padding: EdgeInsets.fromLTRB(
-        compact ? 17 : 20,
+        compact ? 17 : 21,
         compact ? 14 : 18,
-        compact ? 17 : 20,
-        compact ? 12 : 16,
+        compact ? 17 : 21,
+        compact ? 11 : 15,
       ),
       child: Column(
         mainAxisSize: MainAxisSize.min,
@@ -479,10 +512,11 @@ class _PlayerPanel extends StatelessWidget {
             overflow: TextOverflow.ellipsis,
             textAlign: TextAlign.center,
             style: TextStyle(
+              fontFamily: '.SF Pro Display',
               fontSize: compact ? 20 : 23,
               height: 1.12,
-              fontWeight: FontWeight.w800,
-              letterSpacing: -.55,
+              fontWeight: FontWeight.w700,
+              letterSpacing: -.58,
             ),
           ),
           SizedBox(height: compact ? 3 : 5),
@@ -493,10 +527,10 @@ class _PlayerPanel extends StatelessWidget {
             style: TextStyle(
               color: AppColors.muted,
               fontSize: compact ? 14 : 15.5,
-              fontWeight: FontWeight.w600,
+              fontWeight: FontWeight.w500,
             ),
           ),
-          SizedBox(height: compact ? 6 : 9),
+          SizedBox(height: compact ? 7 : 10),
           _MetadataLine(
             song: song,
             currentIndex: playerController.currentIndex,
@@ -507,20 +541,28 @@ class _PlayerPanel extends StatelessWidget {
             position: position,
             duration: duration,
             onSeek: playerController.seek,
-            waveHeight: compact ? 48 : 58,
+            waveHeight: compact ? 46 : 56,
           ),
-          SizedBox(height: compact ? 1 : 5),
+          SizedBox(height: compact ? 1 : 4),
           _PlaybackControls(
             playerController: playerController,
             compact: compact,
           ),
-          SizedBox(height: compact ? 5 : 10),
-          _BottomTools(
-            song: song,
-            libraryService: libraryService,
-            onLyrics: onLyrics,
-            onQuality: onQuality,
-            onSleep: onSleep,
+          SizedBox(height: compact ? 6 : 10),
+          GlassPanel(
+            borderRadius: 24,
+            blur: 18,
+            opacity: .13,
+            shadow: false,
+            pressable: false,
+            padding: const EdgeInsets.symmetric(vertical: 2),
+            child: _BottomTools(
+              song: song,
+              libraryService: libraryService,
+              onLyrics: onLyrics,
+              onQuality: onQuality,
+              onSleep: onSleep,
+            ),
           ),
         ],
       ),
@@ -547,29 +589,16 @@ class _MetadataLine extends StatelessWidget {
       if (song.extension.isNotEmpty) song.extension,
       if (song.bitrateKbps != null) '${song.bitrateKbps} kbps',
     ];
-    return Wrap(
-      alignment: WrapAlignment.center,
-      spacing: 6,
-      runSpacing: 5,
-      children: [
-        for (final part in parts)
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 4),
-            decoration: BoxDecoration(
-              color: Colors.white.withValues(alpha: .48),
-              borderRadius: BorderRadius.circular(10),
-              border: Border.all(color: Colors.white.withValues(alpha: .68)),
-            ),
-            child: Text(
-              part,
-              style: const TextStyle(
-                color: AppColors.muted,
-                fontSize: 11.5,
-                fontWeight: FontWeight.w600,
-              ),
-            ),
-          ),
-      ],
+    return Text(
+      parts.join('  •  '),
+      maxLines: 1,
+      overflow: TextOverflow.ellipsis,
+      style: const TextStyle(
+        color: AppColors.muted,
+        fontSize: 11.5,
+        fontWeight: FontWeight.w500,
+        letterSpacing: -.1,
+      ),
     );
   }
 }
@@ -637,27 +666,20 @@ class _PlayButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        width: size,
-        height: size,
-        decoration: BoxDecoration(
-          color: AppColors.graphite,
-          shape: BoxShape.circle,
-          border: Border.all(color: Colors.white.withValues(alpha: .36)),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withValues(alpha: .18),
-              blurRadius: 21,
-              offset: const Offset(0, 10),
-            ),
-          ],
-        ),
-        child: Icon(
-          playing ? CupertinoIcons.pause_fill : CupertinoIcons.play_fill,
-          color: Colors.white,
-          size: size * .40,
+    return SizedBox.square(
+      dimension: size,
+      child: GlassPanel(
+        borderRadius: size / 2,
+        blur: 20,
+        opacity: .48,
+        shadow: true,
+        onTap: onTap,
+        child: Center(
+          child: Icon(
+            playing ? CupertinoIcons.pause_fill : CupertinoIcons.play_fill,
+            color: AppColors.graphite,
+            size: size * .39,
+          ),
         ),
       ),
     );
@@ -703,22 +725,20 @@ class _RoundControl extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        width: size,
-        height: size,
-        decoration: BoxDecoration(
-          color: active
-              ? Colors.white.withValues(alpha: .74)
-              : Colors.white.withValues(alpha: .30),
-          shape: BoxShape.circle,
-          border: Border.all(color: Colors.white.withValues(alpha: .66)),
-        ),
-        child: Icon(
-          icon,
-          size: size * .43,
-          color: active ? AppColors.accent : AppColors.graphiteSoft,
+    return SizedBox.square(
+      dimension: size,
+      child: GlassPanel(
+        borderRadius: size / 2,
+        blur: 17,
+        opacity: active ? .39 : .16,
+        shadow: false,
+        onTap: onTap,
+        child: Center(
+          child: Icon(
+            icon,
+            size: size * .43,
+            color: active ? AppColors.accent : AppColors.graphiteSoft,
+          ),
         ),
       ),
     );
@@ -821,8 +841,10 @@ class _LiquidBottomSheet extends StatelessWidget {
       padding: const EdgeInsets.fromLTRB(8, 0, 8, 8),
       child: GlassPanel(
         borderRadius: 36,
-        blur: 34,
-        opacity: .78,
+        blur: 32,
+        opacity: .66,
+        shadow: true,
+        pressable: false,
         child: child,
       ),
     );

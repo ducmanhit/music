@@ -125,7 +125,7 @@ class _LibraryScreenState extends State<LibraryScreen> {
                     child: GlassPanel(
                       borderRadius: 24,
                       blur: 24,
-                      opacity: .34,
+                      opacity: .18,
                       shadow: false,
                       child: TextField(
                         onChanged: (value) => setState(() => query = value),
@@ -146,17 +146,17 @@ class _LibraryScreenState extends State<LibraryScreen> {
                       padding: const EdgeInsets.all(4),
                       borderRadius: 23,
                       blur: 25,
-                      opacity: .30,
+                      opacity: .16,
                       shadow: false,
                       child: TabBar(
                         isScrollable: true,
                         tabAlignment: TabAlignment.start,
                         indicatorSize: TabBarIndicatorSize.tab,
                         indicator: BoxDecoration(
-                          color: Colors.white.withValues(alpha: .72),
+                          color: Colors.white.withValues(alpha: .32),
                           borderRadius: BorderRadius.circular(18),
                           border: Border.all(
-                            color: Colors.white.withValues(alpha: .78),
+                            color: Colors.white.withValues(alpha: .38),
                           ),
                         ),
                         indicatorPadding: const EdgeInsets.symmetric(
@@ -257,7 +257,7 @@ class _SortButton extends StatelessWidget {
         child: GlassPanel(
           borderRadius: 23,
           blur: 22,
-          opacity: .48,
+          opacity: .28,
           shadow: false,
           child: Center(
             child: Icon(
@@ -487,7 +487,7 @@ class _PlaylistTile extends StatelessWidget {
       child: GlassPanel(
         borderRadius: 22,
         blur: 22,
-        opacity: .25,
+        opacity: .16,
         shadow: false,
         onTap: onTap,
         padding: const EdgeInsets.fromLTRB(10, 9, 12, 9),
@@ -498,7 +498,7 @@ class _PlaylistTile extends StatelessWidget {
                     width: 55,
                     height: 55,
                     decoration: BoxDecoration(
-                      color: Colors.white.withValues(alpha: .56),
+                      color: Colors.white.withValues(alpha: .36),
                       borderRadius: BorderRadius.circular(17),
                     ),
                     child: const Icon(CupertinoIcons.music_note_list),
@@ -573,7 +573,7 @@ class _GroupsTab extends StatelessWidget {
           child: GlassPanel(
             borderRadius: 22,
             blur: 22,
-            opacity: .24,
+            opacity: .15,
             shadow: false,
             onTap: () => Navigator.of(context).push(
               CupertinoPageRoute<void>(
@@ -653,9 +653,9 @@ class _EmptyState extends StatelessWidget {
               width: 64,
               height: 64,
               decoration: BoxDecoration(
-                color: Colors.white.withValues(alpha: .52),
+                color: Colors.white.withValues(alpha: .32),
                 borderRadius: BorderRadius.circular(23),
-                border: Border.all(color: Colors.white.withValues(alpha: .74)),
+                border: Border.all(color: Colors.white.withValues(alpha: .34)),
               ),
               child: Icon(icon, size: 28, color: AppColors.graphite),
             ),

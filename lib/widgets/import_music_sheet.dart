@@ -15,7 +15,7 @@ Future<void> showImportMusicSheet(
     builder: (context) => GlassPanel(
       borderRadius: 34,
       blur: 34,
-      opacity: .58,
+      opacity: .52,
       padding: const EdgeInsets.fromLTRB(18, 10, 18, 24),
       child: Column(
         mainAxisSize: MainAxisSize.min,
@@ -50,7 +50,7 @@ Future<void> showImportMusicSheet(
             padding: const EdgeInsets.all(16),
             borderRadius: 20,
             blur: 12,
-            opacity: .34,
+            opacity: .18,
             onTap: () => Navigator.pop(context, true),
             child: const Row(
               children: [

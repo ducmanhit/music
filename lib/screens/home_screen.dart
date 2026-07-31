@@ -96,7 +96,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     child: GlassPanel(
                       borderRadius: 24,
                       blur: 24,
-                      opacity: .34,
+                      opacity: .18,
                       shadow: false,
                       child: TextField(
                         onChanged: (value) => setState(() => query = value),
@@ -273,7 +273,7 @@ class _HomeScreenState extends State<HomeScreen> {
         child: GlassPanel(
           borderRadius: 36,
           blur: 32,
-          opacity: .76,
+          opacity: .62,
           child: SafeArea(
             top: false,
             child: Padding(
@@ -338,7 +338,7 @@ class _LibrarySummary extends StatelessWidget {
     return GlassPanel(
       borderRadius: 31,
       blur: 30,
-      opacity: .38,
+      opacity: .20,
       onTap: onTap,
       padding: const EdgeInsets.fromLTRB(19, 18, 17, 18),
       child: Row(
@@ -410,7 +410,7 @@ class _QuickAction extends StatelessWidget {
     return GlassPanel(
       borderRadius: 24,
       blur: 24,
-      opacity: .32,
+      opacity: .17,
       shadow: false,
       onTap: onTap,
       padding: const EdgeInsets.symmetric(vertical: 14),
@@ -420,9 +420,9 @@ class _QuickAction extends StatelessWidget {
             width: 39,
             height: 39,
             decoration: BoxDecoration(
-              color: Colors.white.withValues(alpha: .58),
+              color: Colors.white.withValues(alpha: .38),
               borderRadius: BorderRadius.circular(15),
-              border: Border.all(color: Colors.white.withValues(alpha: .74)),
+              border: Border.all(color: Colors.white.withValues(alpha: .34)),
             ),
             child: Icon(icon, size: 20, color: AppColors.graphite),
           ),
@@ -575,7 +575,7 @@ class _EmptyHome extends StatelessWidget {
       child: GlassPanel(
         borderRadius: 32,
         blur: 30,
-        opacity: .34,
+        opacity: .18,
         padding: const EdgeInsets.fromLTRB(24, 36, 24, 34),
         child: Column(
           children: [
@@ -583,9 +583,9 @@ class _EmptyHome extends StatelessWidget {
               width: 68,
               height: 68,
               decoration: BoxDecoration(
-                color: Colors.white.withValues(alpha: .62),
+                color: Colors.white.withValues(alpha: .42),
                 borderRadius: BorderRadius.circular(24),
-                border: Border.all(color: Colors.white.withValues(alpha: .78)),
+                border: Border.all(color: Colors.white.withValues(alpha: .38)),
               ),
               child: const Icon(
                 CupertinoIcons.music_note_2,

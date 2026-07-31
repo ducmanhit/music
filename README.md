@@ -1,4 +1,4 @@
-# Offline Music V7 – iOS Clear Glass
+# Offline Music V8 – Native Liquid Glass
 
 Trình phát nhạc offline cho iPhone được xây dựng bằng Flutter, có workflow GitHub Actions để đóng gói IPA chưa ký và ký lại bằng ESign.
 
@@ -15,15 +15,16 @@ Trình phát nhạc offline cho iPhone được xây dựng bằng Flutter, có 
 - Phát nền, màn hình khóa, Control Center, tai nghe và Bluetooth.
 - Trộn bài, lặp bài, tua nhạc, điều chỉnh âm lượng và hẹn giờ tắt.
 
-## Giao diện V7
+## Giao diện V8
 
-- Bỏ nền gradient xanh tím, glow và các khối kính đục của V6.
-- Nền trắng/xám trung tính, kính mỏng, blur rõ và viền sáng nhẹ.
-- Ít card hơn, khoảng trắng rộng hơn, icon và chữ đồng bộ theo phong cách iOS.
-- Thanh điều hướng nổi dạng dock kính, tab được chọn nằm trong thấu kính riêng.
-- Mini Player tách khỏi dock và chỉ xuất hiện khi có bài đang phát.
-- Màn hình đang phát dùng bố cục cố định, tự co theo chiều cao màn hình và không cuộn trượt cụm điều khiển.
-- Trang chủ, Thư viện, Âm thanh, Cài đặt và sheet nhập nhạc dùng cùng một hệ giao diện.
+- Vật liệu kính được dựng lại bằng nhiều lớp: blur nền, lớp kính mỏng, viền khúc xạ theo hướng ánh sáng và phản chiếu cong.
+- Giảm lớp trắng đục để nhìn xuyên nền rõ hơn, không dùng gradient xanh tím hoặc hiệu ứng neon.
+- Sử dụng kiểu chữ hệ thống iOS, giảm độ đậm và khoảng cách chữ để giao diện gần ứng dụng Apple hơn.
+- Thanh điều hướng có một thấu kính duy nhất trượt theo tab đang chọn thay vì bốn ô sáng riêng biệt.
+- Mini Player mỏng hơn, nút điều khiển bằng kính trong thay cho nút đen nặng.
+- Màn hình đang phát có ảnh bìa nổi, thanh công cụ dạng capsule, bảng điều khiển kính mỏng và bố cục cố định.
+- Các card ở Trang chủ, Thư viện, Âm thanh và Cài đặt đã giảm opacity, tăng độ xuyên thấu và dùng cùng một hệ viền/bóng.
+- Có hiệu ứng nhấn co nhẹ trên các vật thể kính để tạo cảm giác vật liệu nổi và mượt hơn.
 
 ## Build IPA chưa ký
 

@@ -175,26 +175,51 @@ class _LiquidTabBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GlassPanel(
-      borderRadius: 34,
-      blur: 28,
-      opacity: .55,
+      borderRadius: 35,
+      blur: 25,
+      opacity: .22,
       shadow: true,
       highlight: true,
-      padding: const EdgeInsets.fromLTRB(5, 5, 5, 4),
+      pressable: false,
+      padding: const EdgeInsets.all(5),
       child: SizedBox(
-        height: 64,
-        child: Row(
-          children: [
-            for (var i = 0; i < items.length; i++)
-              Expanded(
-                child: _LiquidTabItem(
-                  icon: items[i].$1,
-                  label: items[i].$2,
-                  selected: i == index,
-                  onTap: () => onChanged(i),
+        height: 62,
+        child: LayoutBuilder(
+          builder: (context, constraints) {
+            final itemWidth = constraints.maxWidth / items.length;
+            return Stack(
+              children: [
+                AnimatedPositioned(
+                  duration: const Duration(milliseconds: 360),
+                  curve: Curves.easeOutCubic,
+                  left: itemWidth * index + 2,
+                  top: 1,
+                  width: itemWidth - 4,
+                  height: 55,
+                  child: const LiquidLens(
+                    borderRadius: 28,
+                    blur: 18,
+                    opacity: .39,
+                    shadow: true,
+                    child: SizedBox.expand(),
+                  ),
                 ),
-              ),
-          ],
+                Row(
+                  children: [
+                    for (var i = 0; i < items.length; i++)
+                      Expanded(
+                        child: _LiquidTabItem(
+                          icon: items[i].$1,
+                          label: items[i].$2,
+                          selected: i == index,
+                          onTap: () => onChanged(i),
+                        ),
+                      ),
+                  ],
+                ),
+              ],
+            );
+          },
         ),
       ),
     );
@@ -219,50 +244,33 @@ class _LiquidTabItem extends StatelessWidget {
     return GestureDetector(
       behavior: HitTestBehavior.opaque,
       onTap: onTap,
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          AnimatedContainer(
-            duration: const Duration(milliseconds: 250),
-            curve: Curves.easeOutCubic,
-            width: selected ? 48 : 38,
-            height: 31,
-            decoration: BoxDecoration(
-              color: selected
-                  ? Colors.white.withValues(alpha: .78)
-                  : Colors.transparent,
-              borderRadius: BorderRadius.circular(18),
-              border: selected
-                  ? Border.all(color: Colors.white.withValues(alpha: .82))
-                  : null,
-              boxShadow: selected
-                  ? [
-                      BoxShadow(
-                        color: Colors.black.withValues(alpha: .05),
-                        blurRadius: 12,
-                        offset: const Offset(0, 5),
-                      ),
-                    ]
-                  : null,
+      child: AnimatedDefaultTextStyle(
+        duration: const Duration(milliseconds: 260),
+        curve: Curves.easeOutCubic,
+        style: TextStyle(
+          color: selected ? AppColors.accent : AppColors.graphiteSoft,
+          fontFamily: '.SF Pro Text',
+          fontSize: 10.5,
+          fontWeight: selected ? FontWeight.w700 : FontWeight.w500,
+          letterSpacing: -.15,
+        ),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            AnimatedScale(
+              duration: const Duration(milliseconds: 260),
+              curve: Curves.easeOutBack,
+              scale: selected ? 1.06 : 1,
+              child: Icon(
+                icon,
+                size: 22,
+                color: selected ? AppColors.accent : AppColors.graphiteSoft,
+              ),
             ),
-            child: Icon(
-              icon,
-              size: 22,
-              color: selected ? AppColors.accent : AppColors.graphiteSoft,
-            ),
-          ),
-          const SizedBox(height: 2),
-          Text(
-            label,
-            maxLines: 1,
-            style: TextStyle(
-              color: selected ? AppColors.accent : AppColors.graphiteSoft,
-              fontSize: 10.5,
-              fontWeight: selected ? FontWeight.w700 : FontWeight.w600,
-              letterSpacing: -.15,
-            ),
-          ),
-        ],
+            const SizedBox(height: 4),
+            Text(label, maxLines: 1),
+          ],
+        ),
       ),
     );
   }

@@ -39,7 +39,7 @@ class QualityScreen extends StatelessWidget {
                   padding: const EdgeInsets.fromLTRB(18, 17, 18, 17),
                   borderRadius: 30,
                   blur: 30,
-                  opacity: .38,
+                  opacity: .20,
                   child: Row(
                     children: [
                       Container(
@@ -268,7 +268,7 @@ class _InfoGroup extends StatelessWidget {
           padding: EdgeInsets.zero,
           borderRadius: 28,
           blur: 28,
-          opacity: .35,
+          opacity: .18,
           child: Column(children: children),
         ),
       ],
@@ -297,9 +297,9 @@ class _SignalRow extends StatelessWidget {
             width: 38,
             height: 38,
             decoration: BoxDecoration(
-              color: Colors.white.withValues(alpha: .54),
+              color: Colors.white.withValues(alpha: .34),
               borderRadius: BorderRadius.circular(14),
-              border: Border.all(color: Colors.white.withValues(alpha: .70)),
+              border: Border.all(color: Colors.white.withValues(alpha: .50)),
             ),
             child: Icon(icon, color: AppColors.graphite, size: 19),
           ),

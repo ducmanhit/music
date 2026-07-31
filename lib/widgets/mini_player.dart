@@ -35,25 +35,25 @@ class MiniPlayer extends StatelessWidget {
         return Padding(
           padding: const EdgeInsets.symmetric(horizontal: 4),
           child: GlassPanel(
-            borderRadius: 27,
-            blur: 26,
-            opacity: .58,
+            borderRadius: 29,
+            blur: 25,
+            opacity: .22,
             shadow: true,
             onTap: () => _openNowPlaying(context),
             child: SizedBox(
-              height: 67,
+              height: 66,
               child: Stack(
                 children: [
                   Positioned(
-                    left: 14,
-                    right: 14,
-                    bottom: 4,
+                    left: 17,
+                    right: 17,
+                    bottom: 3,
                     child: ClipRRect(
                       borderRadius: BorderRadius.circular(10),
                       child: LinearProgressIndicator(
                         value: progress,
-                        minHeight: 2,
-                        backgroundColor: const Color(0x1F3C3C43),
+                        minHeight: 1.7,
+                        backgroundColor: const Color(0x163C3C43),
                         valueColor: const AlwaysStoppedAnimation(
                           AppColors.graphite,
                         ),
@@ -61,15 +61,15 @@ class MiniPlayer extends StatelessWidget {
                     ),
                   ),
                   Padding(
-                    padding: const EdgeInsets.fromLTRB(9, 8, 8, 8),
+                    padding: const EdgeInsets.fromLTRB(8, 7, 7, 7),
                     child: Row(
                       children: [
                         Hero(
                           tag: 'now-playing-art-${song.id}',
                           child: SongArtwork(
                             song: song,
-                            size: 49,
-                            borderRadius: 14,
+                            size: 50,
+                            borderRadius: 16,
                           ),
                         ),
                         const SizedBox(width: 11),
@@ -84,8 +84,8 @@ class MiniPlayer extends StatelessWidget {
                                 overflow: TextOverflow.ellipsis,
                                 style: const TextStyle(
                                   fontSize: 14.5,
-                                  fontWeight: FontWeight.w700,
-                                  letterSpacing: -.25,
+                                  fontWeight: FontWeight.w600,
+                                  letterSpacing: -.24,
                                 ),
                               ),
                               const SizedBox(height: 3),
@@ -129,8 +129,8 @@ class MiniPlayer extends StatelessWidget {
   void _openNowPlaying(BuildContext context) {
     Navigator.of(context).push(
       PageRouteBuilder<void>(
-        transitionDuration: const Duration(milliseconds: 360),
-        reverseTransitionDuration: const Duration(milliseconds: 280),
+        transitionDuration: const Duration(milliseconds: 420),
+        reverseTransitionDuration: const Duration(milliseconds: 300),
         pageBuilder: (_, animation, secondaryAnimation) => NowPlayingScreen(
           libraryService: libraryService,
           playerController: playerController,
@@ -143,12 +143,15 @@ class MiniPlayer extends StatelessWidget {
           );
           return FadeTransition(
             opacity: curved,
-            child: SlideTransition(
-              position: Tween<Offset>(
-                begin: const Offset(0, .035),
-                end: Offset.zero,
-              ).animate(curved),
-              child: child,
+            child: ScaleTransition(
+              scale: Tween<double>(begin: .985, end: 1).animate(curved),
+              child: SlideTransition(
+                position: Tween<Offset>(
+                  begin: const Offset(0, .028),
+                  end: Offset.zero,
+                ).animate(curved),
+                child: child,
+              ),
             ),
           );
         },
@@ -170,35 +173,21 @@ class _MiniButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      behavior: HitTestBehavior.opaque,
-      onTap: onPressed,
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 180),
-        width: primary ? 41 : 36,
-        height: primary ? 41 : 36,
-        decoration: BoxDecoration(
-          color: primary
-              ? AppColors.graphite
-              : Colors.white.withValues(alpha: .50),
-          borderRadius: BorderRadius.circular(primary ? 20.5 : 18),
-          border: Border.all(
-            color: Colors.white.withValues(alpha: primary ? .30 : .76),
+    final size = primary ? 40.0 : 36.0;
+    return SizedBox.square(
+      dimension: size,
+      child: GlassPanel(
+        borderRadius: size / 2,
+        blur: 17,
+        opacity: primary ? .42 : .22,
+        shadow: primary,
+        onTap: onPressed,
+        child: Center(
+          child: Icon(
+            icon,
+            size: primary ? 19 : 18,
+            color: AppColors.graphite,
           ),
-          boxShadow: primary
-              ? [
-                  BoxShadow(
-                    color: Colors.black.withValues(alpha: .12),
-                    blurRadius: 12,
-                    offset: const Offset(0, 6),
-                  ),
-                ]
-              : null,
-        ),
-        child: Icon(
-          icon,
-          size: primary ? 20 : 18,
-          color: primary ? Colors.white : AppColors.graphite,
         ),
       ),
     );
