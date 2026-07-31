@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 import '../services/library_service.dart';
@@ -22,78 +23,50 @@ class SettingsScreen extends StatelessWidget {
       child: SafeArea(
         bottom: false,
         child: AnimatedBuilder(
-          animation: libraryService,
+          animation: Listenable.merge([libraryService, playerController]),
           builder: (context, _) {
             return ListView(
               physics: const BouncingScrollPhysics(),
-              padding: const EdgeInsets.fromLTRB(18, 18, 18, 160),
+              padding: const EdgeInsets.fromLTRB(20, 18, 20, 160),
               children: [
-                const Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 4),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        'Tùy chỉnh',
-                        style: TextStyle(
-                          color: AppColors.muted,
-                          fontSize: 12,
-                          fontWeight: FontWeight.w800,
-                          letterSpacing: 1.0,
-                        ),
+                const _LargeHeader(
+                  eyebrow: 'OFFLINE MUSIC',
+                  title: 'Cài đặt',
+                  subtitle: 'Phát nhạc, thư viện và điều khiển trên iPhone.',
+                ),
+                const SizedBox(height: 28),
+                _SettingsGroup(
+                  title: 'PHÁT NHẠC',
+                  children: [
+                    _VolumeTile(playerController: playerController),
+                    const _GroupDivider(),
+                    _SettingsTile(
+                      icon: CupertinoIcons.moon,
+                      title: 'Hẹn giờ tắt nhạc',
+                      subtitle: playerController.sleepEndsAt == null
+                          ? 'Đang tắt'
+                          : 'Đến ${_formatClock(playerController.sleepEndsAt!)}',
+                      onTap: () => _showSleepTimer(context),
+                    ),
+                    const _GroupDivider(),
+                    const _SettingsTile(
+                      icon: CupertinoIcons.lock,
+                      title: 'Phát nền & màn hình khóa',
+                      subtitle: 'Luôn sẵn sàng trên iOS',
+                      trailing: Icon(
+                        CupertinoIcons.check_mark_circled_solid,
+                        color: AppColors.success,
+                        size: 22,
                       ),
-                      SizedBox(height: 3),
-                      Text(
-                        'Cài đặt',
-                        style: TextStyle(
-                          fontSize: 32,
-                          fontWeight: FontWeight.w800,
-                          letterSpacing: -1,
-                        ),
-                      ),
-                      SizedBox(height: 7),
-                      Text(
-                        'Quản lý phát nhạc, giao diện và bộ nhớ ứng dụng.',
-                        style: TextStyle(color: AppColors.muted),
-                      ),
-                    ],
-                  ),
+                    ),
+                  ],
                 ),
                 const SizedBox(height: 24),
-                AnimatedBuilder(
-                  animation: playerController,
-                  builder: (context, _) => _SettingsGroup(
-                    title: 'PHÁT NHẠC',
-                    children: [
-                      _VolumeTile(playerController: playerController),
-                      const _Divider(),
-                      _SettingsTile(
-                        icon: Icons.bedtime_outlined,
-                        title: 'Hẹn giờ tắt nhạc',
-                        subtitle: playerController.sleepEndsAt == null
-                            ? 'Đang tắt'
-                            : 'Đến ${_formatClock(playerController.sleepEndsAt!)}',
-                        onTap: () => _showSleepTimer(context),
-                      ),
-                      const _Divider(),
-                      const _SettingsTile(
-                        icon: Icons.lock_outline_rounded,
-                        title: 'Phát nền & màn hình khóa',
-                        subtitle: 'Đã bật sẵn',
-                        trailing: Icon(
-                          Icons.check_circle_rounded,
-                          color: AppColors.success,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                const SizedBox(height: 20),
                 _SettingsGroup(
                   title: 'THƯ VIỆN',
                   children: [
                     _SettingsTile(
-                      icon: Icons.add_rounded,
+                      icon: CupertinoIcons.plus,
                       title: 'Nhập thêm nhạc',
                       subtitle: 'Chọn file âm thanh từ ứng dụng Files',
                       onTap: () => showImportMusicSheet(
@@ -101,11 +74,11 @@ class SettingsScreen extends StatelessWidget {
                         libraryService: libraryService,
                       ),
                     ),
-                    const _Divider(),
+                    const _GroupDivider(),
                     FutureBuilder<int>(
                       future: libraryService.storageBytes(),
                       builder: (context, snapshot) => _SettingsTile(
-                        icon: Icons.storage_rounded,
+                        icon: CupertinoIcons.archivebox,
                         title: 'Bộ nhớ đang dùng',
                         subtitle: '${libraryService.songs.length} bài hát',
                         trailing: Text(
@@ -119,48 +92,49 @@ class SettingsScreen extends StatelessWidget {
                         ),
                       ),
                     ),
-                    const _Divider(),
+                    const _GroupDivider(),
                     _SettingsTile(
-                      icon: Icons.delete_forever_outlined,
+                      icon: CupertinoIcons.delete,
                       iconColor: AppColors.danger,
-                      title: 'Xóa toàn bộ thư viện',
                       titleColor: AppColors.danger,
+                      title: 'Xóa toàn bộ thư viện',
                       subtitle: 'Xóa nhạc, ảnh bìa và playlist trong app',
                       onTap: () => _clearLibrary(context),
                     ),
                   ],
                 ),
-                const SizedBox(height: 20),
+                const SizedBox(height: 24),
                 const _SettingsGroup(
                   title: 'GIAO DIỆN',
                   children: [
                     _SettingsTile(
                       icon: Icons.blur_on_rounded,
-                      title: 'Liquid Glass sáng',
-                      subtitle: 'Kính trắng trung tính, đồng bộ phong cách iOS',
+                      title: 'Liquid Glass',
+                      subtitle: 'Kính trắng trong, tối giản và đồng bộ iOS',
                       trailing: Icon(
-                        Icons.check_circle_rounded,
+                        CupertinoIcons.check_mark_circled_solid,
                         color: AppColors.accent,
+                        size: 22,
                       ),
                     ),
-                    _Divider(),
+                    _GroupDivider(),
                     _SettingsTile(
-                      icon: Icons.image_outlined,
+                      icon: CupertinoIcons.photo,
                       title: 'Ảnh bìa tùy chỉnh',
                       subtitle: 'Chọn ảnh hoặc tìm ảnh bìa online',
                     ),
                   ],
                 ),
-                const SizedBox(height: 20),
+                const SizedBox(height: 24),
                 const _SettingsGroup(
-                  title: 'ĐIỀU KHIỂN iOS',
+                  title: 'THIẾT BỊ',
                   children: [
                     _SettingsTile(
-                      icon: Icons.headphones_rounded,
+                      icon: CupertinoIcons.headphones,
                       title: 'Control Center & tai nghe',
                       subtitle: 'Phát, dừng và chuyển bài từ hệ thống',
                     ),
-                    _Divider(),
+                    _GroupDivider(),
                     _SettingsTile(
                       icon: Icons.airplay_rounded,
                       title: 'AirPlay & Bluetooth',
@@ -168,20 +142,20 @@ class SettingsScreen extends StatelessWidget {
                     ),
                   ],
                 ),
-                const SizedBox(height: 20),
+                const SizedBox(height: 24),
                 const _SettingsGroup(
                   title: 'GIỚI THIỆU',
                   children: [
                     _SettingsTile(
-                      icon: Icons.music_note_rounded,
+                      icon: CupertinoIcons.music_note_2,
                       title: 'Offline Music',
-                      subtitle: 'Phiên bản 6.0.0 • Flutter',
+                      subtitle: 'Phiên bản 7.0.0',
                     ),
-                    _Divider(),
+                    _GroupDivider(),
                     Padding(
-                      padding: EdgeInsets.fromLTRB(16, 14, 16, 17),
+                      padding: EdgeInsets.fromLTRB(18, 15, 18, 18),
                       child: Text(
-                        'Ứng dụng phát các file âm thanh do bạn tự nhập. Tính năng tìm ảnh bìa online chỉ tải hình ảnh và không tải nhạc từ các dịch vụ phát trực tuyến.',
+                        'Ứng dụng chỉ phát những file âm thanh do bạn tự nhập. Tìm ảnh bìa online không tải nhạc từ dịch vụ phát trực tuyến.',
                         style: TextStyle(
                           color: AppColors.muted,
                           height: 1.45,
@@ -205,36 +179,47 @@ class SettingsScreen extends StatelessWidget {
   Future<void> _showSleepTimer(BuildContext context) async {
     final duration = await showModalBottomSheet<Duration?>(
       context: context,
-      builder: (context) => SafeArea(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            const ListTile(
-              title: Text(
-                'Hẹn giờ tắt nhạc',
-                style: TextStyle(fontSize: 22, fontWeight: FontWeight.w800),
-              ),
+      backgroundColor: Colors.transparent,
+      isScrollControlled: true,
+      builder: (context) => _LiquidSheet(
+        child: SafeArea(
+          top: false,
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(18, 16, 18, 18),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const _SheetHandle(),
+                const SizedBox(height: 15),
+                const Align(
+                  alignment: Alignment.centerLeft,
+                  child: Text(
+                    'Hẹn giờ tắt nhạc',
+                    style: TextStyle(fontSize: 24, fontWeight: FontWeight.w800),
+                  ),
+                ),
+                const SizedBox(height: 10),
+                for (final minutes in [10, 20, 30, 45, 60, 90])
+                  ListTile(
+                    leading: const Icon(CupertinoIcons.timer),
+                    title: Text('$minutes phút'),
+                    trailing: const Icon(CupertinoIcons.chevron_forward, size: 18),
+                    onTap: () =>
+                        Navigator.pop(context, Duration(minutes: minutes)),
+                  ),
+                ListTile(
+                  leading: const Icon(CupertinoIcons.clear_circled),
+                  title: const Text('Tắt hẹn giờ'),
+                  onTap: () => Navigator.pop(context, Duration.zero),
+                ),
+              ],
             ),
-            for (final minutes in [10, 20, 30, 45, 60, 90])
-              ListTile(
-                leading: const Icon(Icons.timer_outlined),
-                title: Text('$minutes phút'),
-                onTap: () =>
-                    Navigator.pop(context, Duration(minutes: minutes)),
-              ),
-            ListTile(
-              leading: const Icon(Icons.timer_off_outlined),
-              title: const Text('Tắt hẹn giờ'),
-              onTap: () => Navigator.pop(context, Duration.zero),
-            ),
-          ],
+          ),
         ),
       ),
     );
     if (duration == null) return;
-    playerController.setSleepTimer(
-      duration == Duration.zero ? null : duration,
-    );
+    playerController.setSleepTimer(duration == Duration.zero ? null : duration);
   }
 
   Future<void> _clearLibrary(BuildContext context) async {
@@ -264,6 +249,58 @@ class SettingsScreen extends StatelessWidget {
   }
 }
 
+class _LargeHeader extends StatelessWidget {
+  const _LargeHeader({
+    required this.eyebrow,
+    required this.title,
+    required this.subtitle,
+  });
+
+  final String eyebrow;
+  final String title;
+  final String subtitle;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 3),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            eyebrow,
+            style: const TextStyle(
+              color: AppColors.muted,
+              fontSize: 11,
+              fontWeight: FontWeight.w700,
+              letterSpacing: 1.15,
+            ),
+          ),
+          const SizedBox(height: 5),
+          Text(
+            title,
+            style: const TextStyle(
+              fontSize: 34,
+              height: 1,
+              fontWeight: FontWeight.w800,
+              letterSpacing: -1.25,
+            ),
+          ),
+          const SizedBox(height: 10),
+          Text(
+            subtitle,
+            style: const TextStyle(
+              color: AppColors.muted,
+              fontSize: 15,
+              height: 1.35,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
 class _SettingsGroup extends StatelessWidget {
   const _SettingsGroup({required this.title, required this.children});
 
@@ -281,17 +318,18 @@ class _SettingsGroup extends StatelessWidget {
             title,
             style: const TextStyle(
               color: AppColors.muted,
-              fontSize: 12,
-              fontWeight: FontWeight.w800,
+              fontSize: 11,
+              fontWeight: FontWeight.w700,
               letterSpacing: 1.1,
             ),
           ),
         ),
         GlassPanel(
           padding: EdgeInsets.zero,
-          borderRadius: 23,
-          blur: 16,
-          opacity: .58,
+          borderRadius: 28,
+          blur: 28,
+          opacity: .36,
+          shadow: true,
           child: Column(children: children),
         ),
       ],
@@ -323,11 +361,12 @@ class _SettingsTile extends StatelessWidget {
     return ListTile(
       minVerticalPadding: 11,
       leading: Container(
-        width: 38,
-        height: 38,
+        width: 40,
+        height: 40,
         decoration: BoxDecoration(
-          color: (iconColor ?? AppColors.graphite).withValues(alpha: .08),
-          borderRadius: BorderRadius.circular(12),
+          color: Colors.white.withValues(alpha: .56),
+          borderRadius: BorderRadius.circular(14),
+          border: Border.all(color: Colors.white.withValues(alpha: .72)),
         ),
         child: Icon(icon, color: iconColor ?? AppColors.graphite, size: 21),
       ),
@@ -335,32 +374,39 @@ class _SettingsTile extends StatelessWidget {
         title,
         style: TextStyle(
           color: titleColor ?? AppColors.text,
+          fontSize: 15.5,
           fontWeight: FontWeight.w700,
+          letterSpacing: -.15,
         ),
       ),
       subtitle: Text(
         subtitle,
-        style: const TextStyle(color: AppColors.muted, height: 1.3),
+        style: const TextStyle(
+          color: AppColors.muted,
+          height: 1.25,
+          fontSize: 13,
+        ),
       ),
       trailing: trailing ??
           (onTap == null
               ? null
               : const Icon(
-                  Icons.chevron_right_rounded,
+                  CupertinoIcons.chevron_forward,
                   color: AppColors.mutedSoft,
+                  size: 18,
                 )),
       onTap: onTap,
     );
   }
 }
 
-class _Divider extends StatelessWidget {
-  const _Divider();
+class _GroupDivider extends StatelessWidget {
+  const _GroupDivider();
 
   @override
   Widget build(BuildContext context) {
     return const Padding(
-      padding: EdgeInsets.only(left: 66),
+      padding: EdgeInsets.only(left: 70),
       child: Divider(height: 1),
     );
   }
@@ -374,23 +420,24 @@ class _VolumeTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.fromLTRB(14, 12, 14, 8),
+      padding: const EdgeInsets.fromLTRB(15, 13, 15, 9),
       child: Row(
         children: [
           Container(
-            width: 38,
-            height: 38,
+            width: 40,
+            height: 40,
             decoration: BoxDecoration(
-              color: const Color(0x19787880),
-              borderRadius: BorderRadius.circular(12),
+              color: Colors.white.withValues(alpha: .56),
+              borderRadius: BorderRadius.circular(14),
+              border: Border.all(color: Colors.white.withValues(alpha: .72)),
             ),
             child: const Icon(
-              Icons.volume_up_outlined,
+              CupertinoIcons.speaker_2,
               color: AppColors.graphite,
               size: 21,
             ),
           ),
-          const SizedBox(width: 12),
+          const SizedBox(width: 13),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -400,7 +447,10 @@ class _VolumeTile extends StatelessWidget {
                     const Expanded(
                       child: Text(
                         'Âm lượng ứng dụng',
-                        style: TextStyle(fontWeight: FontWeight.w700),
+                        style: TextStyle(
+                          fontSize: 15.5,
+                          fontWeight: FontWeight.w700,
+                        ),
                       ),
                     ),
                     Text(
@@ -420,6 +470,41 @@ class _VolumeTile extends StatelessWidget {
             ),
           ),
         ],
+      ),
+    );
+  }
+}
+
+class _LiquidSheet extends StatelessWidget {
+  const _LiquidSheet({required this.child});
+
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(8, 0, 8, 8),
+      child: GlassPanel(
+        borderRadius: 36,
+        blur: 32,
+        opacity: .74,
+        child: child,
+      ),
+    );
+  }
+}
+
+class _SheetHandle extends StatelessWidget {
+  const _SheetHandle();
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: 42,
+      height: 5,
+      decoration: BoxDecoration(
+        color: const Color(0x553C3C43),
+        borderRadius: BorderRadius.circular(10),
       ),
     );
   }

@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 import '../screens/now_playing_screen.dart';
@@ -21,9 +22,9 @@ class MiniPlayer extends StatelessWidget {
     return AnimatedBuilder(
       animation: Listenable.merge([libraryService, playerController]),
       builder: (context, _) {
-        final queueSong = playerController.currentSong;
-        if (queueSong == null) return const SizedBox.shrink();
-        final song = libraryService.songById(queueSong.id) ?? queueSong;
+        final queued = playerController.currentSong;
+        if (queued == null) return const SizedBox.shrink();
+        final song = libraryService.songById(queued.id) ?? queued;
         final duration = playerController.player.duration ?? song.duration;
         final position = playerController.player.position;
         final progress = duration.inMilliseconds <= 0
@@ -32,28 +33,27 @@ class MiniPlayer extends StatelessWidget {
                 .clamp(0.0, 1.0);
 
         return Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 3),
+          padding: const EdgeInsets.symmetric(horizontal: 4),
           child: GlassPanel(
-            borderRadius: 25,
-            blur: 32,
-            opacity: .56,
-            tint: AppColors.graphite,
+            borderRadius: 27,
+            blur: 26,
+            opacity: .58,
             shadow: true,
             onTap: () => _openNowPlaying(context),
             child: SizedBox(
-              height: 69,
+              height: 67,
               child: Stack(
                 children: [
                   Positioned(
-                    left: 11,
-                    right: 11,
-                    bottom: 5,
+                    left: 14,
+                    right: 14,
+                    bottom: 4,
                     child: ClipRRect(
-                      borderRadius: BorderRadius.circular(99),
+                      borderRadius: BorderRadius.circular(10),
                       child: LinearProgressIndicator(
                         value: progress,
-                        minHeight: 2.5,
-                        backgroundColor: const Color(0x23787880),
+                        minHeight: 2,
+                        backgroundColor: const Color(0x1F3C3C43),
                         valueColor: const AlwaysStoppedAnimation(
                           AppColors.graphite,
                         ),
@@ -61,15 +61,15 @@ class MiniPlayer extends StatelessWidget {
                     ),
                   ),
                   Padding(
-                    padding: const EdgeInsets.fromLTRB(9, 8, 7, 9),
+                    padding: const EdgeInsets.fromLTRB(9, 8, 8, 8),
                     child: Row(
                       children: [
                         Hero(
                           tag: 'now-playing-art-${song.id}',
                           child: SongArtwork(
                             song: song,
-                            size: 48,
-                            borderRadius: 15,
+                            size: 49,
+                            borderRadius: 14,
                           ),
                         ),
                         const SizedBox(width: 11),
@@ -78,18 +78,14 @@ class MiniPlayer extends StatelessWidget {
                             mainAxisAlignment: MainAxisAlignment.center,
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              AnimatedSwitcher(
-                                duration: const Duration(milliseconds: 250),
-                                child: Text(
-                                  song.title,
-                                  key: ValueKey(song.id),
-                                  maxLines: 1,
-                                  overflow: TextOverflow.ellipsis,
-                                  style: const TextStyle(
-                                    fontSize: 14,
-                                    fontWeight: FontWeight.w800,
-                                    letterSpacing: -.15,
-                                  ),
+                              Text(
+                                song.title,
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                                style: const TextStyle(
+                                  fontSize: 14.5,
+                                  fontWeight: FontWeight.w700,
+                                  letterSpacing: -.25,
                                 ),
                               ),
                               const SizedBox(height: 3),
@@ -106,19 +102,15 @@ class MiniPlayer extends StatelessWidget {
                             ],
                           ),
                         ),
-                        _LiquidControlButton(
-                          tooltip: playerController.player.playing
-                              ? 'Tạm dừng'
-                              : 'Phát',
-                          primary: true,
+                        _MiniButton(
                           onPressed: playerController.playOrPause,
                           icon: playerController.player.playing
-                              ? Icons.pause_rounded
-                              : Icons.play_arrow_rounded,
+                              ? CupertinoIcons.pause_fill
+                              : CupertinoIcons.play_fill,
+                          primary: true,
                         ),
-                        const SizedBox(width: 4),
-                        _LiquidControlButton(
-                          tooltip: 'Bài tiếp theo',
+                        const SizedBox(width: 5),
+                        _MiniButton(
                           onPressed: playerController.next,
                           icon: Icons.skip_next_rounded,
                         ),
@@ -137,8 +129,8 @@ class MiniPlayer extends StatelessWidget {
   void _openNowPlaying(BuildContext context) {
     Navigator.of(context).push(
       PageRouteBuilder<void>(
-        transitionDuration: const Duration(milliseconds: 420),
-        reverseTransitionDuration: const Duration(milliseconds: 320),
+        transitionDuration: const Duration(milliseconds: 360),
+        reverseTransitionDuration: const Duration(milliseconds: 280),
         pageBuilder: (_, animation, secondaryAnimation) => NowPlayingScreen(
           libraryService: libraryService,
           playerController: playerController,
@@ -165,57 +157,49 @@ class MiniPlayer extends StatelessWidget {
   }
 }
 
-class _LiquidControlButton extends StatelessWidget {
-  const _LiquidControlButton({
-    required this.tooltip,
+class _MiniButton extends StatelessWidget {
+  const _MiniButton({
     required this.onPressed,
     required this.icon,
     this.primary = false,
   });
 
-  final String tooltip;
   final VoidCallback onPressed;
   final IconData icon;
   final bool primary;
 
   @override
   Widget build(BuildContext context) {
-    return Tooltip(
-      message: tooltip,
-      child: SizedBox.square(
-        dimension: primary ? 42 : 38,
-        child: primary
-            ? GestureDetector(
-                onTap: onPressed,
-                child: DecoratedBox(
-                  decoration: BoxDecoration(
-                    color: AppColors.graphite.withValues(alpha: .94),
-                    borderRadius: BorderRadius.circular(15),
-                    border: Border.all(color: Colors.white.withValues(alpha: .72)),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withValues(alpha: .16),
-                        blurRadius: 12,
-                        offset: const Offset(0, 6),
-                      ),
-                    ],
+    return GestureDetector(
+      behavior: HitTestBehavior.opaque,
+      onTap: onPressed,
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 180),
+        width: primary ? 41 : 36,
+        height: primary ? 41 : 36,
+        decoration: BoxDecoration(
+          color: primary
+              ? AppColors.graphite
+              : Colors.white.withValues(alpha: .50),
+          borderRadius: BorderRadius.circular(primary ? 20.5 : 18),
+          border: Border.all(
+            color: Colors.white.withValues(alpha: primary ? .30 : .76),
+          ),
+          boxShadow: primary
+              ? [
+                  BoxShadow(
+                    color: Colors.black.withValues(alpha: .12),
+                    blurRadius: 12,
+                    offset: const Offset(0, 6),
                   ),
-                  child: Center(
-                    child: Icon(icon, size: 25, color: Colors.white),
-                  ),
-                ),
-              )
-            : GlassPanel(
-                borderRadius: 14,
-                blur: 18,
-                opacity: .50,
-                tint: AppColors.graphite,
-                shadow: false,
-                onTap: onPressed,
-                child: Center(
-                  child: Icon(icon, size: 23, color: AppColors.graphite),
-                ),
-              ),
+                ]
+              : null,
+        ),
+        child: Icon(
+          icon,
+          size: primary ? 20 : 18,
+          color: primary ? Colors.white : AppColors.graphite,
+        ),
       ),
     );
   }

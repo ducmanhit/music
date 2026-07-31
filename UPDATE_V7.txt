@@ -1,0 +1,9 @@
+OFFLINE MUSIC V7 — CÁCH CẬP NHẬT
+
+1. Chép toàn bộ nội dung của thư mục patch vào thư mục repo music.
+2. Chọn Replace the files in the destination.
+3. GitHub Desktop: Commit to main với nội dung "Rebuild iOS Clear Glass V7".
+4. Push origin.
+5. GitHub Actions sẽ build IPA chưa ký.
+
+Patch không xóa dữ liệu hay thay đổi cấu trúc lưu thư viện nhạc.

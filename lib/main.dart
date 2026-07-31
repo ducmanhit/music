@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:just_audio_background/just_audio_background.dart';
@@ -25,6 +26,7 @@ Future<void> main() async {
     statusBarBrightness: Brightness.light,
     systemNavigationBarColor: Colors.transparent,
     systemNavigationBarIconBrightness: Brightness.dark,
+    systemNavigationBarDividerColor: Colors.transparent,
   ));
   runApp(const OfflineMusicApp());
 }
@@ -83,7 +85,11 @@ class _OfflineMusicAppState extends State<OfflineMusicApp> {
                   playerController: playerController,
                 )
               : const Scaffold(
-                  body: Center(child: CircularProgressIndicator()),
+                  body: AppBackdrop(
+                    child: Center(
+                      child: CupertinoActivityIndicator(radius: 14),
+                    ),
+                  ),
                 ),
     );
   }
@@ -136,7 +142,7 @@ class _HomeShellState extends State<HomeShell> {
       body: IndexedStack(index: index, children: pages),
       bottomNavigationBar: SafeArea(
         top: false,
-        minimum: const EdgeInsets.fromLTRB(9, 0, 9, 7),
+        minimum: const EdgeInsets.fromLTRB(12, 0, 12, 7),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
@@ -145,45 +151,121 @@ class _HomeShellState extends State<HomeShell> {
               playerController: widget.playerController,
             ),
             const SizedBox(height: 7),
-            GlassPanel(
-              borderRadius: 35,
-              blur: 34,
-              opacity: .56,
-              tint: AppColors.graphite,
-              padding: const EdgeInsets.symmetric(horizontal: 5),
-              child: NavigationBar(
-                selectedIndex: index,
-                onDestinationSelected: navigate,
-                destinations: const [
-                  NavigationDestination(
-                    icon: Icon(Icons.music_note_outlined),
-                    selectedIcon: Icon(Icons.music_note_rounded),
-                    label: 'Trang chủ',
-                  ),
-                  NavigationDestination(
-                    icon: Icon(Icons.graphic_eq_outlined),
-                    selectedIcon: Icon(Icons.graphic_eq_rounded),
-                    label: 'Âm thanh',
-                  ),
-                  NavigationDestination(
-                    icon: Icon(Icons.library_music_outlined),
-                    selectedIcon: Icon(Icons.library_music_rounded),
-                    label: 'Thư viện',
-                  ),
-                  NavigationDestination(
-                    icon: Icon(Icons.settings_outlined),
-                    selectedIcon: Icon(Icons.settings_rounded),
-                    label: 'Cài đặt',
-                  ),
-                ],
-              ),
-            ),
+            _LiquidTabBar(index: index, onChanged: navigate),
           ],
         ),
       ),
     );
   }
+}
 
+class _LiquidTabBar extends StatelessWidget {
+  const _LiquidTabBar({required this.index, required this.onChanged});
+
+  final int index;
+  final ValueChanged<int> onChanged;
+
+  static const items = [
+    (CupertinoIcons.music_note_2, 'Trang chủ'),
+    (CupertinoIcons.waveform, 'Âm thanh'),
+    (CupertinoIcons.music_albums, 'Thư viện'),
+    (CupertinoIcons.gear_alt, 'Cài đặt'),
+  ];
+
+  @override
+  Widget build(BuildContext context) {
+    return GlassPanel(
+      borderRadius: 34,
+      blur: 28,
+      opacity: .55,
+      shadow: true,
+      highlight: true,
+      padding: const EdgeInsets.fromLTRB(5, 5, 5, 4),
+      child: SizedBox(
+        height: 64,
+        child: Row(
+          children: [
+            for (var i = 0; i < items.length; i++)
+              Expanded(
+                child: _LiquidTabItem(
+                  icon: items[i].$1,
+                  label: items[i].$2,
+                  selected: i == index,
+                  onTap: () => onChanged(i),
+                ),
+              ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _LiquidTabItem extends StatelessWidget {
+  const _LiquidTabItem({
+    required this.icon,
+    required this.label,
+    required this.selected,
+    required this.onTap,
+  });
+
+  final IconData icon;
+  final String label;
+  final bool selected;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      behavior: HitTestBehavior.opaque,
+      onTap: onTap,
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          AnimatedContainer(
+            duration: const Duration(milliseconds: 250),
+            curve: Curves.easeOutCubic,
+            width: selected ? 48 : 38,
+            height: 31,
+            decoration: BoxDecoration(
+              color: selected
+                  ? Colors.white.withValues(alpha: .78)
+                  : Colors.transparent,
+              borderRadius: BorderRadius.circular(18),
+              border: selected
+                  ? Border.all(color: Colors.white.withValues(alpha: .82))
+                  : null,
+              boxShadow: selected
+                  ? [
+                      BoxShadow(
+                        color: Colors.black.withValues(alpha: .05),
+                        blurRadius: 12,
+                        offset: const Offset(0, 5),
+                      ),
+                    ]
+                  : null,
+            ),
+            child: Icon(
+              icon,
+              size: 22,
+              color: selected ? AppColors.accent : AppColors.graphiteSoft,
+            ),
+          ),
+          const SizedBox(height: 2),
+          Text(
+            label,
+            maxLines: 1,
+            style: TextStyle(
+              color: selected ? AppColors.accent : AppColors.graphiteSoft,
+              fontSize: 10.5,
+              fontWeight: selected ? FontWeight.w700 : FontWeight.w600,
+              letterSpacing: -.15,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
 }
 
 class _StartupError extends StatelessWidget {
@@ -194,21 +276,23 @@ class _StartupError extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.all(24),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              const Icon(Icons.error_outline_rounded, size: 56),
-              const SizedBox(height: 20),
-              const Text(
-                'Không thể mở ứng dụng',
-                style: TextStyle(fontSize: 24, fontWeight: FontWeight.w900),
-              ),
-              const SizedBox(height: 12),
-              Text(message, textAlign: TextAlign.center),
-            ],
+      body: AppBackdrop(
+        child: SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.all(24),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                const Icon(CupertinoIcons.exclamationmark_triangle, size: 52),
+                const SizedBox(height: 20),
+                const Text(
+                  'Không thể mở ứng dụng',
+                  style: TextStyle(fontSize: 24, fontWeight: FontWeight.w800),
+                ),
+                const SizedBox(height: 12),
+                Text(message, textAlign: TextAlign.center),
+              ],
+            ),
           ),
         ),
       ),

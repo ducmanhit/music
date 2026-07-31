@@ -11,7 +11,11 @@ Future<void> showImportMusicSheet(
   final shouldImport = await showModalBottomSheet<bool>(
     context: context,
     useSafeArea: true,
-    builder: (context) => Padding(
+    backgroundColor: Colors.transparent,
+    builder: (context) => GlassPanel(
+      borderRadius: 34,
+      blur: 34,
+      opacity: .58,
       padding: const EdgeInsets.fromLTRB(18, 10, 18, 24),
       child: Column(
         mainAxisSize: MainAxisSize.min,
@@ -46,7 +50,7 @@ Future<void> showImportMusicSheet(
             padding: const EdgeInsets.all(16),
             borderRadius: 20,
             blur: 12,
-            opacity: .62,
+            opacity: .34,
             onTap: () => Navigator.pop(context, true),
             child: const Row(
               children: [
@@ -129,11 +133,12 @@ class _ImportIcon extends StatelessWidget {
       width: 50,
       height: 50,
       decoration: BoxDecoration(
-        gradient: AppGradients.hero,
+        color: AppColors.graphite,
         borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: Colors.white.withValues(alpha: .32)),
         boxShadow: const [
           BoxShadow(
-            color: Color(0x241C1C1E),
+            color: Color(0x1A000000),
             blurRadius: 16,
             offset: Offset(0, 7),
           ),

@@ -1,30 +1,30 @@
 import 'dart:ui';
 
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
-/// Neutral iOS-inspired palette. Saturated colours are deliberately limited to
-/// the system blue used for selected states and primary actions.
+/// Bảng màu trung tính, gần với giao diện iOS sáng.
+/// Chỉ dùng system blue cho trạng thái được chọn và hành động chính.
 abstract final class AppColors {
-  static const background = Color(0xFFF2F2F7);
-  static const backgroundSoft = Color(0xFFF8F8FA);
-  static const surface = Color(0x8FFFFFFF);
-  static const surfaceRaised = Color(0xC7FFFFFF);
-  static const search = Color(0xA8FFFFFF);
-  static const line = Color(0x8FFFFFFF);
-  static const lineStrong = Color(0xD9FFFFFF);
-  static const accent = Color(0xFF007AFF);
-  static const accentBright = Color(0xFF5AC8FA);
-  static const accentDark = Color(0x14007AFF);
-  static const graphite = Color(0xFF1C1C1E);
+  static const background = Color(0xFFF4F4F6);
+  static const backgroundSoft = Color(0xFFFAFAFB);
+  static const surface = Color(0x70FFFFFF);
+  static const surfaceRaised = Color(0xA8FFFFFF);
+  static const search = Color(0x66FFFFFF);
+  static const line = Color(0x66FFFFFF);
+  static const lineStrong = Color(0xCFFFFFFF);
+  static const accent = Color(0xFF0A84FF);
+  static const accentBright = Color(0xFF64D2FF);
+  static const accentDark = Color(0x160A84FF);
+  static const graphite = Color(0xFF111113);
   static const graphiteSoft = Color(0xFF3A3A3C);
 
-  // Kept for API compatibility with older screens. These are intentionally
-  // neutral so no cyan/violet/pink cast leaks into the glass surfaces.
-  static const cyan = Color(0xFFEDEDEF);
-  static const violet = Color(0xFFE5E5EA);
+  // Giữ tên cũ để các màn hình không bị lỗi khi cập nhật patch.
+  static const cyan = Color(0xFFE9E9EC);
+  static const violet = Color(0xFFE2E2E6);
   static const pink = Color(0xFFF5F5F7);
 
-  static const text = Color(0xFF111114);
+  static const text = Color(0xFF111113);
   static const muted = Color(0xFF6E6E73);
   static const mutedSoft = Color(0xFF9A9AA0);
   static const danger = Color(0xFFFF3B30);
@@ -33,62 +33,76 @@ abstract final class AppColors {
 }
 
 abstract final class AppGradients {
-  /// Quiet neutral canvas, close to the iOS grouped background.
   static const background = LinearGradient(
-    begin: Alignment.topLeft,
-    end: Alignment.bottomRight,
+    begin: Alignment.topCenter,
+    end: Alignment.bottomCenter,
     colors: [
-      Color(0xFFFBFBFC),
-      Color(0xFFF2F2F6),
-      Color(0xFFECECF1),
-      Color(0xFFF7F7F9),
+      Color(0xFFFCFCFD),
+      Color(0xFFF6F6F8),
+      Color(0xFFF0F0F3),
+      Color(0xFFF8F8FA),
     ],
-    stops: [0, .38, .74, 1],
+    stops: [0, .32, .72, 1],
   );
 
   static const accentSurface = LinearGradient(
     begin: Alignment.topLeft,
     end: Alignment.bottomRight,
-    colors: [Color(0xEFFFFFFF), Color(0x9AFFFFFF), Color(0x70EAEAEE)],
+    colors: [Color(0xD9FFFFFF), Color(0x7AFFFFFF)],
   );
 
-  /// Used by a few hero elements that expect white foreground content.
   static const hero = LinearGradient(
     begin: Alignment.topLeft,
     end: Alignment.bottomRight,
-    colors: [Color(0xFF151517), Color(0xFF2C2C2E)],
+    colors: [Color(0xFF161618), Color(0xFF343438)],
   );
 
   static const glassBorder = LinearGradient(
     begin: Alignment.topLeft,
     end: Alignment.bottomRight,
     colors: [
-      Color(0xFFFFFFFF),
-      Color(0xB8FFFFFF),
-      Color(0x58FFFFFF),
-      Color(0x9AFFFFFF),
+      Color(0xF8FFFFFF),
+      Color(0xAFFFFFFF),
+      Color(0x38FFFFFF),
+      Color(0x88FFFFFF),
     ],
-    stops: [0, .34, .70, 1],
+    stops: [0, .30, .72, 1],
   );
 }
 
 ThemeData buildLightTheme() {
-  final scheme = ColorScheme.fromSeed(
-    seedColor: AppColors.accent,
-    brightness: Brightness.light,
+  const scheme = ColorScheme.light(
     primary: AppColors.accent,
-    surface: Colors.white.withValues(alpha: .78),
+    onPrimary: Colors.white,
+    surface: Colors.white,
+    onSurface: AppColors.text,
     error: AppColors.danger,
   );
 
   return ThemeData(
     useMaterial3: true,
+    platform: TargetPlatform.iOS,
     brightness: Brightness.light,
-    scaffoldBackgroundColor: Colors.transparent,
     colorScheme: scheme,
-    fontFamily: '.SF Pro Display',
-    splashFactory: InkRipple.splashFactory,
+    scaffoldBackgroundColor: Colors.transparent,
+    splashFactory: NoSplash.splashFactory,
+    highlightColor: Colors.transparent,
+    hoverColor: Colors.transparent,
     visualDensity: VisualDensity.standard,
+    cupertinoOverrideTheme: const CupertinoThemeData(
+      brightness: Brightness.light,
+      primaryColor: AppColors.accent,
+      scaffoldBackgroundColor: Colors.transparent,
+      textTheme: CupertinoTextThemeData(
+        textStyle: TextStyle(color: AppColors.text),
+        navLargeTitleTextStyle: TextStyle(
+          color: AppColors.text,
+          fontSize: 34,
+          fontWeight: FontWeight.w800,
+          letterSpacing: -1.2,
+        ),
+      ),
+    ),
     appBarTheme: const AppBarTheme(
       backgroundColor: Colors.transparent,
       foregroundColor: AppColors.text,
@@ -98,75 +112,50 @@ ThemeData buildLightTheme() {
       scrolledUnderElevation: 0,
       titleTextStyle: TextStyle(
         color: AppColors.text,
-        fontSize: 27,
+        fontSize: 28,
         fontWeight: FontWeight.w800,
-        letterSpacing: -0.7,
-      ),
-    ),
-    navigationBarTheme: NavigationBarThemeData(
-      height: 67,
-      backgroundColor: Colors.transparent,
-      indicatorColor: Colors.white.withValues(alpha: .86),
-      elevation: 0,
-      shadowColor: Colors.transparent,
-      labelBehavior: NavigationDestinationLabelBehavior.alwaysShow,
-      labelTextStyle: WidgetStateProperty.resolveWith(
-        (states) => TextStyle(
-          color: states.contains(WidgetState.selected)
-              ? AppColors.accent
-              : AppColors.graphiteSoft,
-          fontSize: 11,
-          fontWeight: states.contains(WidgetState.selected)
-              ? FontWeight.w800
-              : FontWeight.w600,
-        ),
-      ),
-      iconTheme: WidgetStateProperty.resolveWith(
-        (states) => IconThemeData(
-          color: states.contains(WidgetState.selected)
-              ? AppColors.accent
-              : AppColors.graphiteSoft,
-          size: 24,
-        ),
+        letterSpacing: -0.8,
       ),
     ),
     inputDecorationTheme: InputDecorationTheme(
       filled: true,
-      fillColor: AppColors.search,
-      labelStyle: const TextStyle(color: AppColors.muted),
-      hintStyle: const TextStyle(color: AppColors.mutedSoft),
+      fillColor: Colors.white.withValues(alpha: .48),
+      hintStyle: const TextStyle(
+        color: AppColors.mutedSoft,
+        fontWeight: FontWeight.w500,
+      ),
       prefixIconColor: AppColors.muted,
       suffixIconColor: AppColors.muted,
       border: OutlineInputBorder(
         borderRadius: BorderRadius.circular(23),
-        borderSide: const BorderSide(color: AppColors.line),
+        borderSide: BorderSide.none,
       ),
       enabledBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(23),
-        borderSide: const BorderSide(color: AppColors.lineStrong),
+        borderSide: BorderSide(color: Colors.white.withValues(alpha: .72)),
       ),
       focusedBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(23),
-        borderSide: const BorderSide(color: AppColors.accent, width: 1.1),
+        borderSide: BorderSide(color: Colors.white.withValues(alpha: .96), width: 1.2),
       ),
-      contentPadding: const EdgeInsets.symmetric(horizontal: 17, vertical: 15),
+      contentPadding: const EdgeInsets.symmetric(horizontal: 18, vertical: 15),
     ),
     filledButtonTheme: FilledButtonThemeData(
       style: FilledButton.styleFrom(
         foregroundColor: Colors.white,
-        backgroundColor: AppColors.accent,
-        disabledBackgroundColor: const Color(0xFFD5D5DA),
+        backgroundColor: AppColors.graphite,
+        disabledBackgroundColor: const Color(0xFFD1D1D6),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
         padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 15),
-        textStyle: const TextStyle(fontSize: 15, fontWeight: FontWeight.w800),
+        textStyle: const TextStyle(fontSize: 15, fontWeight: FontWeight.w700),
         elevation: 0,
       ),
     ),
     outlinedButtonTheme: OutlinedButtonThemeData(
       style: OutlinedButton.styleFrom(
         foregroundColor: AppColors.text,
-        side: const BorderSide(color: AppColors.lineStrong),
-        backgroundColor: Colors.white.withValues(alpha: .45),
+        side: BorderSide(color: Colors.white.withValues(alpha: .76)),
+        backgroundColor: Colors.white.withValues(alpha: .26),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
         padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 15),
       ),
@@ -178,43 +167,46 @@ ThemeData buildLightTheme() {
       ),
     ),
     cardTheme: CardThemeData(
-      color: AppColors.surface,
+      color: Colors.transparent,
       surfaceTintColor: Colors.transparent,
       elevation: 0,
       margin: EdgeInsets.zero,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(24),
-        side: const BorderSide(color: AppColors.line),
-      ),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(28)),
     ),
     listTileTheme: const ListTileThemeData(
       iconColor: AppColors.graphiteSoft,
       textColor: AppColors.text,
-      contentPadding: EdgeInsets.symmetric(horizontal: 14),
+      contentPadding: EdgeInsets.symmetric(horizontal: 16),
+      minVerticalPadding: 10,
     ),
-    dividerTheme: const DividerThemeData(color: Color(0x16787880), thickness: 1),
+    dividerTheme: const DividerThemeData(
+      color: Color(0x1A3C3C43),
+      thickness: .7,
+      space: 1,
+    ),
     sliderTheme: SliderThemeData(
       activeTrackColor: AppColors.graphite,
-      inactiveTrackColor: const Color(0x33787880),
+      inactiveTrackColor: const Color(0x293C3C43),
       thumbColor: Colors.white,
-      overlayColor: AppColors.graphite.withValues(alpha: .08),
-      trackHeight: 4,
+      overlayColor: AppColors.graphite.withValues(alpha: .06),
+      trackHeight: 3.5,
       thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 7),
     ),
     bottomSheetTheme: const BottomSheetThemeData(
-      backgroundColor: Color(0xEAF7F7F9),
+      backgroundColor: Color(0xF2FFFFFF),
       surfaceTintColor: Colors.transparent,
       showDragHandle: false,
+      elevation: 0,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(34)),
       ),
     ),
     dialogTheme: const DialogThemeData(
-      backgroundColor: Color(0xEFF9F9FA),
+      backgroundColor: Color(0xECFFFFFF),
       surfaceTintColor: Colors.transparent,
-      elevation: 18,
+      elevation: 0,
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.all(Radius.circular(30)),
+        borderRadius: BorderRadius.all(Radius.circular(34)),
       ),
     ),
     snackBarTheme: const SnackBarThemeData(
@@ -224,29 +216,30 @@ ThemeData buildLightTheme() {
       elevation: 0,
     ),
     popupMenuTheme: PopupMenuThemeData(
-      color: Colors.white.withValues(alpha: .94),
+      color: Colors.white.withValues(alpha: .92),
       surfaceTintColor: Colors.transparent,
-      elevation: 12,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(25)),
-      textStyle: const TextStyle(color: AppColors.text),
+      elevation: 0,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(28)),
+      textStyle: const TextStyle(color: AppColors.text, fontSize: 17),
     ),
     tabBarTheme: const TabBarThemeData(
-      labelColor: AppColors.accent,
+      labelColor: AppColors.text,
       unselectedLabelColor: AppColors.muted,
-      indicatorColor: AppColors.accent,
-      dividerColor: Color(0x16787880),
-      labelStyle: TextStyle(fontWeight: FontWeight.w800),
-      unselectedLabelStyle: TextStyle(fontWeight: FontWeight.w700),
+      indicatorColor: AppColors.text,
+      dividerColor: Colors.transparent,
+      labelStyle: TextStyle(fontWeight: FontWeight.w700),
+      unselectedLabelStyle: TextStyle(fontWeight: FontWeight.w600),
     ),
   );
 }
 
-/// Neutral background with enough luminance variation for the backdrop blur to
-/// look like real glass, without coloured aurora blobs.
+/// Nền trắng trung tính với vài lớp xám rất nhẹ. Các lớp này chỉ để kính có
+/// vật thể phía sau để làm mờ, không tạo hiệu ứng xanh tím hoặc neon.
 class AppBackdrop extends StatelessWidget {
-  const AppBackdrop({super.key, required this.child});
+  const AppBackdrop({super.key, required this.child, this.artwork});
 
   final Widget child;
+  final ImageProvider? artwork;
 
   @override
   Widget build(BuildContext context) {
@@ -255,47 +248,32 @@ class AppBackdrop extends StatelessWidget {
       child: Stack(
         fit: StackFit.expand,
         children: [
-          const Positioned(
-            top: -120,
-            right: -100,
-            child: _NeutralOrb(
-              width: 330,
-              height: 320,
-              colors: [Color(0xFFFFFFFF), Color(0x80D9D9DE)],
-              angle: .22,
+          if (artwork != null)
+            Positioned.fill(
+              child: Opacity(
+                opacity: .10,
+                child: ImageFiltered(
+                  imageFilter: ImageFilter.blur(sigmaX: 54, sigmaY: 54),
+                  child: Image(image: artwork!, fit: BoxFit.cover),
+                ),
+              ),
             ),
+          const Positioned(
+            top: -160,
+            right: -170,
+            child: _SoftLens(width: 420, height: 390, opacity: .22),
           ),
           const Positioned(
-            left: -180,
-            top: 245,
-            child: _NeutralOrb(
-              width: 390,
-              height: 430,
-              colors: [Color(0xBFFFFFFF), Color(0x6AC7C7CC)],
-              angle: -.38,
-            ),
+            left: -210,
+            top: 330,
+            child: _SoftLens(width: 470, height: 520, opacity: .15),
           ),
           const Positioned(
-            right: -150,
-            bottom: 35,
-            child: _NeutralOrb(
-              width: 360,
-              height: 390,
-              colors: [Color(0xAFFFFFFF), Color(0x5AB8B8BE)],
-              angle: .48,
-            ),
+            right: -180,
+            bottom: -120,
+            child: _SoftLens(width: 430, height: 410, opacity: .12),
           ),
-          const Positioned(
-            left: 85,
-            bottom: -170,
-            child: _NeutralOrb(
-              width: 320,
-              height: 310,
-              colors: [Color(0xCFFFFFFF), Color(0x34AEAEB4)],
-              angle: -.16,
-            ),
-          ),
-          const Positioned.fill(child: _OpticalVeil()),
+          const Positioned.fill(child: _FineNoise()),
           child,
         ],
       ),
@@ -303,15 +281,15 @@ class AppBackdrop extends StatelessWidget {
   }
 }
 
-/// Reusable neutral liquid-glass surface with strong blur, a glossy upper rim,
-/// subtle lower refraction and a physically softer shadow.
+/// Bề mặt kính mỏng: nền trắng bán trong suốt, blur rõ, viền sáng phía trên,
+/// bóng đổ mềm. Không dùng tint màu và không dùng quầng sáng neon.
 class GlassPanel extends StatelessWidget {
   const GlassPanel({
     super.key,
     required this.child,
     this.padding,
-    this.borderRadius = 24,
-    this.blur = 30,
+    this.borderRadius = 28,
+    this.blur = 24,
     this.opacity = .42,
     this.onTap,
     this.shadow = true,
@@ -332,124 +310,72 @@ class GlassPanel extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final radius = BorderRadius.circular(borderRadius);
-    final refractiveTint = tint ?? AppColors.graphite;
-
-    Widget panel = Container(
+    Widget result = Container(
       decoration: BoxDecoration(
         borderRadius: radius,
-        gradient: AppGradients.glassBorder,
         boxShadow: shadow
             ? [
                 BoxShadow(
-                  color: const Color(0xFF3A3A3C).withValues(alpha: .11),
-                  blurRadius: 34,
+                  color: Colors.black.withValues(alpha: .075),
+                  blurRadius: 30,
                   spreadRadius: -10,
-                  offset: const Offset(0, 19),
-                ),
-                BoxShadow(
-                  color: Colors.white.withValues(alpha: .74),
-                  blurRadius: 12,
-                  spreadRadius: -6,
-                  offset: const Offset(-5, -5),
+                  offset: const Offset(0, 16),
                 ),
               ]
             : null,
       ),
-      padding: const EdgeInsets.all(1.1),
       child: ClipRRect(
-        borderRadius: BorderRadius.circular(
-          (borderRadius - 1.1).clamp(0, 999).toDouble(),
-        ),
+        borderRadius: radius,
         child: BackdropFilter(
           filter: ImageFilter.blur(sigmaX: blur, sigmaY: blur),
-          child: Stack(
-            children: [
-              Positioned.fill(
-                child: DecoratedBox(
-                  decoration: BoxDecoration(
-                    gradient: LinearGradient(
-                      begin: const Alignment(-1.0, -1.15),
-                      end: const Alignment(1.0, 1.05),
-                      colors: [
-                        Colors.white.withValues(alpha: (opacity + .20).clamp(0, 1).toDouble()),
-                        Colors.white.withValues(alpha: opacity * .82),
-                        const Color(0xFFE5E5EA).withValues(alpha: opacity * .30),
-                        Colors.white.withValues(alpha: opacity * .68),
-                      ],
-                      stops: const [0, .34, .72, 1],
-                    ),
-                  ),
-                ),
+          child: DecoratedBox(
+            decoration: BoxDecoration(
+              color: Colors.white.withValues(alpha: opacity.clamp(0.0, 1.0).toDouble()),
+              borderRadius: radius,
+              border: Border.all(
+                color: Colors.white.withValues(alpha: .72),
+                width: .8,
               ),
-              if (highlight) ...[
-                Positioned(
-                  left: -borderRadius * .42,
-                  top: -borderRadius * .84,
-                  width: borderRadius * 4.6,
-                  height: borderRadius * 2.7,
-                  child: IgnorePointer(
-                    child: DecoratedBox(
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(borderRadius * 2.2),
-                        gradient: RadialGradient(
-                          center: const Alignment(-.28, -.42),
-                          radius: .86,
-                          colors: [
-                            Colors.white.withValues(alpha: .78),
-                            Colors.white.withValues(alpha: .20),
-                            Colors.transparent,
-                          ],
-                          stops: const [0, .48, 1],
+            ),
+            child: Stack(
+              fit: StackFit.passthrough,
+              children: [
+                if (highlight)
+                  Positioned.fill(
+                    child: IgnorePointer(
+                      child: DecoratedBox(
+                        decoration: BoxDecoration(
+                          borderRadius: radius,
+                          gradient: LinearGradient(
+                            begin: Alignment.topCenter,
+                            end: Alignment.bottomCenter,
+                            colors: [
+                              Colors.white.withValues(alpha: .34),
+                              Colors.white.withValues(alpha: .05),
+                              Colors.transparent,
+                            ],
+                            stops: const [0, .30, 1],
+                          ),
                         ),
                       ),
                     ),
                   ),
-                ),
-                Positioned(
-                  right: -borderRadius * 1.0,
-                  bottom: -borderRadius * 1.24,
-                  width: borderRadius * 4.7,
-                  height: borderRadius * 3.25,
-                  child: IgnorePointer(
-                    child: DecoratedBox(
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(borderRadius * 2.2),
-                        gradient: RadialGradient(
-                          center: const Alignment(.12, .10),
-                          colors: [
-                            refractiveTint.withValues(alpha: .035),
-                            const Color(0xFF8E8E93).withValues(alpha: .028),
-                            Colors.transparent,
-                          ],
-                          stops: const [0, .50, 1],
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
+                Padding(padding: padding ?? EdgeInsets.zero, child: child),
               ],
-              Padding(padding: padding ?? EdgeInsets.zero, child: child),
-              Positioned.fill(
-                child: IgnorePointer(
-                  child: CustomPaint(
-                    painter: _LiquidLensPainter(radius: borderRadius - 1.2),
-                  ),
-                ),
-              ),
-            ],
+            ),
           ),
         ),
       ),
     );
 
     if (onTap != null) {
-      panel = GestureDetector(
+      result = GestureDetector(
         behavior: HitTestBehavior.opaque,
         onTap: onTap,
-        child: panel,
+        child: result,
       );
     }
-    return panel;
+    return result;
   }
 }
 
@@ -460,7 +386,7 @@ class GlassIconButton extends StatelessWidget {
     required this.onPressed,
     this.tooltip,
     this.selected = false,
-    this.size = 45,
+    this.size = 46,
   });
 
   final IconData icon;
@@ -474,55 +400,52 @@ class GlassIconButton extends StatelessWidget {
     Widget result = SizedBox.square(
       dimension: size,
       child: GlassPanel(
-        borderRadius: size * .38,
-        blur: 25,
-        opacity: selected ? .62 : .46,
+        borderRadius: size / 2,
+        blur: 22,
+        opacity: selected ? .72 : .48,
         shadow: false,
-        tint: AppColors.graphite,
         onTap: onPressed,
         child: Center(
           child: Icon(
             icon,
-            size: size * .47,
+            size: size * .46,
             color: selected ? AppColors.accent : AppColors.graphite,
           ),
         ),
       ),
     );
     if (tooltip != null) result = Tooltip(message: tooltip!, child: result);
-    return Opacity(opacity: onPressed == null ? .42 : 1, child: result);
+    return Opacity(opacity: onPressed == null ? .38 : 1, child: result);
   }
 }
 
-class _NeutralOrb extends StatelessWidget {
-  const _NeutralOrb({
+class _SoftLens extends StatelessWidget {
+  const _SoftLens({
     required this.width,
     required this.height,
-    required this.colors,
-    required this.angle,
+    required this.opacity,
   });
 
   final double width;
   final double height;
-  final List<Color> colors;
-  final double angle;
+  final double opacity;
 
   @override
   Widget build(BuildContext context) {
-    return Transform.rotate(
-      angle: angle,
-      child: ImageFiltered(
-        imageFilter: ImageFilter.blur(sigmaX: 48, sigmaY: 48),
-        child: Container(
-          width: width,
-          height: height,
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(width),
-            gradient: LinearGradient(
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-              colors: colors,
-            ),
+    return ImageFiltered(
+      imageFilter: ImageFilter.blur(sigmaX: 62, sigmaY: 62),
+      child: Container(
+        width: width,
+        height: height,
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(width),
+          gradient: RadialGradient(
+            colors: [
+              const Color(0xFF8E8E93).withValues(alpha: opacity),
+              const Color(0xFFD1D1D6).withValues(alpha: opacity * .46),
+              Colors.transparent,
+            ],
+            stops: const [0, .48, 1],
           ),
         ),
       ),
@@ -530,109 +453,30 @@ class _NeutralOrb extends StatelessWidget {
   }
 }
 
-class _OpticalVeil extends StatelessWidget {
-  const _OpticalVeil();
+class _FineNoise extends StatelessWidget {
+  const _FineNoise();
 
   @override
   Widget build(BuildContext context) {
-    return IgnorePointer(child: CustomPaint(painter: _OpticalVeilPainter()));
+    return IgnorePointer(
+      child: CustomPaint(painter: _FineNoisePainter()),
+    );
   }
 }
 
-class _OpticalVeilPainter extends CustomPainter {
+class _FineNoisePainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
-    final bright = Paint()
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = 1
-      ..shader = const LinearGradient(
-        colors: [Color(0x00FFFFFF), Color(0xA8FFFFFF), Color(0x00FFFFFF)],
-      ).createShader(Offset.zero & size);
-
-    final dark = Paint()
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = .7
-      ..shader = const LinearGradient(
-        colors: [Color(0x00787880), Color(0x16787880), Color(0x00787880)],
-      ).createShader(Offset.zero & size);
-
-    final path1 = Path()
-      ..moveTo(-50, size.height * .20)
-      ..cubicTo(
-        size.width * .22,
-        size.height * .10,
-        size.width * .62,
-        size.height * .39,
-        size.width + 50,
-        size.height * .25,
-      );
-    final path2 = Path()
-      ..moveTo(-55, size.height * .72)
-      ..cubicTo(
-        size.width * .28,
-        size.height * .57,
-        size.width * .62,
-        size.height * .88,
-        size.width + 52,
-        size.height * .66,
-      );
-    canvas.drawPath(path1, bright);
-    canvas.drawPath(path2, dark);
+    final paint = Paint()..color = const Color(0x07000000);
+    const step = 11.0;
+    for (double y = 4; y < size.height; y += step) {
+      final offset = ((y / step).round().isEven) ? 4.0 : 8.0;
+      for (double x = offset; x < size.width; x += step) {
+        canvas.drawCircle(Offset(x, y), .34, paint);
+      }
+    }
   }
 
   @override
   bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
-}
-
-class _LiquidLensPainter extends CustomPainter {
-  const _LiquidLensPainter({required this.radius});
-
-  final double radius;
-
-  @override
-  void paint(Canvas canvas, Size size) {
-    final rect = Offset.zero & size;
-    final rrect = RRect.fromRectAndRadius(
-      rect.deflate(.65),
-      Radius.circular(radius),
-    );
-
-    final rim = Paint()
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = 1.15
-      ..shader = const LinearGradient(
-        begin: Alignment.topLeft,
-        end: Alignment.bottomRight,
-        colors: [
-          Color(0xFFFFFFFF),
-          Color(0x8FFFFFFF),
-          Color(0x28FFFFFF),
-          Color(0xA8FFFFFF),
-        ],
-        stops: [0, .34, .72, 1],
-      ).createShader(rect);
-    canvas.drawRRect(rrect, rim);
-
-    final innerRect = rect.deflate(2.3);
-    if (innerRect.width <= 0 || innerRect.height <= 0) return;
-    final inner = RRect.fromRectAndRadius(
-      innerRect,
-      Radius.circular((radius - 2).clamp(0, radius).toDouble()),
-    );
-    final innerPaint = Paint()
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = .7
-      ..shader = const LinearGradient(
-        begin: Alignment.topCenter,
-        end: Alignment.bottomCenter,
-        colors: [Color(0xAFFFFFFF), Color(0x00FFFFFF), Color(0x17787880)],
-        stops: [0, .58, 1],
-      ).createShader(innerRect);
-    canvas.drawRRect(inner, innerPaint);
-  }
-
-  @override
-  bool shouldRepaint(covariant _LiquidLensPainter oldDelegate) {
-    return oldDelegate.radius != radius;
-  }
 }
