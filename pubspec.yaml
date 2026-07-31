@@ -1,28 +1,29 @@
 name: offline_music
-description: Trình phát nhạc offline cho iPhone, giao diện tối và đóng gói IPA bằng GitHub Actions.
-publish_to: "none"
-version: 2.0.0+2
+description: A premium offline music player.
+publish_to: 'none'
+version: 1.0.0+1
 
 environment:
-  sdk: ">=3.10.0 <4.0.0"
+  sdk: '>=3.0.0 <4.0.0'
 
 dependencies:
   flutter:
     sdk: flutter
-  cupertino_icons: ^1.0.8
-  just_audio: ^0.10.6
-  just_audio_background: ^0.0.1-beta.17
-  audio_session: ^0.2.4
-  file_picker: ^11.0.2
-  path_provider: ^2.1.5
-  path: ^1.9.1
-  mime: ^2.0.0
-  audio_metadata_reader: ^1.7.0
+  # Packages phục vụ cập nhật UI & Chức năng mới
+  image_picker: ^1.0.4
+  image_cropper: ^5.0.0
+  google_sign_in: ^6.1.5
+  googleapis: ^11.4.0
+  aad_oauth: ^3.0.1
+  http: ^1.1.0
+  flutter_downloader: ^1.11.1
+  path_provider: ^2.1.1
+  # Thêm các package cũ của project vào đây...
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
-  flutter_lints: ^6.0.0
+  flutter_lints: ^2.0.0
 
 flutter:
   uses-material-design: true

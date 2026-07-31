@@ -2,29 +2,25 @@ import 'package:flutter/material.dart';
 
 import '../services/library_service.dart';
 import '../services/player_controller.dart';
-import '../services/wifi_transfer_service.dart';
 import '../utils/app_theme.dart';
 import '../utils/formatters.dart';
-import 'wifi_transfer_screen.dart';
 
 class SettingsScreen extends StatelessWidget {
   const SettingsScreen({
     super.key,
     required this.libraryService,
     required this.playerController,
-    required this.wifiTransferService,
   });
 
   final LibraryService libraryService;
   final PlayerController playerController;
-  final WifiTransferService wifiTransferService;
 
   @override
   Widget build(BuildContext context) {
     return SafeArea(
       bottom: false,
       child: AnimatedBuilder(
-        animation: Listenable.merge([libraryService, playerController, wifiTransferService]),
+        animation: Listenable.merge([libraryService, playerController]),
         builder: (context, _) {
           return ListView(
             padding: const EdgeInsets.fromLTRB(18, 18, 18, 30),
@@ -78,30 +74,6 @@ class SettingsScreen extends StatelessWidget {
                     title: Text('Chủ đề tối'),
                     subtitle: Text('Tối ưu cho màn hình OLED'),
                     trailing: Icon(Icons.check_circle_rounded, color: AppColors.accent),
-                  ),
-                ],
-              ),
-              _SettingsSection(
-                icon: Icons.wifi_tethering_rounded,
-                title: 'Truyền nhạc qua Wi‑Fi',
-                children: [
-                  ListTile(
-                    leading: Icon(
-                      wifiTransferService.isRunning ? Icons.wifi_rounded : Icons.upload_file_rounded,
-                      color: AppColors.muted,
-                    ),
-                    title: const Text('Truyền nhạc qua Wi‑Fi'),
-                    subtitle: Text(
-                      wifiTransferService.isRunning
-                          ? wifiTransferService.url ?? 'Đang hoạt động'
-                          : 'Thêm nhạc từ máy tính qua trình duyệt',
-                    ),
-                    trailing: const Icon(Icons.chevron_right_rounded),
-                    onTap: () => Navigator.of(context).push(
-                      MaterialPageRoute<void>(
-                        builder: (_) => WifiTransferScreen(service: wifiTransferService),
-                      ),
-                    ),
                   ),
                 ],
               ),

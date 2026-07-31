@@ -4,24 +4,20 @@ import '../models/playlist.dart';
 import '../models/song.dart';
 import '../services/library_service.dart';
 import '../services/player_controller.dart';
-import '../services/wifi_transfer_service.dart';
 import '../utils/app_theme.dart';
 import '../widgets/song_artwork.dart';
 import '../widgets/song_tile.dart';
 import 'song_collection_screen.dart';
-import 'wifi_transfer_screen.dart';
 
 class LibraryScreen extends StatefulWidget {
   const LibraryScreen({
     super.key,
     required this.libraryService,
     required this.playerController,
-    required this.wifiTransferService,
   });
 
   final LibraryService libraryService;
   final PlayerController playerController;
-  final WifiTransferService wifiTransferService;
 
   @override
   State<LibraryScreen> createState() => _LibraryScreenState();
@@ -95,15 +91,6 @@ class _LibraryScreenState extends State<LibraryScreen> {
                         tooltip: 'Nhập nhạc',
                         onPressed: widget.libraryService.isImporting ? null : _import,
                         icon: const Icon(Icons.add_rounded, size: 30),
-                      ),
-                      IconButton(
-                        tooltip: 'Truyền qua Wi‑Fi',
-                        onPressed: () => Navigator.of(context).push(
-                          MaterialPageRoute<void>(
-                            builder: (_) => WifiTransferScreen(service: widget.wifiTransferService),
-                          ),
-                        ),
-                        icon: const Icon(Icons.wifi_tethering_rounded),
                       ),
                     ],
                   ),

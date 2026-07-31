@@ -8,7 +8,6 @@ import 'screens/quality_screen.dart';
 import 'screens/settings_screen.dart';
 import 'services/library_service.dart';
 import 'services/player_controller.dart';
-import 'services/wifi_transfer_service.dart';
 import 'utils/app_theme.dart';
 import 'widgets/mini_player.dart';
 
@@ -40,7 +39,6 @@ class OfflineMusicApp extends StatefulWidget {
 class _OfflineMusicAppState extends State<OfflineMusicApp> {
   late final LibraryService libraryService;
   late final PlayerController playerController;
-  late final WifiTransferService wifiTransferService;
   bool ready = false;
   String? error;
 
@@ -49,7 +47,6 @@ class _OfflineMusicAppState extends State<OfflineMusicApp> {
     super.initState();
     libraryService = LibraryService();
     playerController = PlayerController(libraryService);
-    wifiTransferService = WifiTransferService(libraryService);
     _initialize();
   }
 
@@ -67,7 +64,6 @@ class _OfflineMusicAppState extends State<OfflineMusicApp> {
 
   @override
   void dispose() {
-    wifiTransferService.dispose();
     playerController.dispose();
     libraryService.dispose();
     super.dispose();
@@ -85,7 +81,6 @@ class _OfflineMusicAppState extends State<OfflineMusicApp> {
               ? HomeShell(
                   libraryService: libraryService,
                   playerController: playerController,
-                  wifiTransferService: wifiTransferService,
                 )
               : const Scaffold(
                   body: Center(child: CircularProgressIndicator()),
@@ -99,12 +94,10 @@ class HomeShell extends StatefulWidget {
     super.key,
     required this.libraryService,
     required this.playerController,
-    required this.wifiTransferService,
   });
 
   final LibraryService libraryService;
   final PlayerController playerController;
-  final WifiTransferService wifiTransferService;
 
   @override
   State<HomeShell> createState() => _HomeShellState();
@@ -121,7 +114,6 @@ class _HomeShellState extends State<HomeShell> {
       HomeScreen(
         libraryService: widget.libraryService,
         playerController: widget.playerController,
-        wifiTransferService: widget.wifiTransferService,
         onNavigate: navigate,
       ),
       QualityScreen(
@@ -131,12 +123,10 @@ class _HomeShellState extends State<HomeShell> {
       LibraryScreen(
         libraryService: widget.libraryService,
         playerController: widget.playerController,
-        wifiTransferService: widget.wifiTransferService,
       ),
       SettingsScreen(
         libraryService: widget.libraryService,
         playerController: widget.playerController,
-        wifiTransferService: widget.wifiTransferService,
       ),
     ];
 

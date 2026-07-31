@@ -3,26 +3,22 @@ import 'package:flutter/material.dart';
 import '../models/song.dart';
 import '../services/library_service.dart';
 import '../services/player_controller.dart';
-import '../services/wifi_transfer_service.dart';
 import '../utils/app_theme.dart';
 import '../utils/formatters.dart';
 import '../widgets/song_artwork.dart';
 import '../widgets/song_tile.dart';
 import 'song_collection_screen.dart';
-import 'wifi_transfer_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({
     super.key,
     required this.libraryService,
     required this.playerController,
-    required this.wifiTransferService,
     required this.onNavigate,
   });
 
   final LibraryService libraryService;
   final PlayerController playerController;
-  final WifiTransferService wifiTransferService;
   final ValueChanged<int> onNavigate;
 
   @override
@@ -118,21 +114,7 @@ class _HomeScreenState extends State<HomeScreen> {
                             ),
                           ),
                         ),
-                        const SizedBox(width: 10),
-                        Expanded(
-                          child: _QuickCard(
-                            icon: Icons.wifi_tethering_rounded,
-                            label: 'Truyền nhạc\nqua Wi‑Fi',
-                            onTap: () => Navigator.of(context).push(
-                              MaterialPageRoute<void>(
-                                builder: (_) => WifiTransferScreen(
-                                  service: widget.wifiTransferService,
-                                ),
-                              ),
-                            ),
-                          ),
-                        ),
-                        const SizedBox(width: 10),
+                        const SizedBox(width: 12),
                         Expanded(
                           child: _QuickCard(
                             icon: Icons.graphic_eq_rounded,
