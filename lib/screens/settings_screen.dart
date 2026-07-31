@@ -361,12 +361,20 @@ class _SettingsTile extends StatelessWidget {
     return ListTile(
       minVerticalPadding: 11,
       leading: Container(
-        width: 40,
-        height: 40,
+        width: 42,
+        height: 42,
         decoration: BoxDecoration(
-          color: Colors.white.withValues(alpha: .36),
-          borderRadius: BorderRadius.circular(14),
-          border: Border.all(color: Colors.white.withValues(alpha: .32)),
+          color: Colors.white.withValues(alpha: .30),
+          borderRadius: BorderRadius.circular(999),
+          border: Border.all(color: Colors.white.withValues(alpha: .34)),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.white.withValues(alpha: .18),
+              blurRadius: 10,
+              spreadRadius: -4,
+              offset: const Offset(-2, -2),
+            ),
+          ],
         ),
         child: Icon(icon, color: iconColor ?? AppColors.graphite, size: 21),
       ),
@@ -424,12 +432,20 @@ class _VolumeTile extends StatelessWidget {
       child: Row(
         children: [
           Container(
-            width: 40,
-            height: 40,
+            width: 42,
+            height: 42,
             decoration: BoxDecoration(
-              color: Colors.white.withValues(alpha: .36),
-              borderRadius: BorderRadius.circular(14),
-              border: Border.all(color: Colors.white.withValues(alpha: .32)),
+              color: Colors.white.withValues(alpha: .30),
+              borderRadius: BorderRadius.circular(999),
+              border: Border.all(color: Colors.white.withValues(alpha: .34)),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.white.withValues(alpha: .18),
+                  blurRadius: 10,
+                  spreadRadius: -4,
+                  offset: const Offset(-2, -2),
+                ),
+              ],
             ),
             child: const Icon(
               CupertinoIcons.speaker_2,
@@ -500,7 +516,7 @@ class _SheetHandle extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      width: 42,
+      width: 46,
       height: 5,
       decoration: BoxDecoration(
         color: const Color(0x553C3C43),

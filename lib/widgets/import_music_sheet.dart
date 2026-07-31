@@ -130,21 +130,25 @@ class _ImportIcon extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      width: 50,
-      height: 50,
+      width: 52,
+      height: 52,
       decoration: BoxDecoration(
-        color: AppColors.graphite,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: Colors.white.withValues(alpha: .32)),
+        color: Colors.white.withValues(alpha: .32),
+        borderRadius: BorderRadius.circular(999),
+        border: Border.all(color: Colors.white.withValues(alpha: .38)),
         boxShadow: const [
           BoxShadow(
-            color: Color(0x1A000000),
+            color: Color(0x14000000),
             blurRadius: 16,
-            offset: Offset(0, 7),
+            spreadRadius: -4,
+            offset: Offset(0, 8),
           ),
         ],
       ),
-      child: const Icon(Icons.folder_open_rounded, color: Colors.white),
+      child: const Icon(
+        Icons.folder_open_rounded,
+        color: AppColors.graphite,
+      ),
     );
   }
 }

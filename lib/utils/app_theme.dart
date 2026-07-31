@@ -168,15 +168,15 @@ ThemeData buildLightTheme() {
       prefixIconColor: AppColors.muted,
       suffixIconColor: AppColors.muted,
       border: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(22),
+        borderRadius: BorderRadius.circular(24),
         borderSide: BorderSide.none,
       ),
       enabledBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(22),
+        borderRadius: BorderRadius.circular(24),
         borderSide: BorderSide(color: Colors.white.withValues(alpha: .46)),
       ),
       focusedBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(22),
+        borderRadius: BorderRadius.circular(24),
         borderSide: BorderSide(
           color: Colors.white.withValues(alpha: .82),
           width: 1,
@@ -189,8 +189,8 @@ ThemeData buildLightTheme() {
         foregroundColor: Colors.white,
         backgroundColor: AppColors.graphite,
         disabledBackgroundColor: const Color(0xFFD1D1D6),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
-        padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 15),
+        shape: const StadiumBorder(),
+        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 15),
         textStyle: const TextStyle(fontSize: 15, fontWeight: FontWeight.w700),
         elevation: 0,
       ),
@@ -200,8 +200,8 @@ ThemeData buildLightTheme() {
         foregroundColor: AppColors.text,
         side: BorderSide(color: Colors.white.withValues(alpha: .56)),
         backgroundColor: Colors.white.withValues(alpha: .14),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
-        padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 15),
+        shape: const StadiumBorder(),
+        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 15),
       ),
     ),
     textButtonTheme: TextButtonThemeData(
@@ -215,7 +215,7 @@ ThemeData buildLightTheme() {
       surfaceTintColor: Colors.transparent,
       elevation: 0,
       margin: EdgeInsets.zero,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(28)),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(32)),
     ),
     listTileTheme: const ListTileThemeData(
       iconColor: AppColors.graphiteSoft,
@@ -269,10 +269,10 @@ ThemeData buildLightTheme() {
       elevation: 0,
     ),
     popupMenuTheme: PopupMenuThemeData(
-      color: Colors.white.withValues(alpha: .78),
+      color: Colors.white.withValues(alpha: .72),
       surfaceTintColor: Colors.transparent,
       elevation: 0,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(28)),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(32)),
       textStyle: const TextStyle(
         color: AppColors.text,
         fontFamily: '.SF Pro Text',

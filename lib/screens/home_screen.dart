@@ -583,9 +583,9 @@ class _EmptyHome extends StatelessWidget {
               width: 68,
               height: 68,
               decoration: BoxDecoration(
-                color: Colors.white.withValues(alpha: .42),
-                borderRadius: BorderRadius.circular(24),
-                border: Border.all(color: Colors.white.withValues(alpha: .38)),
+                color: Colors.white.withValues(alpha: .34),
+                borderRadius: BorderRadius.circular(999),
+                border: Border.all(color: Colors.white.withValues(alpha: .40)),
               ),
               child: const Icon(
                 CupertinoIcons.music_note_2,
