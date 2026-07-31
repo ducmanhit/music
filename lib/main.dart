@@ -1,5 +1,3 @@
-import 'dart:ui';
-
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:just_audio_background/just_audio_background.dart';
@@ -25,7 +23,7 @@ Future<void> main() async {
     statusBarColor: Colors.transparent,
     statusBarIconBrightness: Brightness.dark,
     statusBarBrightness: Brightness.light,
-    systemNavigationBarColor: Colors.white,
+    systemNavigationBarColor: Colors.transparent,
     systemNavigationBarIconBrightness: Brightness.dark,
   ));
   runApp(const OfflineMusicApp());
@@ -138,60 +136,46 @@ class _HomeShellState extends State<HomeShell> {
       body: IndexedStack(index: index, children: pages),
       bottomNavigationBar: SafeArea(
         top: false,
-        minimum: const EdgeInsets.fromLTRB(10, 0, 10, 8),
-        child: ClipRRect(
-          borderRadius: BorderRadius.circular(28),
-          child: BackdropFilter(
-            filter: ImageFilter.blur(sigmaX: 22, sigmaY: 22),
-            child: DecoratedBox(
-              decoration: BoxDecoration(
-                color: Colors.white.withValues(alpha: .78),
-                borderRadius: BorderRadius.circular(28),
-                border: Border.all(color: Colors.white.withValues(alpha: .9)),
-                boxShadow: const [
-                  BoxShadow(
-                    color: Color(0x1C172B4D),
-                    blurRadius: 28,
-                    offset: Offset(0, 12),
+        minimum: const EdgeInsets.fromLTRB(9, 0, 9, 7),
+        child: GlassPanel(
+          borderRadius: 32,
+          blur: 38,
+          opacity: .17,
+          tint: AppColors.violet,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              MiniPlayer(
+                libraryService: widget.libraryService,
+                playerController: widget.playerController,
+              ),
+              NavigationBar(
+                selectedIndex: index,
+                onDestinationSelected: navigate,
+                destinations: const [
+                  NavigationDestination(
+                    icon: Icon(Icons.music_note_outlined),
+                    selectedIcon: Icon(Icons.music_note_rounded),
+                    label: 'Trang chủ',
+                  ),
+                  NavigationDestination(
+                    icon: Icon(Icons.graphic_eq_outlined),
+                    selectedIcon: Icon(Icons.graphic_eq_rounded),
+                    label: 'Âm thanh',
+                  ),
+                  NavigationDestination(
+                    icon: Icon(Icons.library_music_outlined),
+                    selectedIcon: Icon(Icons.library_music_rounded),
+                    label: 'Thư viện',
+                  ),
+                  NavigationDestination(
+                    icon: Icon(Icons.settings_outlined),
+                    selectedIcon: Icon(Icons.settings_rounded),
+                    label: 'Cài đặt',
                   ),
                 ],
               ),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  MiniPlayer(
-                    libraryService: widget.libraryService,
-                    playerController: widget.playerController,
-                  ),
-                  NavigationBar(
-                    selectedIndex: index,
-                    onDestinationSelected: navigate,
-                    destinations: const [
-                      NavigationDestination(
-                        icon: Icon(Icons.music_note_outlined),
-                        selectedIcon: Icon(Icons.music_note_rounded),
-                        label: 'Trang chủ',
-                      ),
-                      NavigationDestination(
-                        icon: Icon(Icons.graphic_eq_outlined),
-                        selectedIcon: Icon(Icons.graphic_eq_rounded),
-                        label: 'Âm thanh',
-                      ),
-                      NavigationDestination(
-                        icon: Icon(Icons.library_music_outlined),
-                        selectedIcon: Icon(Icons.library_music_rounded),
-                        label: 'Thư viện',
-                      ),
-                      NavigationDestination(
-                        icon: Icon(Icons.settings_outlined),
-                        selectedIcon: Icon(Icons.settings_rounded),
-                        label: 'Cài đặt',
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-            ),
+            ],
           ),
         ),
       ),

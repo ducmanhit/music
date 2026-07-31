@@ -46,7 +46,7 @@ Future<void> showImportMusicSheet(
             padding: const EdgeInsets.all(16),
             borderRadius: 20,
             blur: 12,
-            opacity: .82,
+            opacity: .24,
             onTap: () => Navigator.pop(context, true),
             child: const Row(
               children: [

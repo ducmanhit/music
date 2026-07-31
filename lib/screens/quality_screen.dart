@@ -61,7 +61,7 @@ class QualityScreen extends StatelessWidget {
                   padding: const EdgeInsets.all(20),
                   borderRadius: 26,
                   blur: 18,
-                  opacity: .74,
+                  opacity: .24,
                   child: Row(
                     children: [
                       Container(
@@ -232,7 +232,7 @@ class _InfoGroup extends StatelessWidget {
           padding: EdgeInsets.zero,
           borderRadius: 23,
           blur: 16,
-          opacity: .72,
+          opacity: .22,
           child: Column(children: children),
         ),
       ],

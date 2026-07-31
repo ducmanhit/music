@@ -290,7 +290,7 @@ class _SettingsGroup extends StatelessWidget {
           padding: EdgeInsets.zero,
           borderRadius: 23,
           blur: 16,
-          opacity: .72,
+          opacity: .22,
           child: Column(children: children),
         ),
       ],

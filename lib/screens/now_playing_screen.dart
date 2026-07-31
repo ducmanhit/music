@@ -66,29 +66,24 @@ class NowPlayingScreen extends StatelessWidget {
                       Expanded(
                         child: Center(
                           child: AnimatedContainer(
-                            duration: const Duration(milliseconds: 260),
+                            duration: const Duration(milliseconds: 280),
                             curve: Curves.easeOutCubic,
-                            width: artworkSize,
-                            height: artworkSize,
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(30),
-                              boxShadow: const [
-                                BoxShadow(
-                                  color: Color(0x30172B4D),
-                                  blurRadius: 38,
-                                  offset: Offset(0, 20),
+                            width: artworkSize + 18,
+                            height: artworkSize + 18,
+                            child: GlassPanel(
+                              borderRadius: 36,
+                              blur: 26,
+                              opacity: .10,
+                              tint: AppColors.pink,
+                              padding: const EdgeInsets.all(9),
+                              child: Hero(
+                                tag: 'now-playing-art-${song.id}',
+                                child: SongArtwork(
+                                  song: song,
+                                  size: artworkSize,
+                                  borderRadius: 28,
                                 ),
-                                BoxShadow(
-                                  color: Color(0x66FFFFFF),
-                                  blurRadius: 14,
-                                  offset: Offset(-7, -7),
-                                ),
-                              ],
-                            ),
-                            child: SongArtwork(
-                              song: song,
-                              size: artworkSize,
-                              borderRadius: 30,
+                              ),
                             ),
                           ),
                         ),
@@ -109,9 +104,10 @@ class NowPlayingScreen extends StatelessWidget {
                               compact ? 16 : 20,
                               compact ? 10 : 14,
                             ),
-                            borderRadius: 30,
-                            blur: 24,
-                            opacity: .76,
+                            borderRadius: 32,
+                            blur: 38,
+                            opacity: .16,
+                            tint: AppColors.violet,
                             child: Column(
                               children: [
                                 Text(
@@ -484,57 +480,52 @@ class _PlaybackControls extends StatelessWidget {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        IconButton(
+        GlassIconButton(
+          icon: Icons.shuffle_rounded,
+          tooltip: 'Trộn bài',
+          selected: playerController.shuffleEnabled,
+          size: compact ? 42 : 45,
           onPressed: playerController.toggleShuffle,
-          color: playerController.shuffleEnabled
-              ? AppColors.accent
-              : AppColors.muted,
-          icon: const Icon(Icons.shuffle_rounded),
         ),
-        IconButton(
+        GlassIconButton(
+          icon: Icons.skip_previous_rounded,
+          tooltip: 'Bài trước',
+          size: compact ? 47 : 51,
           onPressed: playerController.previous,
-          iconSize: compact ? 34 : 38,
-          icon: const Icon(Icons.skip_previous_rounded),
         ),
-        DecoratedBox(
-          decoration: BoxDecoration(
-            shape: BoxShape.circle,
-            gradient: AppGradients.hero,
-            boxShadow: const [
-              BoxShadow(
-                color: Color(0x380A84FF),
-                blurRadius: 24,
-                offset: Offset(0, 10),
+        SizedBox.square(
+          dimension: compact ? 66 : 74,
+          child: GlassPanel(
+            borderRadius: 99,
+            blur: 30,
+            opacity: .22,
+            tint: AppColors.accent,
+            onTap: playerController.playOrPause,
+            child: Center(
+              child: Icon(
+                playerController.player.playing
+                    ? Icons.pause_rounded
+                    : Icons.play_arrow_rounded,
+                size: compact ? 38 : 43,
+                color: AppColors.accent,
               ),
-            ],
-          ),
-          child: IconButton(
-            onPressed: playerController.playOrPause,
-            iconSize: compact ? 35 : 40,
-            padding: EdgeInsets.all(compact ? 14 : 17),
-            color: Colors.white,
-            icon: Icon(
-              playerController.player.playing
-                  ? Icons.pause_rounded
-                  : Icons.play_arrow_rounded,
             ),
           ),
         ),
-        IconButton(
+        GlassIconButton(
+          icon: Icons.skip_next_rounded,
+          tooltip: 'Bài tiếp theo',
+          size: compact ? 47 : 51,
           onPressed: playerController.next,
-          iconSize: compact ? 34 : 38,
-          icon: const Icon(Icons.skip_next_rounded),
         ),
-        IconButton(
+        GlassIconButton(
+          icon: playerController.loopMode == LoopMode.one
+              ? Icons.repeat_one_rounded
+              : Icons.repeat_rounded,
+          tooltip: 'Lặp bài',
+          selected: playerController.loopMode != LoopMode.off,
+          size: compact ? 42 : 45,
           onPressed: playerController.cycleLoopMode,
-          color: playerController.loopMode == LoopMode.off
-              ? AppColors.muted
-              : AppColors.accent,
-          icon: Icon(
-            playerController.loopMode == LoopMode.one
-                ? Icons.repeat_one_rounded
-                : Icons.repeat_rounded,
-          ),
         ),
       ],
     );
@@ -557,22 +548,22 @@ class _BottomTools extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      height: 40,
+      height: 43,
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceAround,
         children: [
-          IconButton(
+          GlassIconButton(
             tooltip: 'Yêu thích',
             onPressed: () => libraryService.toggleFavorite(song.id),
-            color: song.isFavorite ? AppColors.danger : AppColors.muted,
-            icon: Icon(
-              song.isFavorite
-                  ? Icons.favorite_rounded
-                  : Icons.favorite_border_rounded,
-            ),
+            selected: song.isFavorite,
+            size: 41,
+            icon: song.isFavorite
+                ? Icons.favorite_rounded
+                : Icons.favorite_border_rounded,
           ),
-          IconButton(
+          GlassIconButton(
             tooltip: 'AirPlay',
+            size: 41,
             onPressed: () {
               ScaffoldMessenger.of(context).showSnackBar(
                 const SnackBar(
@@ -582,16 +573,14 @@ class _BottomTools extends StatelessWidget {
                 ),
               );
             },
-            color: AppColors.muted,
-            icon: const Icon(Icons.airplay_rounded),
+            icon: Icons.airplay_rounded,
           ),
-          IconButton(
+          GlassIconButton(
             tooltip: 'Hẹn giờ tắt nhạc',
+            size: 41,
+            selected: playerController.sleepEndsAt != null,
             onPressed: onSleepTimer,
-            color: playerController.sleepEndsAt != null
-                ? AppColors.accent
-                : AppColors.muted,
-            icon: const Icon(Icons.bedtime_outlined),
+            icon: Icons.bedtime_outlined,
           ),
         ],
       ),

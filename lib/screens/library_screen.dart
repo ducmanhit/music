@@ -154,7 +154,7 @@ class _LibraryScreenState extends State<LibraryScreen> {
                       padding: EdgeInsets.zero,
                       borderRadius: 19,
                       blur: 14,
-                      opacity: .72,
+                      opacity: .22,
                       shadow: false,
                       child: const TabBar(
                         isScrollable: true,

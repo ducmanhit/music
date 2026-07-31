@@ -1,7 +1,7 @@
 name: offline_music
-description: Trình phát nhạc offline cho iPhone với giao diện kính trong suốt và build IPA bằng GitHub Actions.
+description: Trình phát nhạc offline cho iPhone với giao diện Liquid Glass trong suốt và build IPA bằng GitHub Actions.
 publish_to: "none"
-version: 4.0.0+4
+version: 5.0.0+5
 
 environment:
   sdk: ">=3.10.0 <4.0.0"

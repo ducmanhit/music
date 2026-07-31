@@ -120,7 +120,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                 padding: const EdgeInsets.only(bottom: 8),
                                 child: DecoratedBox(
                                   decoration: BoxDecoration(
-                                    color: Colors.white.withValues(alpha: .72),
+                                    color: Colors.white.withValues(alpha: .24),
                                     borderRadius: BorderRadius.circular(18),
                                     border: Border.all(color: AppColors.line),
                                   ),
@@ -278,7 +278,7 @@ class _HomeScreenState extends State<HomeScreen> {
               GlassPanel(
                 padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
                 blur: 10,
-                opacity: .8,
+                opacity: .24,
                 shadow: false,
                 child: Row(
                   children: [
@@ -462,7 +462,7 @@ class _QuickCard extends StatelessWidget {
       padding: const EdgeInsets.fromLTRB(12, 14, 12, 13),
       borderRadius: 21,
       blur: 14,
-      opacity: .66,
+      opacity: .20,
       onTap: onTap,
       child: SizedBox(
         height: 92,
@@ -643,7 +643,7 @@ class _EmptyHome extends StatelessWidget {
         padding: const EdgeInsets.all(28),
         borderRadius: 26,
         blur: 18,
-        opacity: .72,
+        opacity: .22,
         child: Column(
           children: [
             Container(

@@ -3,20 +3,22 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 
 abstract final class AppColors {
-  static const background = Color(0xFFF4F7FB);
-  static const backgroundSoft = Color(0xFFEAF1FA);
-  static const surface = Color(0xCCFFFFFF);
-  static const surfaceRaised = Color(0xF2FFFFFF);
-  static const search = Color(0xBFFFFFFF);
-  static const line = Color(0x1A1D2B45);
-  static const lineStrong = Color(0x2E1D2B45);
-  static const accent = Color(0xFF0A84FF);
-  static const accentBright = Color(0xFF59B5FF);
-  static const accentDark = Color(0x1F0A84FF);
-  static const violet = Color(0xFF7A6CF6);
-  static const text = Color(0xFF111827);
-  static const muted = Color(0xFF6B7280);
-  static const mutedSoft = Color(0xFF9AA3B2);
+  static const background = Color(0xFFF2F7FF);
+  static const backgroundSoft = Color(0xFFE8F1FF);
+  static const surface = Color(0x66FFFFFF);
+  static const surfaceRaised = Color(0xA8FFFFFF);
+  static const search = Color(0x52FFFFFF);
+  static const line = Color(0x59FFFFFF);
+  static const lineStrong = Color(0x8FFFFFFF);
+  static const accent = Color(0xFF087CFF);
+  static const accentBright = Color(0xFF55B8FF);
+  static const accentDark = Color(0x21087CFF);
+  static const cyan = Color(0xFF51D7E8);
+  static const violet = Color(0xFF8878FF);
+  static const pink = Color(0xFFFF8DC7);
+  static const text = Color(0xFF10203A);
+  static const muted = Color(0xFF60708B);
+  static const mutedSoft = Color(0xFF93A0B5);
   static const danger = Color(0xFFFF3B30);
   static const success = Color(0xFF30B66B);
   static const ink = Colors.white;
@@ -27,26 +29,40 @@ abstract final class AppGradients {
     begin: Alignment.topLeft,
     end: Alignment.bottomRight,
     colors: [
-      Color(0xFFF8FBFF),
-      Color(0xFFF0F5FC),
-      Color(0xFFF8F4FF),
+      Color(0xFFF7FBFF),
+      Color(0xFFEAF4FF),
+      Color(0xFFF5EDFF),
+      Color(0xFFEAFBFA),
     ],
-    stops: [0, .55, 1],
+    stops: [0, .38, .72, 1],
   );
 
   static const accentSurface = LinearGradient(
     begin: Alignment.topLeft,
     end: Alignment.bottomRight,
     colors: [
-      Color(0xE6FFFFFF),
-      Color(0xBFF2F7FF),
+      Color(0x9FFFFFFF),
+      Color(0x3DF5FAFF),
+      Color(0x26BCEAFF),
     ],
   );
 
   static const hero = LinearGradient(
     begin: Alignment.topLeft,
     end: Alignment.bottomRight,
-    colors: [Color(0xFF5EB5FF), Color(0xFF7A72F4)],
+    colors: [Color(0xFF4AB8FF), Color(0xFF8178FF), Color(0xFFFF8DC7)],
+  );
+
+  static const glassBorder = LinearGradient(
+    begin: Alignment.topLeft,
+    end: Alignment.bottomRight,
+    colors: [
+      Color(0xF2FFFFFF),
+      Color(0x70FFFFFF),
+      Color(0x38A7CFFF),
+      Color(0xA6FFFFFF),
+    ],
+    stops: [0, .34, .70, 1],
   );
 }
 
@@ -55,14 +71,14 @@ ThemeData buildLightTheme() {
     seedColor: AppColors.accent,
     brightness: Brightness.light,
     primary: AppColors.accent,
-    surface: Colors.white,
+    surface: Colors.white.withValues(alpha: .72),
     error: AppColors.danger,
   );
 
   return ThemeData(
     useMaterial3: true,
     brightness: Brightness.light,
-    scaffoldBackgroundColor: AppColors.background,
+    scaffoldBackgroundColor: Colors.transparent,
     colorScheme: scheme,
     fontFamily: '.SF Pro Display',
     splashFactory: InkRipple.splashFactory,
@@ -82,9 +98,9 @@ ThemeData buildLightTheme() {
       ),
     ),
     navigationBarTheme: NavigationBarThemeData(
-      height: 67,
+      height: 65,
       backgroundColor: Colors.transparent,
-      indicatorColor: AppColors.accentDark,
+      indicatorColor: Colors.white.withValues(alpha: .42),
       elevation: 0,
       shadowColor: Colors.transparent,
       labelTextStyle: WidgetStateProperty.resolveWith(
@@ -113,16 +129,16 @@ ThemeData buildLightTheme() {
       prefixIconColor: AppColors.muted,
       suffixIconColor: AppColors.muted,
       border: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(18),
+        borderRadius: BorderRadius.circular(22),
         borderSide: const BorderSide(color: AppColors.line),
       ),
       enabledBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(18),
-        borderSide: const BorderSide(color: AppColors.line),
+        borderRadius: BorderRadius.circular(22),
+        borderSide: const BorderSide(color: AppColors.lineStrong),
       ),
       focusedBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(18),
-        borderSide: const BorderSide(color: AppColors.accent, width: 1.3),
+        borderRadius: BorderRadius.circular(22),
+        borderSide: const BorderSide(color: AppColors.accent, width: 1.25),
       ),
       contentPadding: const EdgeInsets.symmetric(horizontal: 17, vertical: 15),
     ),
@@ -131,7 +147,7 @@ ThemeData buildLightTheme() {
         foregroundColor: Colors.white,
         backgroundColor: AppColors.accent,
         disabledBackgroundColor: const Color(0xFFD5DCE7),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(17)),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
         padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 15),
         textStyle: const TextStyle(fontSize: 15, fontWeight: FontWeight.w800),
         elevation: 0,
@@ -141,8 +157,8 @@ ThemeData buildLightTheme() {
       style: OutlinedButton.styleFrom(
         foregroundColor: AppColors.text,
         side: const BorderSide(color: AppColors.lineStrong),
-        backgroundColor: const Color(0x99FFFFFF),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(17)),
+        backgroundColor: Colors.white.withValues(alpha: .28),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
         padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 15),
       ),
     ),
@@ -158,7 +174,7 @@ ThemeData buildLightTheme() {
       elevation: 0,
       margin: EdgeInsets.zero,
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(22),
+        borderRadius: BorderRadius.circular(24),
         side: const BorderSide(color: AppColors.line),
       ),
     ),
@@ -167,50 +183,53 @@ ThemeData buildLightTheme() {
       textColor: AppColors.text,
       contentPadding: EdgeInsets.symmetric(horizontal: 14),
     ),
-    dividerTheme: const DividerThemeData(color: AppColors.line, thickness: 1),
+    dividerTheme: const DividerThemeData(color: Color(0x2A74829A), thickness: 1),
     sliderTheme: SliderThemeData(
       activeTrackColor: AppColors.accent,
-      inactiveTrackColor: const Color(0xFFD6DFEA),
+      inactiveTrackColor: Colors.white.withValues(alpha: .50),
       thumbColor: Colors.white,
       overlayColor: AppColors.accent.withValues(alpha: .12),
       trackHeight: 4,
       thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 7),
     ),
-    bottomSheetTheme: const BottomSheetThemeData(
-      backgroundColor: Color(0xF7FFFFFF),
+    bottomSheetTheme: BottomSheetThemeData(
+      backgroundColor: Colors.white.withValues(alpha: .80),
       surfaceTintColor: Colors.transparent,
       showDragHandle: false,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(30)),
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(32)),
       ),
     ),
-    dialogTheme: const DialogThemeData(
-      backgroundColor: Color(0xFAFFFFFF),
+    dialogTheme: DialogThemeData(
+      backgroundColor: Colors.white.withValues(alpha: .88),
       surfaceTintColor: Colors.transparent,
     ),
     snackBarTheme: const SnackBarThemeData(
-      backgroundColor: Color(0xEE1F2937),
+      backgroundColor: Color(0xE81F2937),
       contentTextStyle: TextStyle(color: Colors.white),
       behavior: SnackBarBehavior.floating,
       elevation: 0,
     ),
-    popupMenuTheme: const PopupMenuThemeData(
-      color: Color(0xFAFFFFFF),
+    popupMenuTheme: PopupMenuThemeData(
+      color: Colors.white.withValues(alpha: .92),
       surfaceTintColor: Colors.transparent,
       elevation: 8,
-      textStyle: TextStyle(color: AppColors.text),
+      textStyle: const TextStyle(color: AppColors.text),
     ),
     tabBarTheme: const TabBarThemeData(
       labelColor: AppColors.accent,
       unselectedLabelColor: AppColors.muted,
       indicatorColor: AppColors.accent,
-      dividerColor: AppColors.line,
+      dividerColor: Color(0x2874829A),
       labelStyle: TextStyle(fontWeight: FontWeight.w800),
       unselectedLabelStyle: TextStyle(fontWeight: FontWeight.w700),
     ),
   );
 }
 
+/// A vivid background is essential for believable liquid glass. The colored
+/// shapes remain behind every translucent surface so blur and refraction are
+/// visible instead of looking like plain white cards.
 class AppBackdrop extends StatelessWidget {
   const AppBackdrop({super.key, required this.child});
 
@@ -224,29 +243,46 @@ class AppBackdrop extends StatelessWidget {
         fit: StackFit.expand,
         children: [
           const Positioned(
-            top: -90,
-            right: -100,
-            child: _GlowOrb(
-              size: 290,
-              color: Color(0x3359B5FF),
+            top: -108,
+            right: -92,
+            child: _AuroraBlob(
+              width: 310,
+              height: 300,
+              colors: [Color(0x8A49C7FF), Color(0x667B77FF)],
+              angle: .35,
             ),
           ),
           const Positioned(
-            left: -120,
-            top: 270,
-            child: _GlowOrb(
-              size: 300,
-              color: Color(0x267A6CF6),
+            left: -148,
+            top: 250,
+            child: _AuroraBlob(
+              width: 330,
+              height: 390,
+              colors: [Color(0x74FF91C8), Color(0x595AAFFF)],
+              angle: -.42,
             ),
           ),
           const Positioned(
-            right: -110,
-            bottom: 80,
-            child: _GlowOrb(
-              size: 260,
-              color: Color(0x2458D3C7),
+            right: -130,
+            bottom: 90,
+            child: _AuroraBlob(
+              width: 310,
+              height: 350,
+              colors: [Color(0x7053E3CF), Color(0x664CB6FF)],
+              angle: .6,
             ),
           ),
+          const Positioned(
+            left: 72,
+            bottom: -125,
+            child: _AuroraBlob(
+              width: 260,
+              height: 260,
+              colors: [Color(0x5DFFF0A8), Color(0x38FFFFFF)],
+              angle: -.2,
+            ),
+          ),
+          const Positioned.fill(child: _PrismaticVeil()),
           child,
         ],
       ),
@@ -254,16 +290,20 @@ class AppBackdrop extends StatelessWidget {
   }
 }
 
+/// A reusable liquid-glass surface. It combines strong backdrop blur, a low
+/// opacity material tint, a prismatic inner glow and asymmetric lens highlights.
 class GlassPanel extends StatelessWidget {
   const GlassPanel({
     super.key,
     required this.child,
     this.padding,
-    this.borderRadius = 22,
-    this.blur = 18,
-    this.opacity = .68,
+    this.borderRadius = 24,
+    this.blur = 30,
+    this.opacity = .30,
     this.onTap,
     this.shadow = true,
+    this.tint,
+    this.highlight = true,
   });
 
   final Widget child;
@@ -273,43 +313,127 @@ class GlassPanel extends StatelessWidget {
   final double opacity;
   final VoidCallback? onTap;
   final bool shadow;
+  final Color? tint;
+  final bool highlight;
 
   @override
   Widget build(BuildContext context) {
-    final panel = ClipRRect(
-      borderRadius: BorderRadius.circular(borderRadius),
-      child: BackdropFilter(
-        filter: ImageFilter.blur(sigmaX: blur, sigmaY: blur),
-        child: Container(
-          padding: padding,
-          decoration: BoxDecoration(
-            color: Colors.white.withValues(alpha: opacity),
-            borderRadius: BorderRadius.circular(borderRadius),
-            border: Border.all(color: Colors.white.withValues(alpha: .86)),
-            boxShadow: shadow
-                ? const [
-                    BoxShadow(
-                      color: Color(0x14172B4D),
-                      blurRadius: 24,
-                      offset: Offset(0, 10),
+    final radius = BorderRadius.circular(borderRadius);
+    final effectiveTint = tint ?? AppColors.accent;
+
+    Widget panel = Container(
+      decoration: BoxDecoration(
+        borderRadius: radius,
+        gradient: AppGradients.glassBorder,
+        boxShadow: shadow
+            ? [
+                BoxShadow(
+                  color: const Color(0xFF29486F).withValues(alpha: .14),
+                  blurRadius: 30,
+                  spreadRadius: -8,
+                  offset: const Offset(0, 18),
+                ),
+                BoxShadow(
+                  color: Colors.white.withValues(alpha: .50),
+                  blurRadius: 10,
+                  spreadRadius: -5,
+                  offset: const Offset(-5, -5),
+                ),
+              ]
+            : null,
+      ),
+      padding: const EdgeInsets.all(1.15),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular((borderRadius - 1.15).clamp(0, 999).toDouble()),
+        child: BackdropFilter(
+          filter: ImageFilter.blur(sigmaX: blur, sigmaY: blur),
+          child: Stack(
+            children: [
+              Positioned.fill(
+                child: DecoratedBox(
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      begin: const Alignment(-1.1, -1.15),
+                      end: const Alignment(1.0, 1.05),
+                      colors: [
+                        Colors.white.withValues(alpha: opacity + .18),
+                        Colors.white.withValues(alpha: opacity * .56),
+                        effectiveTint.withValues(alpha: .075),
+                        Colors.white.withValues(alpha: opacity * .78),
+                      ],
+                      stops: const [0, .34, .72, 1],
                     ),
-                  ]
-                : null,
+                  ),
+                ),
+              ),
+              if (highlight) ...[
+                Positioned(
+                  left: -borderRadius * .35,
+                  top: -borderRadius * .72,
+                  width: borderRadius * 4.1,
+                  height: borderRadius * 2.35,
+                  child: IgnorePointer(
+                    child: DecoratedBox(
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(borderRadius * 2),
+                        gradient: RadialGradient(
+                          center: const Alignment(-.25, -.35),
+                          radius: .82,
+                          colors: [
+                            Colors.white.withValues(alpha: .58),
+                            Colors.white.withValues(alpha: .16),
+                            Colors.transparent,
+                          ],
+                          stops: const [0, .46, 1],
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+                Positioned(
+                  right: -borderRadius * .90,
+                  bottom: -borderRadius * 1.22,
+                  width: borderRadius * 4.5,
+                  height: borderRadius * 3.15,
+                  child: IgnorePointer(
+                    child: DecoratedBox(
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(borderRadius * 2),
+                        gradient: RadialGradient(
+                          center: const Alignment(.15, .10),
+                          colors: [
+                            effectiveTint.withValues(alpha: .15),
+                            effectiveTint.withValues(alpha: .05),
+                            Colors.transparent,
+                          ],
+                          stops: const [0, .48, 1],
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+              Padding(padding: padding ?? EdgeInsets.zero, child: child),
+              Positioned.fill(
+                child: IgnorePointer(
+                  child: CustomPaint(
+                    painter: _LiquidLensPainter(
+                      radius: borderRadius - 1.2,
+                      tint: effectiveTint,
+                    ),
+                  ),
+                ),
+              ),
+            ],
           ),
-          child: child,
         ),
       ),
     );
 
-    if (onTap == null) return panel;
-    return Material(
-      color: Colors.transparent,
-      child: InkWell(
-        onTap: onTap,
-        borderRadius: BorderRadius.circular(borderRadius),
-        child: panel,
-      ),
-    );
+    if (onTap != null) {
+      panel = GestureDetector(behavior: HitTestBehavior.opaque, onTap: onTap, child: panel);
+    }
+    return panel;
   }
 }
 
@@ -320,7 +444,7 @@ class GlassIconButton extends StatelessWidget {
     required this.onPressed,
     this.tooltip,
     this.selected = false,
-    this.size = 44,
+    this.size = 45,
   });
 
   final IconData icon;
@@ -331,40 +455,163 @@ class GlassIconButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SizedBox.square(
+    Widget result = SizedBox.square(
       dimension: size,
-      child: IconButton(
-        tooltip: tooltip,
-        onPressed: onPressed,
-        style: IconButton.styleFrom(
-          backgroundColor: selected
-              ? AppColors.accent.withValues(alpha: .14)
-              : Colors.white.withValues(alpha: .72),
-          foregroundColor: selected ? AppColors.accent : AppColors.text,
-          side: const BorderSide(color: AppColors.line),
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+      child: GlassPanel(
+        borderRadius: size * .37,
+        blur: 22,
+        opacity: selected ? .34 : .20,
+        shadow: false,
+        tint: selected ? AppColors.accent : AppColors.cyan,
+        onTap: onPressed,
+        child: Center(
+          child: Icon(
+            icon,
+            size: size * .48,
+            color: selected ? AppColors.accent : AppColors.text,
+          ),
         ),
-        icon: Icon(icon, size: 22),
+      ),
+    );
+    if (tooltip != null) result = Tooltip(message: tooltip!, child: result);
+    return Opacity(opacity: onPressed == null ? .45 : 1, child: result);
+  }
+}
+
+class _AuroraBlob extends StatelessWidget {
+  const _AuroraBlob({
+    required this.width,
+    required this.height,
+    required this.colors,
+    required this.angle,
+  });
+
+  final double width;
+  final double height;
+  final List<Color> colors;
+  final double angle;
+
+  @override
+  Widget build(BuildContext context) {
+    return Transform.rotate(
+      angle: angle,
+      child: ImageFiltered(
+        imageFilter: ImageFilter.blur(sigmaX: 42, sigmaY: 42),
+        child: Container(
+          width: width,
+          height: height,
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(width),
+            gradient: LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: colors,
+            ),
+          ),
+        ),
       ),
     );
   }
 }
 
-class _GlowOrb extends StatelessWidget {
-  const _GlowOrb({required this.size, required this.color});
-
-  final double size;
-  final Color color;
+class _PrismaticVeil extends StatelessWidget {
+  const _PrismaticVeil();
 
   @override
   Widget build(BuildContext context) {
-    return ImageFiltered(
-      imageFilter: ImageFilter.blur(sigmaX: 34, sigmaY: 34),
-      child: Container(
-        width: size,
-        height: size,
-        decoration: BoxDecoration(shape: BoxShape.circle, color: color),
-      ),
+    return IgnorePointer(
+      child: CustomPaint(painter: _PrismaticVeilPainter()),
     );
+  }
+}
+
+class _PrismaticVeilPainter extends CustomPainter {
+  @override
+  void paint(Canvas canvas, Size size) {
+    final paint = Paint()
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 1
+      ..shader = const LinearGradient(
+        colors: [Color(0x00FFFFFF), Color(0x38FFFFFF), Color(0x00FFFFFF)],
+      ).createShader(Rect.fromLTWH(0, 0, size.width, size.height));
+
+    final path = Path()
+      ..moveTo(-40, size.height * .22)
+      ..cubicTo(
+        size.width * .20,
+        size.height * .12,
+        size.width * .62,
+        size.height * .42,
+        size.width + 40,
+        size.height * .26,
+      )
+      ..moveTo(-50, size.height * .70)
+      ..cubicTo(
+        size.width * .28,
+        size.height * .58,
+        size.width * .60,
+        size.height * .88,
+        size.width + 45,
+        size.height * .68,
+      );
+    canvas.drawPath(path, paint);
+  }
+
+  @override
+  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
+}
+
+class _LiquidLensPainter extends CustomPainter {
+  const _LiquidLensPainter({required this.radius, required this.tint});
+
+  final double radius;
+  final Color tint;
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final rect = Offset.zero & size;
+    final rrect = RRect.fromRectAndRadius(rect.deflate(.65), Radius.circular(radius));
+
+    final topLens = Paint()
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 1.2
+      ..shader = LinearGradient(
+        begin: Alignment.topLeft,
+        end: Alignment.bottomRight,
+        colors: [
+          Colors.white.withValues(alpha: .94),
+          Colors.white.withValues(alpha: .22),
+          tint.withValues(alpha: .10),
+          Colors.white.withValues(alpha: .48),
+        ],
+        stops: const [0, .35, .72, 1],
+      ).createShader(rect);
+    canvas.drawRRect(rrect, topLens);
+
+    final innerRect = rect.deflate(2.2);
+    if (innerRect.width <= 0 || innerRect.height <= 0) return;
+    final inner = RRect.fromRectAndRadius(
+      innerRect,
+      Radius.circular((radius - 2).clamp(0, radius).toDouble()),
+    );
+    final innerPaint = Paint()
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = .7
+      ..shader = LinearGradient(
+        begin: Alignment.topCenter,
+        end: Alignment.bottomCenter,
+        colors: [
+          Colors.white.withValues(alpha: .52),
+          Colors.transparent,
+          tint.withValues(alpha: .13),
+        ],
+        stops: const [0, .58, 1],
+      ).createShader(innerRect);
+    canvas.drawRRect(inner, innerPaint);
+  }
+
+  @override
+  bool shouldRepaint(covariant _LiquidLensPainter oldDelegate) {
+    return oldDelegate.radius != radius || oldDelegate.tint != tint;
   }
 }
