@@ -41,7 +41,7 @@ class WaveformSeekBar extends StatelessWidget {
                     activeTrackColor: Colors.transparent,
                     inactiveTrackColor: Colors.transparent,
                     thumbColor: Colors.transparent,
-                    overlayColor: const Color(0x225BE0CF),
+                    overlayColor: const Color(0x220A84FF),
                     thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 12),
                   ),
                   child: Slider(
@@ -83,7 +83,7 @@ class _WavePainter extends CustomPainter {
       ..strokeCap = StrokeCap.round
       ..strokeWidth = width.clamp(2.0, 5.0);
     final unplayed = Paint()
-      ..color = const Color(0xFF3B444C)
+      ..color = const Color(0xFFD5DEE9)
       ..strokeCap = StrokeCap.round
       ..strokeWidth = width.clamp(2.0, 5.0);
 

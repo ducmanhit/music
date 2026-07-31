@@ -11,8 +11,6 @@ import 'package:path_provider/path_provider.dart';
 import '../models/playlist.dart';
 import '../models/song.dart';
 
-enum MusicImportSource { files, googleDrive, oneDrive }
-
 class ImportResult {
   const ImportResult({
     required this.imported,
@@ -129,23 +127,13 @@ class LibraryService extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future<ImportResult> importFromFiles() =>
-      importFromPicker(MusicImportSource.files);
-
-  Future<ImportResult> importFromPicker(
-    MusicImportSource source,
-  ) async {
+  Future<ImportResult> importFromFiles() async {
     if (_isImporting) {
       return const ImportResult(imported: 0, skipped: 0, failed: 0);
     }
 
-    final dialogTitle = switch (source) {
-      MusicImportSource.files => 'Chọn file nhạc',
-      MusicImportSource.googleDrive => 'Chọn nhạc từ Google Drive',
-      MusicImportSource.oneDrive => 'Chọn nhạc từ OneDrive',
-    };
     final result = await FilePicker.pickFiles(
-      dialogTitle: dialogTitle,
+      dialogTitle: 'Chọn file nhạc',
       type: FileType.custom,
       allowMultiple: true,
       allowedExtensions: supportedExtensions,

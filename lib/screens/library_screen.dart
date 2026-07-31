@@ -5,9 +5,9 @@ import '../models/song.dart';
 import '../services/library_service.dart';
 import '../services/player_controller.dart';
 import '../utils/app_theme.dart';
+import '../widgets/import_music_sheet.dart';
 import '../widgets/song_artwork.dart';
 import '../widgets/song_tile.dart';
-import '../widgets/import_music_sheet.dart';
 import 'song_collection_screen.dart';
 
 class LibraryScreen extends StatefulWidget {
@@ -34,10 +34,14 @@ class _LibraryScreenState extends State<LibraryScreen> {
     final result = widget.libraryService.search(query);
     switch (sort) {
       case SongSort.title:
-        result.sort((a, b) => a.title.toLowerCase().compareTo(b.title.toLowerCase()));
+        result.sort(
+          (a, b) => a.title.toLowerCase().compareTo(b.title.toLowerCase()),
+        );
         break;
       case SongSort.artist:
-        result.sort((a, b) => a.artist.toLowerCase().compareTo(b.artist.toLowerCase()));
+        result.sort(
+          (a, b) => a.artist.toLowerCase().compareTo(b.artist.toLowerCase()),
+        );
         break;
       case SongSort.added:
         result.sort((a, b) => b.addedAt.compareTo(a.addedAt));
@@ -51,115 +55,161 @@ class _LibraryScreenState extends State<LibraryScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return SafeArea(
-      bottom: false,
-      child: DefaultTabController(
-        length: 5,
-        child: AnimatedBuilder(
-          animation: widget.libraryService,
-          builder: (context, _) {
-            final songs = _sortedSongs();
-            return Column(
-              children: [
-                Padding(
-                  padding: const EdgeInsets.fromLTRB(20, 16, 10, 8),
-                  child: Row(
-                    children: [
-                      const Expanded(
-                        child: Text(
-                          'Thư viện',
-                          style: TextStyle(fontSize: 31, fontWeight: FontWeight.w900, letterSpacing: -.8),
+    return AppBackdrop(
+      child: SafeArea(
+        bottom: false,
+        child: DefaultTabController(
+          length: 5,
+          child: AnimatedBuilder(
+            animation: widget.libraryService,
+            builder: (context, _) {
+              final songs = _sortedSongs();
+              return Column(
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(22, 18, 16, 8),
+                    child: Row(
+                      children: [
+                        const Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                'Bộ sưu tập',
+                                style: TextStyle(
+                                  color: AppColors.accent,
+                                  fontSize: 13,
+                                  fontWeight: FontWeight.w800,
+                                ),
+                              ),
+                              SizedBox(height: 3),
+                              Text(
+                                'Thư viện',
+                                style: TextStyle(
+                                  fontSize: 32,
+                                  fontWeight: FontWeight.w800,
+                                  letterSpacing: -1,
+                                ),
+                              ),
+                            ],
+                          ),
                         ),
-                      ),
-                      PopupMenuButton<SongSort>(
-                        tooltip: 'Sắp xếp',
-                        initialValue: sort,
-                        onSelected: (value) => setState(() => sort = value),
-                        icon: const Icon(Icons.sort_rounded),
-                        itemBuilder: (context) => const [
-                          PopupMenuItem(value: SongSort.title, child: Text('Tên bài hát')),
-                          PopupMenuItem(value: SongSort.artist, child: Text('Nghệ sĩ')),
-                          PopupMenuItem(value: SongSort.added, child: Text('Ngày thêm')),
-                          PopupMenuItem(value: SongSort.duration, child: Text('Thời lượng')),
-                        ],
-                      ),
-                      IconButton(
-                        tooltip: 'Quét lại thư mục Music',
-                        onPressed: widget.libraryService.isImporting ? null : _rescan,
-                        icon: const Icon(Icons.refresh_rounded),
-                      ),
-                      IconButton(
-                        tooltip: 'Nhập nhạc',
-                        onPressed: widget.libraryService.isImporting ? null : _import,
-                        icon: const Icon(Icons.add_rounded, size: 30),
-                      ),
-                    ],
-                  ),
-                ),
-                Padding(
-                  padding: const EdgeInsets.fromLTRB(20, 10, 20, 12),
-                  child: TextField(
-                    onChanged: (value) => setState(() => query = value),
-                    decoration: const InputDecoration(
-                      hintText: 'Tìm bài hát, nghệ sĩ, album...',
-                      prefixIcon: Icon(Icons.search_rounded),
+                        PopupMenuButton<SongSort>(
+                          tooltip: 'Sắp xếp',
+                          initialValue: sort,
+                          onSelected: (value) => setState(() => sort = value),
+                          icon: const Icon(Icons.sort_rounded),
+                          itemBuilder: (context) => const [
+                            PopupMenuItem(
+                              value: SongSort.title,
+                              child: Text('Tên bài hát'),
+                            ),
+                            PopupMenuItem(
+                              value: SongSort.artist,
+                              child: Text('Nghệ sĩ'),
+                            ),
+                            PopupMenuItem(
+                              value: SongSort.added,
+                              child: Text('Ngày thêm'),
+                            ),
+                            PopupMenuItem(
+                              value: SongSort.duration,
+                              child: Text('Thời lượng'),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(width: 4),
+                        GlassIconButton(
+                          icon: Icons.refresh_rounded,
+                          tooltip: 'Quét lại thư viện',
+                          onPressed: widget.libraryService.isImporting
+                              ? null
+                              : _rescan,
+                        ),
+                        const SizedBox(width: 8),
+                        GlassIconButton(
+                          icon: Icons.add_rounded,
+                          tooltip: 'Nhập nhạc',
+                          selected: true,
+                          onPressed: widget.libraryService.isImporting
+                              ? null
+                              : _import,
+                        ),
+                      ],
                     ),
                   ),
-                ),
-                const TabBar(
-                  isScrollable: true,
-                  tabAlignment: TabAlignment.start,
-                  indicatorColor: AppColors.accent,
-                  labelColor: AppColors.accent,
-                  unselectedLabelColor: AppColors.muted,
-                  dividerColor: AppColors.line,
-                  tabs: [
-                    Tab(text: 'Bài hát'),
-                    Tab(text: 'Playlist'),
-                    Tab(text: 'Thư mục'),
-                    Tab(text: 'Nghệ sĩ'),
-                    Tab(text: 'Album'),
-                  ],
-                ),
-                Expanded(
-                  child: TabBarView(
-                    children: [
-                      _SongsTab(
-                        songs: songs,
-                        libraryService: widget.libraryService,
-                        playerController: widget.playerController,
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(20, 10, 20, 12),
+                    child: TextField(
+                      onChanged: (value) => setState(() => query = value),
+                      decoration: const InputDecoration(
+                        hintText: 'Tìm bài hát, nghệ sĩ, album',
+                        prefixIcon: Icon(Icons.search_rounded),
                       ),
-                      _PlaylistsTab(
-                        libraryService: widget.libraryService,
-                        playerController: widget.playerController,
-                      ),
-                      _GroupsTab(
-                        groups: widget.libraryService.byFolder,
-                        emptyText: 'Chưa có thư mục nhạc',
-                        icon: Icons.folder_outlined,
-                        libraryService: widget.libraryService,
-                        playerController: widget.playerController,
-                      ),
-                      _GroupsTab(
-                        groups: widget.libraryService.byArtist,
-                        emptyText: 'Chưa có thông tin nghệ sĩ',
-                        icon: Icons.person_outline_rounded,
-                        libraryService: widget.libraryService,
-                        playerController: widget.playerController,
-                      ),
-                      _GroupsTab(
-                        groups: widget.libraryService.byAlbum,
-                        emptyText: 'Chưa có thông tin album',
-                        icon: Icons.album_outlined,
-                        libraryService: widget.libraryService,
-                        playerController: widget.playerController,
-                      ),
-                    ],
+                    ),
                   ),
-                ),
-              ],
-            );
-          },
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                    child: GlassPanel(
+                      padding: EdgeInsets.zero,
+                      borderRadius: 19,
+                      blur: 14,
+                      opacity: .72,
+                      shadow: false,
+                      child: const TabBar(
+                        isScrollable: true,
+                        tabAlignment: TabAlignment.start,
+                        indicatorSize: TabBarIndicatorSize.label,
+                        tabs: [
+                          Tab(text: 'Bài hát'),
+                          Tab(text: 'Playlist'),
+                          Tab(text: 'Thư mục'),
+                          Tab(text: 'Nghệ sĩ'),
+                          Tab(text: 'Album'),
+                        ],
+                      ),
+                    ),
+                  ),
+                  Expanded(
+                    child: TabBarView(
+                      children: [
+                        _SongsTab(
+                          songs: songs,
+                          libraryService: widget.libraryService,
+                          playerController: widget.playerController,
+                        ),
+                        _PlaylistsTab(
+                          libraryService: widget.libraryService,
+                          playerController: widget.playerController,
+                        ),
+                        _GroupsTab(
+                          groups: widget.libraryService.byFolder,
+                          emptyText: 'Chưa có thư mục nhạc',
+                          icon: Icons.folder_outlined,
+                          libraryService: widget.libraryService,
+                          playerController: widget.playerController,
+                        ),
+                        _GroupsTab(
+                          groups: widget.libraryService.byArtist,
+                          emptyText: 'Chưa có thông tin nghệ sĩ',
+                          icon: Icons.person_outline_rounded,
+                          libraryService: widget.libraryService,
+                          playerController: widget.playerController,
+                        ),
+                        _GroupsTab(
+                          groups: widget.libraryService.byAlbum,
+                          emptyText: 'Chưa có thông tin album',
+                          icon: Icons.album_outlined,
+                          libraryService: widget.libraryService,
+                          playerController: widget.playerController,
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              );
+            },
+          ),
         ),
       ),
     );
@@ -173,7 +223,9 @@ class _LibraryScreenState extends State<LibraryScreen> {
   Future<void> _rescan() async {
     final result = await widget.libraryService.rescanMusicFolder();
     if (!mounted) return;
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(result.message)));
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(result.message)),
+    );
   }
 }
 
@@ -235,7 +287,7 @@ class _SongsTab extends StatelessWidget {
         ),
         Expanded(
           child: ListView.builder(
-            padding: const EdgeInsets.symmetric(horizontal: 16),
+            padding: const EdgeInsets.fromLTRB(16, 0, 16, 150),
             itemCount: songs.length,
             itemBuilder: (context, index) {
               final song = songs[index];
@@ -265,7 +317,7 @@ class _PlaylistsTab extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ListView(
-      padding: const EdgeInsets.fromLTRB(18, 18, 18, 24),
+      padding: const EdgeInsets.fromLTRB(18, 18, 18, 150),
       children: [
         FilledButton.icon(
           onPressed: () => _createPlaylist(context),
@@ -372,7 +424,7 @@ class _GroupsTab extends StatelessWidget {
     }
     final entries = groups.entries.toList();
     return ListView.separated(
-      padding: const EdgeInsets.fromLTRB(18, 12, 18, 24),
+      padding: const EdgeInsets.fromLTRB(18, 12, 18, 150),
       itemCount: entries.length,
       separatorBuilder: (_, __) => const Divider(height: 1),
       itemBuilder: (context, index) {

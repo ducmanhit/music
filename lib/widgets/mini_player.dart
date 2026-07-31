@@ -32,47 +32,58 @@ class MiniPlayer extends StatelessWidget {
                 .clamp(0.0, 1.0);
 
         return Padding(
-          padding: const EdgeInsets.fromLTRB(10, 6, 10, 7),
+          padding: const EdgeInsets.fromLTRB(8, 8, 8, 0),
           child: Material(
             color: Colors.transparent,
             child: InkWell(
-              borderRadius: BorderRadius.circular(20),
+              borderRadius: BorderRadius.circular(21),
               onTap: () => Navigator.of(context).push(
-                MaterialPageRoute<void>(
-                  builder: (_) => NowPlayingScreen(
+                PageRouteBuilder<void>(
+                  transitionDuration: const Duration(milliseconds: 360),
+                  reverseTransitionDuration: const Duration(milliseconds: 280),
+                  pageBuilder: (_, animation, secondaryAnimation) =>
+                      NowPlayingScreen(
                     libraryService: libraryService,
                     playerController: playerController,
                   ),
+                  transitionsBuilder: (_, animation, __, child) {
+                    final curved = CurvedAnimation(
+                      parent: animation,
+                      curve: Curves.easeOutCubic,
+                      reverseCurve: Curves.easeInCubic,
+                    );
+                    return FadeTransition(
+                      opacity: curved,
+                      child: SlideTransition(
+                        position: Tween<Offset>(
+                          begin: const Offset(0, .045),
+                          end: Offset.zero,
+                        ).animate(curved),
+                        child: child,
+                      ),
+                    );
+                  },
                 ),
               ),
-              child: Ink(
-                height: 72,
+              child: Container(
+                height: 68,
                 decoration: BoxDecoration(
-                  gradient: AppGradients.accentSurface,
-                  borderRadius: BorderRadius.circular(20),
+                  color: Colors.white.withValues(alpha: .68),
+                  borderRadius: BorderRadius.circular(21),
                   border: Border.all(color: AppColors.line),
-                  boxShadow: const [
-                    BoxShadow(
-                      color: Color(0x55000000),
-                      blurRadius: 18,
-                      offset: Offset(0, 8),
-                    ),
-                  ],
                 ),
                 child: Stack(
                   children: [
                     Positioned(
-                      left: 0,
-                      right: 0,
-                      bottom: 0,
+                      left: 12,
+                      right: 12,
+                      bottom: 5,
                       child: ClipRRect(
-                        borderRadius: const BorderRadius.vertical(
-                          bottom: Radius.circular(20),
-                        ),
+                        borderRadius: BorderRadius.circular(99),
                         child: LinearProgressIndicator(
                           value: progress,
-                          minHeight: 3,
-                          backgroundColor: Colors.transparent,
+                          minHeight: 2.5,
+                          backgroundColor: const Color(0xFFDCE4EF),
                           valueColor: const AlwaysStoppedAnimation(
                             AppColors.accent,
                           ),
@@ -80,10 +91,10 @@ class MiniPlayer extends StatelessWidget {
                       ),
                     ),
                     Padding(
-                      padding: const EdgeInsets.fromLTRB(10, 9, 7, 11),
+                      padding: const EdgeInsets.fromLTRB(9, 8, 7, 9),
                       child: Row(
                         children: [
-                          SongArtwork(song: song, size: 50, borderRadius: 13),
+                          SongArtwork(song: song, size: 48, borderRadius: 14),
                           const SizedBox(width: 11),
                           Expanded(
                             child: Column(
@@ -96,10 +107,10 @@ class MiniPlayer extends StatelessWidget {
                                   overflow: TextOverflow.ellipsis,
                                   style: const TextStyle(
                                     fontSize: 14,
-                                    fontWeight: FontWeight.w900,
+                                    fontWeight: FontWeight.w800,
                                   ),
                                 ),
-                                const SizedBox(height: 4),
+                                const SizedBox(height: 3),
                                 Text(
                                   song.artist,
                                   maxLines: 1,
@@ -113,28 +124,20 @@ class MiniPlayer extends StatelessWidget {
                             ),
                           ),
                           IconButton(
-                            tooltip: 'Bài trước',
+                            tooltip: playerController.player.playing
+                                ? 'Tạm dừng'
+                                : 'Phát',
                             visualDensity: VisualDensity.compact,
-                            onPressed: playerController.previous,
-                            icon: const Icon(Icons.skip_previous_rounded),
-                          ),
-                          DecoratedBox(
-                            decoration: const BoxDecoration(
-                              color: AppColors.accent,
-                              shape: BoxShape.circle,
+                            onPressed: playerController.playOrPause,
+                            style: IconButton.styleFrom(
+                              backgroundColor: AppColors.accent,
+                              foregroundColor: Colors.white,
+                              fixedSize: const Size(42, 42),
                             ),
-                            child: IconButton(
-                              tooltip: playerController.player.playing
-                                  ? 'Tạm dừng'
-                                  : 'Phát',
-                              visualDensity: VisualDensity.compact,
-                              onPressed: playerController.playOrPause,
-                              color: AppColors.ink,
-                              icon: Icon(
-                                playerController.player.playing
-                                    ? Icons.pause_rounded
-                                    : Icons.play_arrow_rounded,
-                              ),
+                            icon: Icon(
+                              playerController.player.playing
+                                  ? Icons.pause_rounded
+                                  : Icons.play_arrow_rounded,
                             ),
                           ),
                           IconButton(

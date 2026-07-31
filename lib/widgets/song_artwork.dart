@@ -95,13 +95,13 @@ class _Placeholder extends StatelessWidget {
             child: DecoratedBox(
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
-                color: Colors.black.withValues(alpha: .18),
+                color: Colors.white.withValues(alpha: .22),
               ),
               child: const Padding(
                 padding: EdgeInsets.all(12),
                 child: Icon(
                   Icons.music_note_rounded,
-                  color: AppColors.text,
+                  color: Colors.white,
                   size: 30,
                 ),
               ),

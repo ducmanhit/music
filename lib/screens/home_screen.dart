@@ -5,9 +5,9 @@ import '../services/library_service.dart';
 import '../services/player_controller.dart';
 import '../utils/app_theme.dart';
 import '../utils/formatters.dart';
+import '../widgets/import_music_sheet.dart';
 import '../widgets/song_artwork.dart';
 import '../widgets/song_tile.dart';
-import '../widgets/import_music_sheet.dart';
 import 'song_collection_screen.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -31,98 +31,55 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return SafeArea(
-      bottom: false,
-      child: AnimatedBuilder(
-        animation: Listenable.merge([widget.libraryService, widget.playerController]),
-        builder: (context, _) {
-          final library = widget.libraryService;
-          final searchResults = library.search(query);
-          final recent = library.recentlyPlayed.take(8).toList();
-          final mix = library.dailyMix.take(8).toList();
-          final favorites = library.favorites.take(8).toList();
+    return AppBackdrop(
+      child: SafeArea(
+        bottom: false,
+        child: AnimatedBuilder(
+          animation: widget.libraryService,
+          builder: (context, _) {
+            final library = widget.libraryService;
+            final searchResults = library.search(query);
+            final recent = library.recentlyPlayed.take(8).toList();
+            final mix = library.dailyMix.take(8).toList();
+            final favorites = library.favorites.take(8).toList();
 
-          return CustomScrollView(
-            slivers: [
-              SliverToBoxAdapter(
-                child: Padding(
-                  padding: const EdgeInsets.fromLTRB(22, 18, 22, 0),
-                  child: Row(
-                    children: [
-                      const Expanded(
-                        child: Text(
-                          'Dành cho bạn',
-                          style: TextStyle(
-                            fontSize: 31,
-                            fontWeight: FontWeight.w900,
-                            letterSpacing: -.8,
-                          ),
-                        ),
-                      ),
-                      IconButton(
-                        onPressed: () => widget.onNavigate(3),
-                        icon: const Icon(Icons.settings_outlined, size: 29),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-              SliverToBoxAdapter(
-                child: Padding(
-                  padding: const EdgeInsets.fromLTRB(22, 18, 22, 18),
-                  child: TextField(
-                    onChanged: (value) => setState(() => query = value),
-                    decoration: const InputDecoration(
-                      hintText: 'Tìm bài hát, nghệ sĩ, album...',
-                      prefixIcon: Icon(Icons.search_rounded),
-                    ),
-                  ),
-                ),
-              ),
-              if (query.trim().isNotEmpty)
-                SliverPadding(
-                  padding: const EdgeInsets.symmetric(horizontal: 18),
-                  sliver: SliverList.builder(
-                    itemCount: searchResults.length,
-                    itemBuilder: (context, index) {
-                      final song = searchResults[index];
-                      return SongTile(
-                        song: song,
-                        onTap: () => widget.playerController.playSong(searchResults, song),
-                        onMore: () => showSongActions(
-                          context,
-                          song: song,
-                          libraryService: library,
-                          playerController: widget.playerController,
-                        ),
-                      );
-                    },
-                  ),
-                )
-              else ...[
+            return CustomScrollView(
+              physics: const BouncingScrollPhysics(),
+              slivers: [
                 SliverToBoxAdapter(
                   child: Padding(
-                    padding: const EdgeInsets.fromLTRB(22, 8, 22, 0),
+                    padding: const EdgeInsets.fromLTRB(22, 18, 22, 0),
                     child: Row(
                       children: [
-                        Expanded(
-                          child: _QuickCard(
-                            icon: Icons.history_rounded,
-                            label: 'Lịch sử nghe',
-                            onTap: () => _openCollection(
-                              context,
-                              'Lịch sử nghe',
-                              library.recentlyPlayed,
-                            ),
+                        const Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                'Offline Music',
+                                style: TextStyle(
+                                  color: AppColors.accent,
+                                  fontSize: 13,
+                                  fontWeight: FontWeight.w800,
+                                  letterSpacing: .3,
+                                ),
+                              ),
+                              SizedBox(height: 4),
+                              Text(
+                                'Dành cho bạn',
+                                style: TextStyle(
+                                  fontSize: 32,
+                                  fontWeight: FontWeight.w800,
+                                  letterSpacing: -1,
+                                ),
+                              ),
+                            ],
                           ),
                         ),
-                        const SizedBox(width: 12),
-                        Expanded(
-                          child: _QuickCard(
-                            icon: Icons.graphic_eq_rounded,
-                            label: 'Âm lượng\n& hẹn giờ',
-                            onTap: () => _showAudioTools(context),
-                          ),
+                        GlassIconButton(
+                          icon: Icons.settings_outlined,
+                          tooltip: 'Cài đặt',
+                          onPressed: () => widget.onNavigate(3),
                         ),
                       ],
                     ),
@@ -130,93 +87,161 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
                 SliverToBoxAdapter(
                   child: Padding(
-                    padding: const EdgeInsets.fromLTRB(22, 22, 22, 4),
-                    child: InkWell(
-                      onTap: () => widget.onNavigate(2),
-                      borderRadius: BorderRadius.circular(20),
-                      child: Container(
-                        padding: const EdgeInsets.all(20),
-                        decoration: BoxDecoration(
-                          color: AppColors.accent,
-                          borderRadius: BorderRadius.circular(20),
-                        ),
-                        child: Row(
-                          children: [
-                            const Icon(Icons.auto_awesome_rounded, color: Color(0xFF07110F), size: 34),
-                            const SizedBox(width: 15),
-                            Expanded(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  const Text(
-                                    'Thư viện của bạn',
-                                    style: TextStyle(
-                                      color: Color(0xFF07110F),
-                                      fontSize: 20,
-                                      fontWeight: FontWeight.w900,
-                                    ),
-                                  ),
-                                  const SizedBox(height: 4),
-                                  Text(
-                                    '${library.songs.length} bài • ${library.favoriteCount} yêu thích • ${compactCount(library.totalPlayCount)} lượt nghe',
-                                    style: const TextStyle(
-                                      color: Color(0xCC07110F),
-                                      fontSize: 13,
-                                      fontWeight: FontWeight.w600,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                            const Icon(Icons.chevron_right_rounded, color: Color(0xFF07110F), size: 32),
-                          ],
-                        ),
+                    padding: const EdgeInsets.fromLTRB(22, 18, 22, 18),
+                    child: TextField(
+                      onChanged: (value) => setState(() => query = value),
+                      decoration: const InputDecoration(
+                        hintText: 'Tìm bài hát, nghệ sĩ, album',
+                        prefixIcon: Icon(Icons.search_rounded),
                       ),
                     ),
                   ),
                 ),
-                if (library.songs.isEmpty)
-                  SliverToBoxAdapter(
-                    child: _EmptyHome(
-                      importing: library.isImporting,
-                      onImport: () => showImportMusicSheet(
-                        context,
-                        libraryService: library,
-                      ),
-                    ),
+                if (query.trim().isNotEmpty)
+                  SliverPadding(
+                    padding: const EdgeInsets.fromLTRB(18, 0, 18, 150),
+                    sliver: searchResults.isEmpty
+                        ? const SliverToBoxAdapter(
+                            child: Padding(
+                              padding: EdgeInsets.only(top: 48),
+                              child: Center(
+                                child: Text(
+                                  'Không tìm thấy bài hát phù hợp',
+                                  style: TextStyle(color: AppColors.muted),
+                                ),
+                              ),
+                            ),
+                          )
+                        : SliverList.builder(
+                            itemCount: searchResults.length,
+                            itemBuilder: (context, index) {
+                              final song = searchResults[index];
+                              return Padding(
+                                padding: const EdgeInsets.only(bottom: 8),
+                                child: DecoratedBox(
+                                  decoration: BoxDecoration(
+                                    color: Colors.white.withValues(alpha: .72),
+                                    borderRadius: BorderRadius.circular(18),
+                                    border: Border.all(color: AppColors.line),
+                                  ),
+                                  child: SongTile(
+                                    song: song,
+                                    onTap: () => widget.playerController
+                                        .playSong(searchResults, song),
+                                    onMore: () => showSongActions(
+                                      context,
+                                      song: song,
+                                      libraryService: library,
+                                      playerController: widget.playerController,
+                                    ),
+                                  ),
+                                ),
+                              );
+                            },
+                          ),
                   )
                 else ...[
                   SliverToBoxAdapter(
-                    child: _HorizontalSection(
-                      title: 'Mix hằng ngày',
-                      songs: mix,
-                      libraryService: library,
-                      playerController: widget.playerController,
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 22),
+                      child: _LibraryHero(
+                        library: library,
+                        onTap: () => widget.onNavigate(2),
+                      ),
                     ),
                   ),
                   SliverToBoxAdapter(
-                    child: _HorizontalSection(
-                      title: recent.isEmpty ? 'Mới thêm' : 'Nghe gần đây',
-                      songs: recent.isEmpty ? library.songs.take(8).toList() : recent,
-                      libraryService: library,
-                      playerController: widget.playerController,
+                    child: Padding(
+                      padding: const EdgeInsets.fromLTRB(22, 16, 22, 4),
+                      child: Row(
+                        children: [
+                          Expanded(
+                            child: _QuickCard(
+                              icon: Icons.history_rounded,
+                              label: 'Lịch sử',
+                              subtitle: 'Bài đã nghe gần đây',
+                              onTap: () => _openCollection(
+                                context,
+                                'Lịch sử nghe',
+                                library.recentlyPlayed,
+                              ),
+                            ),
+                          ),
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: _QuickCard(
+                              icon: Icons.timer_outlined,
+                              label: 'Hẹn giờ',
+                              subtitle: 'Âm lượng và tắt nhạc',
+                              onTap: () => _showAudioTools(context),
+                            ),
+                          ),
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: _QuickCard(
+                              icon: Icons.add_rounded,
+                              label: 'Thêm nhạc',
+                              subtitle: 'Nhập file từ Files',
+                              onTap: () => showImportMusicSheet(
+                                context,
+                                libraryService: library,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
                   ),
-                  if (favorites.isNotEmpty)
+                  if (library.songs.isEmpty)
+                    SliverToBoxAdapter(
+                      child: _EmptyHome(
+                        importing: library.isImporting,
+                        onImport: () => showImportMusicSheet(
+                          context,
+                          libraryService: library,
+                        ),
+                      ),
+                    )
+                  else ...[
                     SliverToBoxAdapter(
                       child: _HorizontalSection(
-                        title: 'Bài hát yêu thích',
-                        songs: favorites,
+                        title: 'Mix hằng ngày',
+                        subtitle: 'Gợi ý từ thư viện của bạn',
+                        songs: mix,
                         libraryService: library,
                         playerController: widget.playerController,
                       ),
                     ),
+                    SliverToBoxAdapter(
+                      child: _HorizontalSection(
+                        title: recent.isEmpty ? 'Mới thêm' : 'Nghe gần đây',
+                        subtitle: recent.isEmpty
+                            ? 'Những bài vừa được đưa vào app'
+                            : 'Tiếp tục nơi bạn đã dừng',
+                        songs: recent.isEmpty
+                            ? library.songs.take(8).toList()
+                            : recent,
+                        libraryService: library,
+                        playerController: widget.playerController,
+                      ),
+                    ),
+                    if (favorites.isNotEmpty)
+                      SliverToBoxAdapter(
+                        child: _HorizontalSection(
+                          title: 'Yêu thích',
+                          subtitle: 'Những bài bạn đã đánh dấu',
+                          songs: favorites,
+                          libraryService: library,
+                          playerController: widget.playerController,
+                        ),
+                      ),
+                  ],
+                  const SliverToBoxAdapter(child: SizedBox(height: 160)),
                 ],
-                const SliverToBoxAdapter(child: SizedBox(height: 28)),
               ],
-            ],
-          );
-        },
+            );
+          },
+        ),
       ),
     );
   }
@@ -245,21 +270,30 @@ class _HomeScreenState extends State<HomeScreen> {
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Text('Âm lượng & hẹn giờ', style: TextStyle(fontSize: 23, fontWeight: FontWeight.w900)),
-              const SizedBox(height: 20),
-              Row(
-                children: [
-                  const Icon(Icons.volume_down_rounded),
-                  Expanded(
-                    child: Slider(
-                      value: widget.playerController.player.volume,
-                      onChanged: widget.playerController.setVolume,
-                    ),
-                  ),
-                  const Icon(Icons.volume_up_rounded),
-                ],
+              const Text(
+                'Âm lượng & hẹn giờ',
+                style: TextStyle(fontSize: 23, fontWeight: FontWeight.w800),
               ),
-              const Divider(height: 28),
+              const SizedBox(height: 18),
+              GlassPanel(
+                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                blur: 10,
+                opacity: .8,
+                shadow: false,
+                child: Row(
+                  children: [
+                    const Icon(Icons.volume_down_rounded),
+                    Expanded(
+                      child: Slider(
+                        value: widget.playerController.player.volume,
+                        onChanged: widget.playerController.setVolume,
+                      ),
+                    ),
+                    const Icon(Icons.volume_up_rounded),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 18),
               Wrap(
                 spacing: 8,
                 runSpacing: 8,
@@ -269,7 +303,8 @@ class _HomeScreenState extends State<HomeScreen> {
                       avatar: const Icon(Icons.timer_outlined, size: 18),
                       label: Text('$minutes phút'),
                       onPressed: () {
-                        widget.playerController.setSleepTimer(Duration(minutes: minutes));
+                        widget.playerController
+                            .setSleepTimer(Duration(minutes: minutes));
                         Navigator.pop(context);
                       },
                     ),
@@ -283,10 +318,122 @@ class _HomeScreenState extends State<HomeScreen> {
                   ),
                 ],
               ),
-              const SizedBox(height: 16),
-              const Text(
-                'Bộ cân bằng EQ và bit-perfect cần audio engine native riêng; bản này không giả lập hai chức năng đó.',
-                style: TextStyle(color: AppColors.muted, height: 1.4),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _LibraryHero extends StatelessWidget {
+  const _LibraryHero({required this.library, required this.onTap});
+
+  final LibraryService library;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(28),
+        child: Ink(
+          height: 154,
+          decoration: BoxDecoration(
+            gradient: AppGradients.hero,
+            borderRadius: BorderRadius.circular(28),
+            boxShadow: const [
+              BoxShadow(
+                color: Color(0x330A84FF),
+                blurRadius: 30,
+                offset: Offset(0, 14),
+              ),
+            ],
+          ),
+          child: Stack(
+            children: [
+              Positioned(
+                right: -28,
+                top: -42,
+                child: Container(
+                  width: 160,
+                  height: 160,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: Colors.white.withValues(alpha: .13),
+                  ),
+                ),
+              ),
+              Positioned(
+                right: 35,
+                bottom: -55,
+                child: Container(
+                  width: 130,
+                  height: 130,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: Colors.white.withValues(alpha: .1),
+                  ),
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.all(22),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          const Text(
+                            'Thư viện của bạn',
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 23,
+                              fontWeight: FontWeight.w800,
+                              letterSpacing: -.45,
+                            ),
+                          ),
+                          const SizedBox(height: 8),
+                          Text(
+                            '${library.songs.length} bài hát  •  ${library.favoriteCount} yêu thích',
+                            style: const TextStyle(
+                              color: Color(0xE6FFFFFF),
+                              fontSize: 13,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                          const SizedBox(height: 4),
+                          Text(
+                            '${compactCount(library.totalPlayCount)} lượt nghe',
+                            style: const TextStyle(
+                              color: Color(0xBFFFFFFF),
+                              fontSize: 12,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    Container(
+                      width: 58,
+                      height: 58,
+                      decoration: BoxDecoration(
+                        color: Colors.white.withValues(alpha: .2),
+                        borderRadius: BorderRadius.circular(20),
+                        border: Border.all(
+                          color: Colors.white.withValues(alpha: .35),
+                        ),
+                      ),
+                      child: const Icon(
+                        Icons.library_music_rounded,
+                        color: Colors.white,
+                        size: 30,
+                      ),
+                    ),
+                  ],
+                ),
               ),
             ],
           ),
@@ -297,33 +444,53 @@ class _HomeScreenState extends State<HomeScreen> {
 }
 
 class _QuickCard extends StatelessWidget {
-  const _QuickCard({required this.icon, required this.label, required this.onTap});
+  const _QuickCard({
+    required this.icon,
+    required this.label,
+    required this.subtitle,
+    required this.onTap,
+  });
+
   final IconData icon;
   final String label;
+  final String subtitle;
   final VoidCallback onTap;
 
   @override
   Widget build(BuildContext context) {
-    return InkWell(
+    return GlassPanel(
+      padding: const EdgeInsets.fromLTRB(12, 14, 12, 13),
+      borderRadius: 21,
+      blur: 14,
+      opacity: .66,
       onTap: onTap,
-      borderRadius: BorderRadius.circular(18),
-      child: Container(
-        height: 118,
-        padding: const EdgeInsets.all(12),
-        decoration: BoxDecoration(
-          color: const Color(0xFF0E2021),
-          borderRadius: BorderRadius.circular(18),
-        ),
+      child: SizedBox(
+        height: 92,
         child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Icon(icon, color: AppColors.accent, size: 30),
-            const SizedBox(height: 12),
+            Container(
+              width: 38,
+              height: 38,
+              decoration: BoxDecoration(
+                color: AppColors.accentDark,
+                borderRadius: BorderRadius.circular(13),
+              ),
+              child: Icon(icon, color: AppColors.accent, size: 21),
+            ),
+            const Spacer(),
             Text(
               label,
-              textAlign: TextAlign.center,
-              maxLines: 2,
-              style: const TextStyle(color: AppColors.muted, height: 1.25, fontWeight: FontWeight.w600),
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: const TextStyle(fontSize: 13.5, fontWeight: FontWeight.w800),
+            ),
+            const SizedBox(height: 2),
+            Text(
+              subtitle,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: const TextStyle(color: AppColors.muted, fontSize: 10.5),
             ),
           ],
         ),
@@ -335,12 +502,14 @@ class _QuickCard extends StatelessWidget {
 class _HorizontalSection extends StatelessWidget {
   const _HorizontalSection({
     required this.title,
+    required this.subtitle,
     required this.songs,
     required this.libraryService,
     required this.playerController,
   });
 
   final String title;
+  final String subtitle;
   final List<Song> songs;
   final LibraryService libraryService;
   final PlayerController playerController;
@@ -349,54 +518,88 @@ class _HorizontalSection extends StatelessWidget {
   Widget build(BuildContext context) {
     if (songs.isEmpty) return const SizedBox.shrink();
     return Padding(
-      padding: const EdgeInsets.only(top: 26),
+      padding: const EdgeInsets.only(top: 28),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 22),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+            child: Row(
               children: [
-                Text(title, style: const TextStyle(fontSize: 23, fontWeight: FontWeight.w900)),
-                const SizedBox(height: 5),
-                Row(
-                  children: [
-                    TextButton.icon(
-                      onPressed: () => playerController.playAll(songs),
-                      icon: const Icon(Icons.play_arrow_rounded, size: 19),
-                      label: const Text('Phát tất cả'),
-                    ),
-                    TextButton.icon(
-                      onPressed: () => playerController.playAll(songs, shuffle: true),
-                      icon: const Icon(Icons.shuffle_rounded, size: 18),
-                      label: const Text('Phát ngẫu nhiên'),
-                    ),
-                  ],
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        title,
+                        style: const TextStyle(
+                          fontSize: 22,
+                          fontWeight: FontWeight.w800,
+                          letterSpacing: -.35,
+                        ),
+                      ),
+                      const SizedBox(height: 3),
+                      Text(
+                        subtitle,
+                        style: const TextStyle(
+                          color: AppColors.muted,
+                          fontSize: 12.5,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                IconButton(
+                  tooltip: 'Phát ngẫu nhiên',
+                  onPressed: () => playerController.playAll(songs, shuffle: true),
+                  icon: const Icon(Icons.shuffle_rounded),
+                ),
+                IconButton(
+                  tooltip: 'Phát tất cả',
+                  onPressed: () => playerController.playAll(songs),
+                  icon: const Icon(Icons.play_circle_fill_rounded),
+                  color: AppColors.accent,
                 ),
               ],
             ),
           ),
-          const SizedBox(height: 8),
+          const SizedBox(height: 13),
           SizedBox(
-            height: 215,
+            height: 216,
             child: ListView.separated(
+              physics: const BouncingScrollPhysics(),
               padding: const EdgeInsets.symmetric(horizontal: 22),
               scrollDirection: Axis.horizontal,
               itemCount: songs.length,
-              separatorBuilder: (_, __) => const SizedBox(width: 14),
+              separatorBuilder: (_, _) => const SizedBox(width: 15),
               itemBuilder: (context, index) {
                 final song = songs[index];
                 return SizedBox(
-                  width: 142,
+                  width: 145,
                   child: InkWell(
                     onTap: () => playerController.playSong(songs, song),
-                    borderRadius: BorderRadius.circular(15),
+                    borderRadius: BorderRadius.circular(20),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        SongArtwork(song: song, size: 142, borderRadius: 16),
-                        const SizedBox(height: 9),
+                        DecoratedBox(
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(20),
+                            boxShadow: const [
+                              BoxShadow(
+                                color: Color(0x24172B4D),
+                                blurRadius: 20,
+                                offset: Offset(0, 10),
+                              ),
+                            ],
+                          ),
+                          child: SongArtwork(
+                            song: song,
+                            size: 145,
+                            borderRadius: 20,
+                          ),
+                        ),
+                        const SizedBox(height: 10),
                         Text(
                           song.title,
                           maxLines: 1,
@@ -408,7 +611,10 @@ class _HorizontalSection extends StatelessWidget {
                           song.artist,
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
-                          style: const TextStyle(color: AppColors.muted, fontSize: 13),
+                          style: const TextStyle(
+                            color: AppColors.muted,
+                            fontSize: 13,
+                          ),
                         ),
                       ],
                     ),
@@ -425,28 +631,42 @@ class _HorizontalSection extends StatelessWidget {
 
 class _EmptyHome extends StatelessWidget {
   const _EmptyHome({required this.importing, required this.onImport});
+
   final bool importing;
   final VoidCallback onImport;
 
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.fromLTRB(22, 36, 22, 10),
-      child: Container(
+      padding: const EdgeInsets.fromLTRB(22, 34, 22, 20),
+      child: GlassPanel(
         padding: const EdgeInsets.all(28),
-        decoration: BoxDecoration(
-          color: AppColors.surface,
-          border: Border.all(color: AppColors.line),
-          borderRadius: BorderRadius.circular(20),
-        ),
+        borderRadius: 26,
+        blur: 18,
+        opacity: .72,
         child: Column(
           children: [
-            const Icon(Icons.library_music_outlined, size: 56, color: AppColors.accent),
-            const SizedBox(height: 16),
-            const Text('Thư viện đang trống', style: TextStyle(fontSize: 22, fontWeight: FontWeight.w900)),
+            Container(
+              width: 72,
+              height: 72,
+              decoration: BoxDecoration(
+                gradient: AppGradients.hero,
+                borderRadius: BorderRadius.circular(24),
+              ),
+              child: const Icon(
+                Icons.music_note_rounded,
+                size: 36,
+                color: Colors.white,
+              ),
+            ),
+            const SizedBox(height: 18),
+            const Text(
+              'Bắt đầu thư viện của bạn',
+              style: TextStyle(fontSize: 21, fontWeight: FontWeight.w800),
+            ),
             const SizedBox(height: 8),
             const Text(
-              'Nhập file nhạc từ ứng dụng Files hoặc truyền từ máy tính qua Wi‑Fi.',
+              'Nhập nhạc từ ứng dụng Files để nghe offline, không quảng cáo và không cần tài khoản.',
               textAlign: TextAlign.center,
               style: TextStyle(color: AppColors.muted, height: 1.45),
             ),
@@ -454,9 +674,15 @@ class _EmptyHome extends StatelessWidget {
             FilledButton.icon(
               onPressed: importing ? null : onImport,
               icon: importing
-                  ? const SizedBox.square(dimension: 18, child: CircularProgressIndicator(strokeWidth: 2))
+                  ? const SizedBox.square(
+                      dimension: 18,
+                      child: CircularProgressIndicator(
+                        strokeWidth: 2,
+                        color: Colors.white,
+                      ),
+                    )
                   : const Icon(Icons.add_rounded),
-              label: const Text('Nhập nhạc từ Files'),
+              label: const Text('Chọn file nhạc'),
             ),
           ],
         ),

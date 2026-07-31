@@ -32,9 +32,11 @@ class _SongCollectionScreenState extends State<SongCollectionScreen> {
   Widget build(BuildContext context) {
     final songs = widget.libraryService.search(query, source: widget.songs);
     return Scaffold(
+      backgroundColor: AppColors.background,
       appBar: AppBar(title: Text(widget.title)),
-      body: Column(
-        children: [
+      body: AppBackdrop(
+        child: Column(
+          children: [
           Padding(
             padding: const EdgeInsets.fromLTRB(18, 4, 18, 12),
             child: TextField(
@@ -87,6 +89,7 @@ class _SongCollectionScreenState extends State<SongCollectionScreen> {
             ),
           ),
         ],
+        ),
       ),
     );
   }

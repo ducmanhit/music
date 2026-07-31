@@ -1,0 +1,13 @@
+OFFLINE MUSIC V4 - CACH CAP NHAT
+
+1. Mo thu muc repo tren may:
+   C:\Users\dmanh\OneDrive\Documents\GitHub\music
+
+2. Chep TOAN BO noi dung trong thu muc patch nay vao repo.
+3. Chon Replace the files in the destination.
+4. Mo GitHub Desktop.
+5. Summary: Upgrade to Apple glass light UI
+6. Commit to main -> Push origin.
+7. Vao GitHub Actions va cho workflow build IPA chay.
+
+Ban V4 da go bo cac nut Google Drive/OneDrive, chi con nhap file tu ung dung Files.

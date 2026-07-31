@@ -64,10 +64,12 @@ class _CoverEditorScreenState extends State<CoverEditorScreen> {
           );
         }
         return Scaffold(
+          backgroundColor: AppColors.background,
           appBar: AppBar(
             title: const Text('Ảnh bìa & thông tin'),
           ),
-          body: AbsorbPointer(
+          body: AppBackdrop(
+            child: AbsorbPointer(
             absorbing: _busy,
             child: ListView(
               padding: const EdgeInsets.fromLTRB(20, 8, 20, 34),
@@ -81,7 +83,7 @@ class _CoverEditorScreenState extends State<CoverEditorScreen> {
                           borderRadius: BorderRadius.circular(26),
                           boxShadow: const [
                             BoxShadow(
-                              color: Color(0x66000000),
+                              color: Color(0x30172B4D),
                               blurRadius: 34,
                               offset: Offset(0, 18),
                             ),
@@ -203,6 +205,7 @@ class _CoverEditorScreenState extends State<CoverEditorScreen> {
                   const LinearProgressIndicator(),
                 ],
               ],
+            ),
             ),
           ),
         );
@@ -363,8 +366,10 @@ class _OnlineCoverSearchScreenState extends State<OnlineCoverSearchScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: AppColors.background,
       appBar: AppBar(title: const Text('Tìm ảnh bìa online')),
-      body: Column(
+      body: AppBackdrop(
+        child: Column(
         children: [
           Padding(
             padding: const EdgeInsets.fromLTRB(18, 4, 18, 12),
@@ -477,6 +482,7 @@ class _OnlineCoverSearchScreenState extends State<OnlineCoverSearchScreen> {
               ),
             ),
         ],
+        ),
       ),
     );
   }

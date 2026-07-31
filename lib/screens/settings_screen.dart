@@ -18,223 +18,182 @@ class SettingsScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SafeArea(
-      bottom: false,
-      child: AnimatedBuilder(
-        animation: Listenable.merge([libraryService, playerController]),
-        builder: (context, _) {
-          return ListView(
-            padding: const EdgeInsets.fromLTRB(18, 18, 18, 30),
-            children: [
-              const Text(
-                'Cài đặt',
-                style: TextStyle(
-                  fontSize: 31,
-                  fontWeight: FontWeight.w900,
-                  letterSpacing: -.8,
+    return AppBackdrop(
+      child: SafeArea(
+        bottom: false,
+        child: AnimatedBuilder(
+          animation: libraryService,
+          builder: (context, _) {
+            return ListView(
+              physics: const BouncingScrollPhysics(),
+              padding: const EdgeInsets.fromLTRB(18, 18, 18, 160),
+              children: [
+                const Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 4),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Tùy chỉnh',
+                        style: TextStyle(
+                          color: AppColors.accent,
+                          fontSize: 13,
+                          fontWeight: FontWeight.w800,
+                        ),
+                      ),
+                      SizedBox(height: 3),
+                      Text(
+                        'Cài đặt',
+                        style: TextStyle(
+                          fontSize: 32,
+                          fontWeight: FontWeight.w800,
+                          letterSpacing: -1,
+                        ),
+                      ),
+                      SizedBox(height: 7),
+                      Text(
+                        'Quản lý phát nhạc, giao diện và bộ nhớ ứng dụng.',
+                        style: TextStyle(color: AppColors.muted),
+                      ),
+                    ],
+                  ),
                 ),
-              ),
-              const SizedBox(height: 8),
-              const Text(
-                'Quản lý phát nhạc, nguồn nhập và bộ nhớ ứng dụng.',
-                style: TextStyle(color: AppColors.muted),
-              ),
-              const SizedBox(height: 18),
-              _SettingsSection(
-                icon: Icons.play_circle_outline_rounded,
-                title: 'Phát nhạc',
-                initiallyExpanded: true,
-                children: [
-                  _VolumeTile(playerController: playerController),
-                  ListTile(
-                    leading: const Icon(
-                      Icons.bedtime_outlined,
-                      color: AppColors.muted,
-                    ),
-                    title: const Text('Hẹn giờ tắt nhạc'),
-                    subtitle: Text(
-                      playerController.sleepEndsAt == null
-                          ? 'Tắt'
-                          : 'Đang hẹn đến ${_formatClock(playerController.sleepEndsAt!)}',
-                    ),
-                    trailing: const Icon(Icons.chevron_right_rounded),
-                    onTap: () => _showSleepTimer(context),
+                const SizedBox(height: 24),
+                AnimatedBuilder(
+                  animation: playerController,
+                  builder: (context, _) => _SettingsGroup(
+                    title: 'PHÁT NHẠC',
+                    children: [
+                      _VolumeTile(playerController: playerController),
+                      const _Divider(),
+                      _SettingsTile(
+                        icon: Icons.bedtime_outlined,
+                        title: 'Hẹn giờ tắt nhạc',
+                        subtitle: playerController.sleepEndsAt == null
+                            ? 'Đang tắt'
+                            : 'Đến ${_formatClock(playerController.sleepEndsAt!)}',
+                        onTap: () => _showSleepTimer(context),
+                      ),
+                      const _Divider(),
+                      const _SettingsTile(
+                        icon: Icons.lock_outline_rounded,
+                        title: 'Phát nền & màn hình khóa',
+                        subtitle: 'Đã bật sẵn',
+                        trailing: Icon(
+                          Icons.check_circle_rounded,
+                          color: AppColors.success,
+                        ),
+                      ),
+                    ],
                   ),
-                  const ListTile(
-                    leading: Icon(
-                      Icons.lock_outline_rounded,
-                      color: AppColors.muted,
-                    ),
-                    title: Text('Phát nền & màn hình khóa'),
-                    subtitle: Text('Đã bật sẵn'),
-                    trailing: Icon(
-                      Icons.check_circle_rounded,
-                      color: AppColors.accent,
-                    ),
-                  ),
-                ],
-              ),
-              _SettingsSection(
-                icon: Icons.cloud_download_outlined,
-                title: 'Nguồn nhạc',
-                children: [
-                  ListTile(
-                    leading: const Icon(
-                      Icons.add_rounded,
-                      color: AppColors.muted,
-                    ),
-                    title: const Text('Nhập thêm nhạc'),
-                    subtitle: const Text(
-                      'Files, iCloud Drive, Google Drive hoặc OneDrive',
-                    ),
-                    trailing: const Icon(Icons.chevron_right_rounded),
-                    onTap: () => showImportMusicSheet(
-                      context,
-                      libraryService: libraryService,
-                    ),
-                  ),
-                  const Padding(
-                    padding: EdgeInsets.fromLTRB(16, 0, 16, 14),
-                    child: Text(
-                      'Google Drive và OneDrive được mở qua trình chọn Files của iOS. Hãy cài ứng dụng tương ứng rồi bật trong Files → Duyệt.',
-                      style: TextStyle(
-                        color: AppColors.muted,
-                        height: 1.45,
-                        fontSize: 13,
+                ),
+                const SizedBox(height: 20),
+                _SettingsGroup(
+                  title: 'THƯ VIỆN',
+                  children: [
+                    _SettingsTile(
+                      icon: Icons.add_rounded,
+                      title: 'Nhập thêm nhạc',
+                      subtitle: 'Chọn file âm thanh từ ứng dụng Files',
+                      onTap: () => showImportMusicSheet(
+                        context,
+                        libraryService: libraryService,
                       ),
                     ),
-                  ),
-                ],
-              ),
-              const _SettingsSection(
-                icon: Icons.notifications_none_rounded,
-                title: 'Điều khiển hệ thống',
-                children: [
-                  ListTile(
-                    leading: Icon(
-                      Icons.headphones_rounded,
-                      color: AppColors.muted,
-                    ),
-                    title: Text('Control Center & tai nghe'),
-                    subtitle: Text(
-                      'Phát, dừng và chuyển bài từ hệ thống iOS',
-                    ),
-                  ),
-                  ListTile(
-                    leading: Icon(
-                      Icons.airplay_rounded,
-                      color: AppColors.muted,
-                    ),
-                    title: Text('AirPlay & Bluetooth'),
-                    subtitle: Text('Chọn thiết bị phát trong Control Center'),
-                  ),
-                ],
-              ),
-              const _SettingsSection(
-                icon: Icons.palette_outlined,
-                title: 'Giao diện',
-                children: [
-                  ListTile(
-                    leading: Icon(
-                      Icons.dark_mode_outlined,
-                      color: AppColors.muted,
-                    ),
-                    title: Text('Chủ đề tối'),
-                    subtitle: Text('Tối ưu cho màn hình OLED'),
-                    trailing: Icon(
-                      Icons.check_circle_rounded,
-                      color: AppColors.accent,
-                    ),
-                  ),
-                  ListTile(
-                    leading: Icon(
-                      Icons.image_outlined,
-                      color: AppColors.muted,
-                    ),
-                    title: Text('Ảnh bìa tùy chỉnh'),
-                    subtitle: Text(
-                      'Đổi từ Photos, Files hoặc tìm online trong menu bài hát',
-                    ),
-                  ),
-                ],
-              ),
-              _SettingsSection(
-                icon: Icons.storage_rounded,
-                title: 'Bộ nhớ',
-                children: [
-                  FutureBuilder<int>(
-                    future: libraryService.storageBytes(),
-                    builder: (context, snapshot) => ListTile(
-                      leading: const Icon(
-                        Icons.library_music_outlined,
-                        color: AppColors.muted,
-                      ),
-                      title: const Text('Nhạc trong ứng dụng'),
-                      subtitle: Text('${libraryService.songs.length} bài hát'),
-                      trailing: Text(
-                        snapshot.hasData
-                            ? formatBytes(snapshot.data!)
-                            : 'Đang tính...',
+                    const _Divider(),
+                    FutureBuilder<int>(
+                      future: libraryService.storageBytes(),
+                      builder: (context, snapshot) => _SettingsTile(
+                        icon: Icons.storage_rounded,
+                        title: 'Bộ nhớ đang dùng',
+                        subtitle: '${libraryService.songs.length} bài hát',
+                        trailing: Text(
+                          snapshot.hasData
+                              ? formatBytes(snapshot.data!)
+                              : 'Đang tính…',
+                          style: const TextStyle(
+                            color: AppColors.muted,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
                       ),
                     ),
-                  ),
-                  ListTile(
-                    leading: const Icon(
-                      Icons.delete_forever_outlined,
-                      color: AppColors.danger,
+                    const _Divider(),
+                    _SettingsTile(
+                      icon: Icons.delete_forever_outlined,
+                      iconColor: AppColors.danger,
+                      title: 'Xóa toàn bộ thư viện',
+                      titleColor: AppColors.danger,
+                      subtitle: 'Xóa nhạc, ảnh bìa và playlist trong app',
+                      onTap: () => _clearLibrary(context),
                     ),
-                    title: const Text(
-                      'Xóa toàn bộ thư viện',
-                      style: TextStyle(color: AppColors.danger),
+                  ],
+                ),
+                const SizedBox(height: 20),
+                const _SettingsGroup(
+                  title: 'GIAO DIỆN',
+                  children: [
+                    _SettingsTile(
+                      icon: Icons.blur_on_rounded,
+                      title: 'Giao diện kính trong suốt',
+                      subtitle: 'Sáng, nhẹ và tối ưu cho iPhone',
+                      trailing: Icon(
+                        Icons.check_circle_rounded,
+                        color: AppColors.accent,
+                      ),
                     ),
-                    subtitle: const Text(
-                      'Xóa file nhạc, ảnh bìa và playlist trong ứng dụng',
+                    _Divider(),
+                    _SettingsTile(
+                      icon: Icons.image_outlined,
+                      title: 'Ảnh bìa tùy chỉnh',
+                      subtitle: 'Chọn ảnh hoặc tìm ảnh bìa online',
                     ),
-                    onTap: () => _clearLibrary(context),
-                  ),
-                ],
-              ),
-              const _SettingsSection(
-                icon: Icons.language_rounded,
-                title: 'Ngôn ngữ',
-                children: [
-                  ListTile(
-                    leading: Icon(
-                      Icons.translate_rounded,
-                      color: AppColors.muted,
+                  ],
+                ),
+                const SizedBox(height: 20),
+                const _SettingsGroup(
+                  title: 'ĐIỀU KHIỂN iOS',
+                  children: [
+                    _SettingsTile(
+                      icon: Icons.headphones_rounded,
+                      title: 'Control Center & tai nghe',
+                      subtitle: 'Phát, dừng và chuyển bài từ hệ thống',
                     ),
-                    title: Text('Tiếng Việt'),
-                    trailing: Icon(
-                      Icons.check_circle_rounded,
-                      color: AppColors.accent,
+                    _Divider(),
+                    _SettingsTile(
+                      icon: Icons.airplay_rounded,
+                      title: 'AirPlay & Bluetooth',
+                      subtitle: 'Chọn thiết bị phát trong Control Center',
                     ),
-                  ),
-                ],
-              ),
-              const _SettingsSection(
-                icon: Icons.info_outline_rounded,
-                title: 'Giới thiệu',
-                children: [
-                  ListTile(
-                    leading: Icon(
-                      Icons.music_note_rounded,
-                      color: AppColors.muted,
+                  ],
+                ),
+                const SizedBox(height: 20),
+                const _SettingsGroup(
+                  title: 'GIỚI THIỆU',
+                  children: [
+                    _SettingsTile(
+                      icon: Icons.music_note_rounded,
+                      title: 'Offline Music',
+                      subtitle: 'Phiên bản 4.0.0 • Flutter',
                     ),
-                    title: Text('Offline Music'),
-                    subtitle: Text('Phiên bản 3.0.0 • Flutter'),
-                  ),
-                  Padding(
-                    padding: EdgeInsets.fromLTRB(16, 0, 16, 16),
-                    child: Text(
-                      'Ứng dụng phát file âm thanh do bạn tự nhập. Tìm ảnh bìa online chỉ tải hình ảnh, không tải nhạc từ Spotify, Apple Music hoặc YouTube.',
-                      style: TextStyle(color: AppColors.muted, height: 1.45),
+                    _Divider(),
+                    Padding(
+                      padding: EdgeInsets.fromLTRB(16, 14, 16, 17),
+                      child: Text(
+                        'Ứng dụng phát các file âm thanh do bạn tự nhập. Tính năng tìm ảnh bìa online chỉ tải hình ảnh và không tải nhạc từ các dịch vụ phát trực tuyến.',
+                        style: TextStyle(
+                          color: AppColors.muted,
+                          height: 1.45,
+                          fontSize: 13,
+                        ),
+                      ),
                     ),
-                  ),
-                ],
-              ),
-            ],
-          );
-        },
+                  ],
+                ),
+              ],
+            );
+          },
+        ),
       ),
     );
   }
@@ -252,7 +211,7 @@ class SettingsScreen extends StatelessWidget {
             const ListTile(
               title: Text(
                 'Hẹn giờ tắt nhạc',
-                style: TextStyle(fontSize: 22, fontWeight: FontWeight.w900),
+                style: TextStyle(fontSize: 22, fontWeight: FontWeight.w800),
               ),
             ),
             for (final minutes in [10, 20, 30, 45, 60, 90])
@@ -292,6 +251,7 @@ class SettingsScreen extends StatelessWidget {
           ),
           FilledButton(
             onPressed: () => Navigator.pop(context, true),
+            style: FilledButton.styleFrom(backgroundColor: AppColors.danger),
             child: const Text('Xóa tất cả'),
           ),
         ],
@@ -303,46 +263,104 @@ class SettingsScreen extends StatelessWidget {
   }
 }
 
-class _SettingsSection extends StatelessWidget {
-  const _SettingsSection({
+class _SettingsGroup extends StatelessWidget {
+  const _SettingsGroup({required this.title, required this.children});
+
+  final String title;
+  final List<Widget> children;
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Padding(
+          padding: const EdgeInsets.fromLTRB(6, 0, 6, 9),
+          child: Text(
+            title,
+            style: const TextStyle(
+              color: AppColors.muted,
+              fontSize: 12,
+              fontWeight: FontWeight.w800,
+              letterSpacing: 1.1,
+            ),
+          ),
+        ),
+        GlassPanel(
+          padding: EdgeInsets.zero,
+          borderRadius: 23,
+          blur: 16,
+          opacity: .72,
+          child: Column(children: children),
+        ),
+      ],
+    );
+  }
+}
+
+class _SettingsTile extends StatelessWidget {
+  const _SettingsTile({
     required this.icon,
     required this.title,
-    required this.children,
-    this.initiallyExpanded = false,
+    required this.subtitle,
+    this.onTap,
+    this.trailing,
+    this.iconColor,
+    this.titleColor,
   });
 
   final IconData icon;
   final String title;
-  final List<Widget> children;
-  final bool initiallyExpanded;
+  final String subtitle;
+  final VoidCallback? onTap;
+  final Widget? trailing;
+  final Color? iconColor;
+  final Color? titleColor;
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      margin: const EdgeInsets.only(bottom: 10),
-      decoration: BoxDecoration(
-        color: AppColors.surface,
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: AppColors.line),
+    return ListTile(
+      minVerticalPadding: 11,
+      leading: Container(
+        width: 38,
+        height: 38,
+        decoration: BoxDecoration(
+          color: (iconColor ?? AppColors.accent).withValues(alpha: .11),
+          borderRadius: BorderRadius.circular(12),
+        ),
+        child: Icon(icon, color: iconColor ?? AppColors.accent, size: 21),
       ),
-      child: Theme(
-        data: Theme.of(context).copyWith(dividerColor: Colors.transparent),
-        child: ExpansionTile(
-          initiallyExpanded: initiallyExpanded,
-          tilePadding: const EdgeInsets.symmetric(horizontal: 14),
-          childrenPadding: const EdgeInsets.only(bottom: 4),
-          shape: const Border(),
-          collapsedShape: const Border(),
-          leading: Icon(icon, color: AppColors.accent),
-          title: Text(
-            title,
-            style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w900),
-          ),
-          iconColor: AppColors.accent,
-          collapsedIconColor: AppColors.muted,
-          children: children,
+      title: Text(
+        title,
+        style: TextStyle(
+          color: titleColor ?? AppColors.text,
+          fontWeight: FontWeight.w700,
         ),
       ),
+      subtitle: Text(
+        subtitle,
+        style: const TextStyle(color: AppColors.muted, height: 1.3),
+      ),
+      trailing: trailing ??
+          (onTap == null
+              ? null
+              : const Icon(
+                  Icons.chevron_right_rounded,
+                  color: AppColors.mutedSoft,
+                )),
+      onTap: onTap,
+    );
+  }
+}
+
+class _Divider extends StatelessWidget {
+  const _Divider();
+
+  @override
+  Widget build(BuildContext context) {
+    return const Padding(
+      padding: EdgeInsets.only(left: 66),
+      child: Divider(height: 1),
     );
   }
 }
@@ -354,17 +372,54 @@ class _VolumeTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ListTile(
-      leading: const Icon(
-        Icons.volume_up_outlined,
-        color: AppColors.muted,
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(14, 12, 14, 8),
+      child: Row(
+        children: [
+          Container(
+            width: 38,
+            height: 38,
+            decoration: BoxDecoration(
+              color: AppColors.accentDark,
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: const Icon(
+              Icons.volume_up_outlined,
+              color: AppColors.accent,
+              size: 21,
+            ),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    const Expanded(
+                      child: Text(
+                        'Âm lượng ứng dụng',
+                        style: TextStyle(fontWeight: FontWeight.w700),
+                      ),
+                    ),
+                    Text(
+                      '${(playerController.player.volume * 100).round()}%',
+                      style: const TextStyle(
+                        color: AppColors.muted,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ],
+                ),
+                Slider(
+                  value: playerController.player.volume,
+                  onChanged: playerController.setVolume,
+                ),
+              ],
+            ),
+          ),
+        ],
       ),
-      title: const Text('Âm lượng ứng dụng'),
-      subtitle: Slider(
-        value: playerController.player.volume,
-        onChanged: playerController.setVolume,
-      ),
-      trailing: Text('${(playerController.player.volume * 100).round()}%'),
     );
   }
 }

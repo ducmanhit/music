@@ -8,93 +8,103 @@ Future<void> showImportMusicSheet(
   required LibraryService libraryService,
 }) async {
   final rootContext = context;
-  final source = await showModalBottomSheet<MusicImportSource>(
+  final shouldImport = await showModalBottomSheet<bool>(
     context: context,
-    builder: (context) => SafeArea(
-      child: Padding(
-        padding: const EdgeInsets.fromLTRB(18, 12, 18, 22),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Center(
-              child: Container(
-                width: 42,
-                height: 4,
-                decoration: BoxDecoration(
-                  color: AppColors.line,
-                  borderRadius: BorderRadius.circular(99),
+    useSafeArea: true,
+    builder: (context) => Padding(
+      padding: const EdgeInsets.fromLTRB(18, 10, 18, 24),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Center(
+            child: Container(
+              width: 42,
+              height: 5,
+              decoration: BoxDecoration(
+                color: AppColors.lineStrong,
+                borderRadius: BorderRadius.circular(99),
+              ),
+            ),
+          ),
+          const SizedBox(height: 20),
+          const Text(
+            'Thêm nhạc offline',
+            style: TextStyle(
+              fontSize: 25,
+              fontWeight: FontWeight.w800,
+              letterSpacing: -.45,
+            ),
+          ),
+          const SizedBox(height: 7),
+          const Text(
+            'Chọn một hoặc nhiều file nhạc trong ứng dụng Files. Bài hát sẽ được sao chép vào bộ nhớ riêng của app.',
+            style: TextStyle(color: AppColors.muted, height: 1.45),
+          ),
+          const SizedBox(height: 20),
+          GlassPanel(
+            padding: const EdgeInsets.all(16),
+            borderRadius: 20,
+            blur: 12,
+            opacity: .82,
+            onTap: () => Navigator.pop(context, true),
+            child: const Row(
+              children: [
+                _ImportIcon(),
+                SizedBox(width: 14),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Chọn nhạc từ Files',
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w800,
+                        ),
+                      ),
+                      SizedBox(height: 5),
+                      Text(
+                        'MP3, M4A, AAC, WAV, FLAC và các định dạng phổ biến',
+                        style: TextStyle(
+                          color: AppColors.muted,
+                          fontSize: 12.5,
+                          height: 1.35,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                Icon(Icons.chevron_right_rounded, color: AppColors.muted),
+              ],
+            ),
+          ),
+          const SizedBox(height: 14),
+          const Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Icon(Icons.shield_outlined, color: AppColors.accent, size: 19),
+              SizedBox(width: 9),
+              Expanded(
+                child: Text(
+                  'App chỉ đọc các file bạn chọn và không cần đăng nhập tài khoản đám mây.',
+                  style: TextStyle(
+                    color: AppColors.muted,
+                    fontSize: 12.5,
+                    height: 1.4,
+                  ),
                 ),
               ),
-            ),
-            const SizedBox(height: 18),
-            const Text(
-              'Thêm nhạc',
-              style: TextStyle(fontSize: 25, fontWeight: FontWeight.w900),
-            ),
-            const SizedBox(height: 5),
-            const Text(
-              'Chọn một hoặc nhiều file nhạc. App sẽ sao chép vào bộ nhớ riêng để nghe offline.',
-              style: TextStyle(color: AppColors.muted, height: 1.4),
-            ),
-            const SizedBox(height: 18),
-            _ImportTile(
-              icon: Icons.folder_open_rounded,
-              title: 'Từ ứng dụng Files',
-              subtitle: 'Bộ nhớ iPhone, iCloud Drive và các vị trí khác',
-              onTap: () => Navigator.pop(context, MusicImportSource.files),
-            ),
-            const SizedBox(height: 10),
-            _ImportTile(
-              icon: Icons.add_to_drive_outlined,
-              title: 'Từ Google Drive',
-              subtitle: 'Mở trình chọn file và chọn Google Drive trong Duyệt',
-              onTap: () =>
-                  Navigator.pop(context, MusicImportSource.googleDrive),
-            ),
-            const SizedBox(height: 10),
-            _ImportTile(
-              icon: Icons.cloud_outlined,
-              title: 'Từ OneDrive',
-              subtitle: 'Mở trình chọn file và chọn OneDrive trong Duyệt',
-              onTap: () => Navigator.pop(context, MusicImportSource.oneDrive),
-            ),
-            const SizedBox(height: 14),
-            Container(
-              padding: const EdgeInsets.all(13),
-              decoration: BoxDecoration(
-                color: AppColors.backgroundSoft,
-                borderRadius: BorderRadius.circular(15),
-                border: Border.all(color: AppColors.line),
-              ),
-              child: const Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Icon(Icons.info_outline_rounded,
-                      color: AppColors.accent, size: 19),
-                  SizedBox(width: 10),
-                  Expanded(
-                    child: Text(
-                      'Google Drive hoặc OneDrive phải được cài và bật trong Files → Duyệt → dấu ba chấm → Sửa.',
-                      style: TextStyle(
-                        color: AppColors.muted,
-                        fontSize: 12.5,
-                        height: 1.4,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ],
-        ),
+            ],
+          ),
+        ],
       ),
     ),
   );
-  if (source == null) return;
+  if (shouldImport != true) return;
 
   try {
-    final result = await libraryService.importFromPicker(source);
+    final result = await libraryService.importFromFiles();
     if (!rootContext.mounted) return;
     ScaffoldMessenger.of(rootContext).showSnackBar(
       SnackBar(content: Text(result.message)),
@@ -110,67 +120,26 @@ Future<void> showImportMusicSheet(
   }
 }
 
-class _ImportTile extends StatelessWidget {
-  const _ImportTile({
-    required this.icon,
-    required this.title,
-    required this.subtitle,
-    required this.onTap,
-  });
-
-  final IconData icon;
-  final String title;
-  final String subtitle;
-  final VoidCallback onTap;
+class _ImportIcon extends StatelessWidget {
+  const _ImportIcon();
 
   @override
   Widget build(BuildContext context) {
-    return InkWell(
-      onTap: onTap,
-      borderRadius: BorderRadius.circular(17),
-      child: Container(
-        padding: const EdgeInsets.all(15),
-        decoration: BoxDecoration(
-          color: AppColors.surfaceRaised,
-          borderRadius: BorderRadius.circular(17),
-          border: Border.all(color: AppColors.line),
-        ),
-        child: Row(
-          children: [
-            Container(
-              width: 46,
-              height: 46,
-              decoration: BoxDecoration(
-                color: AppColors.accentDark,
-                borderRadius: BorderRadius.circular(14),
-              ),
-              child: Icon(icon, color: AppColors.accent),
-            ),
-            const SizedBox(width: 13),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    title,
-                    style: const TextStyle(fontWeight: FontWeight.w900),
-                  ),
-                  const SizedBox(height: 4),
-                  Text(
-                    subtitle,
-                    style: const TextStyle(
-                      color: AppColors.muted,
-                      fontSize: 12.5,
-                      height: 1.3,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            const Icon(Icons.chevron_right_rounded, color: AppColors.muted),
-          ],
-        ),
+    return Container(
+      width: 50,
+      height: 50,
+      decoration: BoxDecoration(
+        gradient: AppGradients.hero,
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: const [
+          BoxShadow(
+            color: Color(0x2A0A84FF),
+            blurRadius: 16,
+            offset: Offset(0, 7),
+          ),
+        ],
       ),
+      child: const Icon(Icons.folder_open_rounded, color: Colors.white),
     );
   }
 }
