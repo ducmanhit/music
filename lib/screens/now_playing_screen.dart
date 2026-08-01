@@ -1,90 +1,29 @@
 import 'package:flutter/material.dart';
+import 'package:just_audio/just_audio.dart';
+
+import '../models/song.dart';
+import '../services/library_service.dart';
+import '../services/player_controller.dart';
 import '../utils/app_theme.dart';
-<<<<<<< HEAD
-import '../widgets/waveform_seek_bar.dart'; 
-=======
 import '../utils/formatters.dart';
 import '../widgets/app_modal.dart';
 import '../widgets/song_artwork.dart';
 import '../widgets/studio_widgets.dart';
 import '../widgets/waveform_seek_bar.dart';
 import 'cover_editor_screen.dart';
->>>>>>> f2ae42124e3a6e35c7f29ddeb1ab7ecd5b62ba21
 
 class NowPlayingScreen extends StatelessWidget {
-  final dynamic playerController; 
+  const NowPlayingScreen({
+    super.key,
+    required this.libraryService,
+    required this.playerController,
+  });
 
-  const NowPlayingScreen({Key? key, required this.playerController}) : super(key: key);
+  final LibraryService libraryService;
+  final PlayerController playerController;
 
   @override
   Widget build(BuildContext context) {
-<<<<<<< HEAD
-    final currentSong = playerController.currentSong;
-
-    return Scaffold(
-      backgroundColor: AppColors.background,
-      appBar: AppBar(
-        leading: IconButton(
-          icon: const Icon(Icons.keyboard_arrow_down_rounded, size: 28),
-          onPressed: () => Navigator.of(context).pop(),
-        ),
-        title: const Text('Now Playing'),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.queue_music_rounded, size: 22),
-            onPressed: () {},
-          ),
-        ],
-      ),
-      body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 28.0),
-          child: Column(
-            children: [
-              const Spacer(),
-              Container(
-                width: double.infinity,
-                aspectRatio: 1.0,
-                decoration: BoxDecoration(
-                  color: AppColors.surfaceElevated,
-                  borderRadius: BorderRadius.circular(28),
-                  border: Border.all(color: AppColors.surfaceBorder, width: 0.8),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withOpacity(0.5),
-                      blurRadius: 24,
-                      offset: const Offset(0, 12),
-                    ),
-                  ],
-                ),
-                child: ClipRRect(
-                  borderRadius: BorderRadius.circular(28),
-                  child: currentSong?.artworkUrl != null
-                      ? Image.network(currentSong.artworkUrl, fit: BoxFit.cover)
-                      : const Icon(Icons.music_note_rounded, size: 80, color: AppColors.textMuted),
-                ),
-              ),
-              const Spacer(),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  IconButton(
-                    icon: const Icon(Icons.favorite_border_rounded, color: AppColors.textSecondary),
-                    onPressed: () {},
-                  ),
-                  Expanded(
-                    child: Column(
-                      children: [
-                        Text(
-                          currentSong?.title ?? 'Unsayable',
-                          textAlign: TextAlign.center,
-                          style: const TextStyle(
-                            fontSize: 22,
-                            fontWeight: FontWeight.bold,
-                            color: AppColors.textPrimary,
-                            letterSpacing: -0.5,
-=======
     return AnimatedBuilder(
       animation: Listenable.merge(<Listenable>[libraryService, playerController]),
       builder: (context, _) {
@@ -104,121 +43,52 @@ class NowPlayingScreen extends StatelessWidget {
             child: SafeArea(
               child: LayoutBuilder(
                 builder: (context, constraints) {
-                  final compact = constraints.maxHeight < 700;
-                  final horizontal = constraints.maxWidth > 620 ? 42.0 : 20.0;
-                  return Padding(
-                    padding: EdgeInsets.fromLTRB(horizontal, 6, horizontal, 14),
-                    child: Column(
-                      children: [
-                        _TopBar(
-                          onClose: () => Navigator.maybePop(context),
-                          onEdit: () => Navigator.of(context).push(
-                            MaterialPageRoute<void>(
-                              builder: (_) => CoverEditorScreen(
-                                songId: song.id,
-                                libraryService: libraryService,
-                                playerController: playerController,
-                              ),
-                            ),
-                          ),
-                        ),
-                        SizedBox(height: compact ? 4 : 12),
-                        Expanded(
-                          child: Center(
-                            child: ConstrainedBox(
-                              constraints: const BoxConstraints(maxWidth: 430, maxHeight: 430),
-                              child: AspectRatio(
-                                aspectRatio: 1,
-                                child: SongArtwork(
-                                  song: song,
-                                  size: 430,
-                                  borderRadius: compact ? 20 : 24,
+                  final compact = constraints.maxHeight < 760;
+                  return SingleChildScrollView(
+                    padding: EdgeInsets.fromLTRB(20, 8, 20, compact ? 20 : 30),
+                    child: Center(
+                      child: ConstrainedBox(
+                        constraints: const BoxConstraints(maxWidth: 480),
+                        child: Column(
+                          children: [
+                            _TopBar(
+                              onClose: () => Navigator.maybePop(context),
+                              onEdit: () => Navigator.of(context).push(
+                                MaterialPageRoute<void>(
+                                  builder: (_) => CoverEditorScreen(
+                                    songId: song.id,
+                                    libraryService: libraryService,
+                                    playerController: playerController,
+                                  ),
                                 ),
                               ),
                             ),
->>>>>>> f2ae42124e3a6e35c7f29ddeb1ab7ecd5b62ba21
-                          ),
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
+                            SizedBox(height: compact ? 12 : 22),
+                            Container(
+                              padding: const EdgeInsets.all(14),
+                              decoration: BoxDecoration(
+                                color: context.tokens.surfaceMuted,
+                                borderRadius: BorderRadius.circular(36),
+                                border: Border.all(color: context.tokens.border),
+                              ),
+                              child: SongArtwork(
+                                song: song,
+                                size: 360,
+                                borderRadius: 30,
+                                showBorder: false,
+                              ),
+                            ),
+                            SizedBox(height: compact ? 18 : 24),
+                            _PlayerPanel(
+                              song: song,
+                              compact: compact,
+                              libraryService: libraryService,
+                              playerController: playerController,
+                            ),
+                          ],
                         ),
-<<<<<<< HEAD
-                        const SizedBox(height: 6),
-                        Text(
-                          currentSong?.artist ?? 'Brambles',
-                          textAlign: TextAlign.center,
-                          style: const TextStyle(
-                            fontSize: 15,
-                            fontWeight: FontWeight.w500,
-                            color: AppColors.textSecondary,
-=======
-                        SizedBox(height: compact ? 10 : 18),
-                        ConstrainedBox(
-                          constraints: const BoxConstraints(maxWidth: 620),
-                          child: _PlayerPanel(
-                            song: song,
-                            compact: compact,
-                            libraryService: libraryService,
-                            playerController: playerController,
->>>>>>> f2ae42124e3a6e35c7f29ddeb1ab7ecd5b62ba21
-                          ),
-                        ),
-                      ],
-                    ),
-<<<<<<< HEAD
-                  ),
-                  IconButton(
-                    icon: const Icon(Icons.more_horiz_rounded, color: AppColors.textSecondary),
-                    onPressed: () {},
-                  ),
-                ],
-              ),
-              const SizedBox(height: 24),
-              const WaveformSeekBar(), 
-              const SizedBox(height: 32),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: [
-                  IconButton(
-                    icon: const Icon(Icons.shuffle_rounded, color: AppColors.textMuted, size: 22),
-                    onPressed: () {},
-                  ),
-                  IconButton(
-                    icon: const Icon(Icons.skip_previous_rounded, color: AppColors.textPrimary, size: 32),
-                    onPressed: playerController.previous,
-                  ),
-                  GestureDetector(
-                    onTap: playerController.togglePlay,
-                    child: Container(
-                      width: 68,
-                      height: 68,
-                      decoration: const BoxDecoration(
-                        color: AppColors.primary,
-                        shape: BoxShape.circle,
-                      ),
-                      child: Icon(
-                        playerController.isPlaying
-                            ? Icons.pause_rounded
-                            : Icons.play_arrow_rounded,
-                        color: AppColors.primaryDark,
-                        size: 34,
                       ),
                     ),
-                  ),
-                  IconButton(
-                    icon: const Icon(Icons.skip_next_rounded, color: AppColors.textPrimary, size: 32),
-                    onPressed: playerController.next,
-                  ),
-                  IconButton(
-                    icon: const Icon(Icons.repeat_rounded, color: AppColors.textMuted, size: 22),
-                    onPressed: () {},
-                  ),
-                ],
-              ),
-              const Spacer(),
-            ],
-          ),
-        ),
-=======
                   );
                 },
               ),
@@ -238,27 +108,45 @@ class _TopBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SizedBox(
-      height: 48,
-      child: Row(
-        children: [
-          IconButton(onPressed: onClose, icon: const Icon(Icons.keyboard_arrow_down_rounded)),
-          const Expanded(
-            child: Text(
-              'ĐANG PHÁT',
-              textAlign: TextAlign.center,
-              style: TextStyle(fontSize: 12, fontWeight: FontWeight.w800, letterSpacing: 1.2),
-            ),
+    return Row(
+      children: [
+        FlatIconButton(
+          icon: Icons.keyboard_arrow_down_rounded,
+          tooltip: 'Đóng',
+          onPressed: onClose,
+        ),
+        const SizedBox(width: 12),
+        Expanded(
+          child: Column(
+            children: [
+              Text(
+                'NOW PLAYING',
+                style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                      letterSpacing: 1.5,
+                      color: context.tokens.textFaint,
+                      fontWeight: FontWeight.w800,
+                    ),
+              ),
+              const SizedBox(height: 4),
+              Text(
+                'Phát từ thư viện offline',
+                style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                      color: context.tokens.textMuted,
+                    ),
+              ),
+            ],
           ),
-          IconButton(onPressed: onEdit, tooltip: 'Sửa thông tin', icon: const Icon(Icons.edit_outlined)),
-        ],
->>>>>>> f2ae42124e3a6e35c7f29ddeb1ab7ecd5b62ba21
-      ),
+        ),
+        const SizedBox(width: 12),
+        FlatIconButton(
+          icon: Icons.edit_outlined,
+          tooltip: 'Sửa thông tin',
+          onPressed: onEdit,
+        ),
+      ],
     );
   }
 }
-<<<<<<< HEAD
-=======
 
 class _PlayerPanel extends StatelessWidget {
   const _PlayerPanel({
@@ -278,6 +166,7 @@ class _PlayerPanel extends StatelessWidget {
     final player = playerController.player;
     final duration = player.duration ?? song.duration;
     final position = player.position;
+
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
@@ -289,93 +178,97 @@ class _PlayerPanel extends StatelessWidget {
                 children: [
                   Text(
                     song.title,
-                    maxLines: 1,
+                    maxLines: 2,
                     overflow: TextOverflow.ellipsis,
-                    style: Theme.of(context).textTheme.headlineSmall,
+                    style: Theme.of(context).textTheme.headlineMedium,
                   ),
-                  const SizedBox(height: 5),
+                  const SizedBox(height: 6),
                   Text(
                     song.artist,
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                     style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                      color: context.tokens.textMuted,
-                    ),
+                          color: context.tokens.textMuted,
+                        ),
                   ),
                 ],
               ),
             ),
-            IconButton(
-              onPressed: () => libraryService.toggleFavorite(song.id),
+            const SizedBox(width: 12),
+            FlatIconButton(
+              icon: song.isFavorite
+                  ? Icons.favorite_rounded
+                  : Icons.favorite_border_rounded,
+              selected: song.isFavorite,
+              danger: song.isFavorite,
               tooltip: song.isFavorite ? 'Bỏ yêu thích' : 'Yêu thích',
-              icon: Icon(
-                song.isFavorite ? Icons.favorite_rounded : Icons.favorite_border_rounded,
-                color: song.isFavorite ? context.tokens.danger : null,
-              ),
+              onPressed: () => libraryService.toggleFavorite(song.id),
             ),
           ],
         ),
-        SizedBox(height: compact ? 4 : 10),
-        WaveformSeekBar(
-          position: position,
-          duration: duration,
-          onSeek: playerController.seek,
-        ),
-        SizedBox(height: compact ? 4 : 10),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            _ToggleButton(
-              icon: Icons.shuffle_rounded,
-              selected: playerController.shuffleEnabled,
-              tooltip: 'Phát ngẫu nhiên',
-              onPressed: playerController.toggleShuffle,
-            ),
-            IconButton(
-              onPressed: playerController.previous,
-              tooltip: 'Bài trước',
-              iconSize: compact ? 36 : 40,
-              icon: const Icon(Icons.skip_previous_rounded),
-            ),
-            SizedBox.square(
-              dimension: compact ? 66 : 74,
-              child: IconButton.filled(
-                onPressed: playerController.playOrPause,
-                tooltip: player.playing ? 'Tạm dừng' : 'Phát',
-                style: IconButton.styleFrom(
-                  backgroundColor: Theme.of(context).colorScheme.primary,
-                  foregroundColor: Theme.of(context).colorScheme.onPrimary,
-                ),
-                iconSize: compact ? 38 : 44,
-                icon: Icon(
-                  player.processingState == ProcessingState.loading ||
-                          player.processingState == ProcessingState.buffering
-                      ? Icons.hourglass_top_rounded
-                      : player.playing
-                          ? Icons.pause_rounded
-                          : Icons.play_arrow_rounded,
-                ),
-              ),
-            ),
-            IconButton(
-              onPressed: playerController.next,
-              tooltip: 'Bài tiếp theo',
-              iconSize: compact ? 36 : 40,
-              icon: const Icon(Icons.skip_next_rounded),
-            ),
-            _ToggleButton(
-              icon: playerController.loopMode == LoopMode.one
-                  ? Icons.repeat_one_rounded
-                  : Icons.repeat_rounded,
-              selected: playerController.loopMode != LoopMode.off,
-              tooltip: 'Chế độ lặp',
-              onPressed: playerController.cycleLoopMode,
-            ),
-          ],
-        ),
-        SizedBox(height: compact ? 6 : 12),
+        SizedBox(height: compact ? 14 : 18),
         SurfaceCard(
-          padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 4),
+          radius: 28,
+          color: context.tokens.surface,
+          padding: const EdgeInsets.fromLTRB(18, 16, 18, 18),
+          child: Column(
+            children: [
+              WaveformSeekBar(
+                position: position,
+                duration: duration,
+                onSeek: playerController.seek,
+              ),
+              const SizedBox(height: 18),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  _RoundToggle(
+                    icon: Icons.shuffle_rounded,
+                    selected: playerController.shuffleEnabled,
+                    onPressed: playerController.toggleShuffle,
+                  ),
+                  _RoundTransport(
+                    icon: Icons.skip_previous_rounded,
+                    onPressed: playerController.previous,
+                  ),
+                  FilledButton(
+                    onPressed: playerController.playOrPause,
+                    style: FilledButton.styleFrom(
+                      minimumSize: Size(compact ? 72 : 82, compact ? 72 : 82),
+                      shape: const CircleBorder(),
+                      padding: EdgeInsets.zero,
+                    ),
+                    child: Icon(
+                      player.processingState == ProcessingState.loading ||
+                              player.processingState == ProcessingState.buffering
+                          ? Icons.hourglass_top_rounded
+                          : player.playing
+                              ? Icons.pause_rounded
+                              : Icons.play_arrow_rounded,
+                      size: compact ? 38 : 44,
+                    ),
+                  ),
+                  _RoundTransport(
+                    icon: Icons.skip_next_rounded,
+                    onPressed: playerController.next,
+                  ),
+                  _RoundToggle(
+                    icon: playerController.loopMode == LoopMode.one
+                        ? Icons.repeat_one_rounded
+                        : Icons.repeat_rounded,
+                    selected: playerController.loopMode != LoopMode.off,
+                    onPressed: playerController.cycleLoopMode,
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
+        SizedBox(height: compact ? 14 : 18),
+        SurfaceCard(
+          radius: 26,
+          color: context.tokens.surfaceMuted,
+          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
           child: Row(
             children: [
               Expanded(
@@ -438,7 +331,7 @@ class _PlayerPanel extends StatelessWidget {
                   title: Text(item.title, maxLines: 1, overflow: TextOverflow.ellipsis),
                   subtitle: Text(item.artist, maxLines: 1, overflow: TextOverflow.ellipsis),
                   trailing: current
-                      ? Icon(Icons.graphic_eq_rounded, color: Theme.of(context).colorScheme.primary)
+                      ? const Icon(Icons.graphic_eq_rounded, color: Colors.white)
                       : Text('${index + 1}', style: TextStyle(color: context.tokens.textMuted)),
                   onTap: () {
                     Navigator.pop(sheetContext);
@@ -509,6 +402,7 @@ class _PlayerPanel extends StatelessWidget {
           Padding(
             padding: const EdgeInsets.fromLTRB(20, 0, 20, 24),
             child: SurfaceCard(
+              radius: 22,
               child: Column(
                 children: [
                   _InfoRow(label: 'Định dạng', value: song.extension.isEmpty ? 'Không rõ' : song.extension),
@@ -530,31 +424,58 @@ class _PlayerPanel extends StatelessWidget {
   }
 }
 
-class _ToggleButton extends StatelessWidget {
-  const _ToggleButton({
+class _RoundToggle extends StatelessWidget {
+  const _RoundToggle({
     required this.icon,
     required this.selected,
-    required this.tooltip,
     required this.onPressed,
   });
 
   final IconData icon;
   final bool selected;
-  final String tooltip;
   final VoidCallback onPressed;
 
   @override
   Widget build(BuildContext context) {
-    return IconButton(
-      onPressed: onPressed,
-      tooltip: tooltip,
-      style: IconButton.styleFrom(
-        backgroundColor: selected ? context.tokens.accentSoft : Colors.transparent,
-        foregroundColor: selected
-            ? Theme.of(context).colorScheme.primary
-            : context.tokens.textMuted,
+    return Material(
+      color: selected ? context.tokens.surfaceStrong : context.tokens.surfaceMuted,
+      borderRadius: BorderRadius.circular(18),
+      child: InkWell(
+        borderRadius: BorderRadius.circular(18),
+        onTap: onPressed,
+        child: SizedBox(
+          width: 42,
+          height: 42,
+          child: Icon(
+            icon,
+            color: selected ? Colors.white : context.tokens.textMuted,
+          ),
+        ),
       ),
-      icon: Icon(icon),
+    );
+  }
+}
+
+class _RoundTransport extends StatelessWidget {
+  const _RoundTransport({required this.icon, required this.onPressed});
+
+  final IconData icon;
+  final VoidCallback onPressed;
+
+  @override
+  Widget build(BuildContext context) {
+    return Material(
+      color: context.tokens.surfaceMuted,
+      borderRadius: BorderRadius.circular(22),
+      child: InkWell(
+        borderRadius: BorderRadius.circular(22),
+        onTap: onPressed,
+        child: SizedBox(
+          width: 48,
+          height: 48,
+          child: Icon(icon, color: Theme.of(context).colorScheme.onSurface, size: 28),
+        ),
+      ),
     );
   }
 }
@@ -570,14 +491,14 @@ class _PanelAction extends StatelessWidget {
   Widget build(BuildContext context) {
     return InkWell(
       onTap: onTap,
-      borderRadius: BorderRadius.circular(13),
+      borderRadius: BorderRadius.circular(16),
       child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 3),
+        padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 4),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
             Icon(icon, size: 21, color: context.tokens.textMuted),
-            const SizedBox(height: 5),
+            const SizedBox(height: 6),
             Text(
               label,
               maxLines: 1,
@@ -621,4 +542,3 @@ class _InfoRow extends StatelessWidget {
     );
   }
 }
->>>>>>> f2ae42124e3a6e35c7f29ddeb1ab7ecd5b62ba21

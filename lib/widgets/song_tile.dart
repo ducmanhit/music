@@ -1,56 +1,11 @@
 import 'package:flutter/material.dart';
+
+import '../models/song.dart';
 import '../utils/app_theme.dart';
+import '../utils/formatters.dart';
+import 'song_artwork.dart';
 
 class SongTile extends StatelessWidget {
-<<<<<<< HEAD
-  final String indexString; 
-  final String title;
-  final String artist;
-  final String duration;
-  final bool isPlaying;
-  final VoidCallback onTap;
-
-  const SongTile({
-    Key? key,
-    required this.indexString,
-    required this.title,
-    required this.artist,
-    required this.duration,
-    this.isPlaying = false,
-    required this.onTap,
-  }) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      margin: const EdgeInsets.symmetric(vertical: 4, horizontal: 16),
-      decoration: BoxDecoration(
-        color: isPlaying ? AppColors.activeHighlight : Colors.transparent,
-        borderRadius: BorderRadius.circular(14),
-      ),
-      child: ListTile(
-        onTap: onTap,
-        contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 2),
-        leading: SizedBox(
-          width: 32,
-          child: isPlaying
-              ? const Icon(Icons.equalizer_rounded, color: AppColors.textPrimary, size: 20)
-              : Text(
-                  indexString,
-                  style: const TextStyle(
-                    color: AppColors.textMuted,
-                    fontSize: 14,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-        ),
-        title: Text(
-          title,
-          style: TextStyle(
-            color: isPlaying ? AppColors.primary : AppColors.textPrimary,
-            fontSize: 15,
-            fontWeight: FontWeight.w600,
-=======
   const SongTile({
     super.key,
     required this.song,
@@ -68,22 +23,25 @@ class SongTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final primary = Theme.of(context).colorScheme.primary;
-    final radius = BorderRadius.circular(15);
+    final radius = BorderRadius.circular(18);
+    final selectedBackground = Theme.of(context).brightness == Brightness.dark
+        ? context.tokens.surfaceMuted
+        : context.tokens.accentSoft;
     return Material(
-      color: selected ? context.tokens.accentSoft : Colors.transparent,
+      color: selected ? selectedBackground : Colors.transparent,
       shape: RoundedRectangleBorder(borderRadius: radius),
       clipBehavior: Clip.antiAlias,
       child: InkWell(
         onTap: onTap,
         child: Padding(
-          padding: EdgeInsets.symmetric(horizontal: 10, vertical: dense ? 7 : 9),
+          padding: EdgeInsets.symmetric(horizontal: 10, vertical: dense ? 8 : 10),
           child: Row(
             children: [
               SongArtwork(
                 song: song,
-                size: dense ? 46 : 54,
-                borderRadius: dense ? 11 : 13,
+                size: dense ? 48 : 56,
+                borderRadius: dense ? 13 : 15,
+                showBorder: false,
               ),
               const SizedBox(width: 13),
               Expanded(
@@ -97,9 +55,7 @@ class SongTile extends StatelessWidget {
                             song.title,
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
-                            style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                              color: selected ? primary : null,
-                            ),
+                            style: Theme.of(context).textTheme.titleMedium,
                           ),
                         ),
                         if (song.isFavorite) ...[
@@ -114,8 +70,8 @@ class SongTile extends StatelessWidget {
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                       style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                        color: context.tokens.textMuted,
-                      ),
+                            color: context.tokens.textMuted,
+                          ),
                     ),
                   ],
                 ),
@@ -125,8 +81,8 @@ class SongTile extends StatelessWidget {
                 Text(
                   formatDuration(song.duration),
                   style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                    color: context.tokens.textMuted,
-                  ),
+                        color: context.tokens.textMuted,
+                      ),
                 ),
               ],
               if (onMore != null)
@@ -137,23 +93,7 @@ class SongTile extends StatelessWidget {
                   icon: Icon(Icons.more_horiz_rounded, color: context.tokens.textMuted),
                 ),
             ],
->>>>>>> f2ae42124e3a6e35c7f29ddeb1ab7ecd5b62ba21
           ),
-          maxLines: 1,
-          overflow: TextOverflow.ellipsis,
-        ),
-        subtitle: Text(
-          '$artist  •  $duration',
-          style: const TextStyle(
-            color: AppColors.textSecondary,
-            fontSize: 13,
-          ),
-          maxLines: 1,
-          overflow: TextOverflow.ellipsis,
-        ),
-        trailing: IconButton(
-          icon: const Icon(Icons.more_horiz_rounded, color: AppColors.textMuted, size: 20),
-          onPressed: () {},
         ),
       ),
     );

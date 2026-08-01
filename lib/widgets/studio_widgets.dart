@@ -61,16 +61,16 @@ class PageHeader extends StatelessWidget {
                   Text(
                     eyebrow!.toUpperCase(),
                     style: theme.textTheme.labelSmall?.copyWith(
-                      color: context.tokens.textMuted,
+                      color: context.tokens.textFaint,
                       fontWeight: FontWeight.w800,
                       letterSpacing: 1.15,
                     ),
                   ),
-                  const SizedBox(height: 5),
+                  const SizedBox(height: 6),
                 ],
                 Text(title, style: theme.textTheme.headlineMedium),
                 if (subtitle != null && subtitle!.trim().isNotEmpty) ...[
-                  const SizedBox(height: 6),
+                  const SizedBox(height: 7),
                   Text(
                     subtitle!,
                     maxLines: 2,
@@ -85,7 +85,7 @@ class PageHeader extends StatelessWidget {
           ),
           if (actions.isNotEmpty) ...[
             const SizedBox(width: 12),
-            Wrap(spacing: 6, children: actions),
+            Wrap(spacing: 8, children: actions),
           ],
         ],
       ),
@@ -100,7 +100,7 @@ class SectionHeader extends StatelessWidget {
     this.subtitle,
     this.actionLabel,
     this.onAction,
-    this.padding = const EdgeInsets.fromLTRB(20, 22, 20, 10),
+    this.padding = const EdgeInsets.fromLTRB(20, 24, 20, 12),
   });
 
   final String title;
@@ -122,7 +122,7 @@ class SectionHeader extends StatelessWidget {
               children: [
                 Text(title, style: Theme.of(context).textTheme.titleLarge),
                 if (subtitle != null) ...[
-                  const SizedBox(height: 3),
+                  const SizedBox(height: 4),
                   Text(
                     subtitle!,
                     style: Theme.of(context).textTheme.bodySmall?.copyWith(
@@ -147,7 +147,7 @@ class SurfaceCard extends StatelessWidget {
     required this.child,
     this.padding = const EdgeInsets.all(16),
     this.margin = EdgeInsets.zero,
-    this.radius = 18,
+    this.radius = 24,
     this.color,
     this.onTap,
   });
@@ -162,7 +162,8 @@ class SurfaceCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final borderRadius = BorderRadius.circular(radius);
-    final content = Container(
+    final content = AnimatedContainer(
+      duration: const Duration(milliseconds: 180),
       margin: margin,
       padding: padding,
       decoration: BoxDecoration(
@@ -200,21 +201,25 @@ class MetricCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final primary = Theme.of(context).colorScheme.primary;
+    final accent = Theme.of(context).brightness == Brightness.dark
+        ? Colors.white
+        : const Color(0xFF17181C);
     return SurfaceCard(
       onTap: onTap,
-      padding: const EdgeInsets.all(14),
+      padding: const EdgeInsets.all(16),
+      radius: 24,
+      color: context.tokens.surfaceMuted,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Container(
-            width: 36,
-            height: 36,
+            width: 40,
+            height: 40,
             decoration: BoxDecoration(
-              color: context.tokens.accentSoft,
-              borderRadius: BorderRadius.circular(11),
+              color: context.tokens.surfaceStrong,
+              borderRadius: BorderRadius.circular(14),
             ),
-            child: Icon(icon, color: primary, size: 20),
+            child: Icon(icon, color: accent, size: 20),
           ),
           const Spacer(),
           Text(
@@ -223,7 +228,7 @@ class MetricCard extends StatelessWidget {
             overflow: TextOverflow.ellipsis,
             style: Theme.of(context).textTheme.headlineSmall,
           ),
-          const SizedBox(height: 3),
+          const SizedBox(height: 4),
           Text(
             label,
             maxLines: 1,
@@ -247,7 +252,7 @@ class FlatIconButton extends StatelessWidget {
     this.tooltip,
     this.selected = false,
     this.danger = false,
-    this.size = 44,
+    this.size = 46,
   });
 
   final IconData icon;
@@ -259,17 +264,19 @@ class FlatIconButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final primary = Theme.of(context).colorScheme.primary;
+    final accent = Theme.of(context).brightness == Brightness.dark
+        ? Colors.white
+        : const Color(0xFF17181C);
     final foreground = danger
         ? context.tokens.danger
         : selected
-            ? primary
+            ? accent
             : Theme.of(context).colorScheme.onSurface;
     final background = danger
         ? context.tokens.danger.withValues(alpha: .10)
         : selected
-            ? context.tokens.accentSoft
-            : context.tokens.surface;
+            ? context.tokens.surfaceStrong
+            : context.tokens.surfaceMuted;
     return Tooltip(
       message: tooltip ?? '',
       child: SizedBox.square(
@@ -277,13 +284,13 @@ class FlatIconButton extends StatelessWidget {
         child: Material(
           color: background,
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(13),
+            borderRadius: BorderRadius.circular(16),
             side: BorderSide(color: context.tokens.border),
           ),
           child: InkWell(
             onTap: onPressed,
-            borderRadius: BorderRadius.circular(13),
-            child: Icon(icon, color: foreground, size: size * .48),
+            borderRadius: BorderRadius.circular(16),
+            child: Icon(icon, color: foreground, size: size * .46),
           ),
         ),
       ),
@@ -311,7 +318,9 @@ class EmptyState extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final primary = Theme.of(context).colorScheme.primary;
+    final accent = Theme.of(context).brightness == Brightness.dark
+        ? Colors.white
+        : const Color(0xFF17181C);
     return Center(
       child: Padding(
         padding: EdgeInsets.all(compact ? 20 : 32),
@@ -321,13 +330,14 @@ class EmptyState extends StatelessWidget {
             mainAxisSize: MainAxisSize.min,
             children: [
               Container(
-                width: compact ? 56 : 72,
-                height: compact ? 56 : 72,
+                width: compact ? 58 : 74,
+                height: compact ? 58 : 74,
                 decoration: BoxDecoration(
-                  color: context.tokens.accentSoft,
-                  borderRadius: BorderRadius.circular(compact ? 17 : 22),
+                  color: context.tokens.surfaceMuted,
+                  borderRadius: BorderRadius.circular(compact ? 19 : 24),
+                  border: Border.all(color: context.tokens.border),
                 ),
-                child: Icon(icon, size: compact ? 27 : 34, color: primary),
+                child: Icon(icon, size: compact ? 27 : 34, color: accent),
               ),
               SizedBox(height: compact ? 14 : 18),
               Text(
@@ -371,10 +381,11 @@ class InfoPill extends StatelessWidget {
   Widget build(BuildContext context) {
     final foreground = color ?? context.tokens.textMuted;
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 7),
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
       decoration: BoxDecoration(
         color: context.tokens.surfaceMuted,
-        borderRadius: BorderRadius.circular(10),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: context.tokens.border),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
@@ -423,19 +434,19 @@ class SettingsRow extends StatelessWidget {
       color: Colors.transparent,
       child: InkWell(
         onTap: onTap,
-        borderRadius: BorderRadius.circular(14),
+        borderRadius: BorderRadius.circular(18),
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
           child: Row(
             children: [
               Container(
-                width: 40,
-                height: 40,
+                width: 42,
+                height: 42,
                 decoration: BoxDecoration(
                   color: danger
                       ? context.tokens.danger.withValues(alpha: .10)
                       : context.tokens.surfaceMuted,
-                  borderRadius: BorderRadius.circular(12),
+                  borderRadius: BorderRadius.circular(14),
                 ),
                 child: Icon(icon, color: foreground, size: 21),
               ),

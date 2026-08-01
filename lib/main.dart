@@ -88,10 +88,10 @@ class _OfflineMusicAppState extends State<OfflineMusicApp> {
             statusBarColor: Colors.transparent,
             statusBarIconBrightness: dark ? Brightness.light : Brightness.dark,
             statusBarBrightness: dark ? Brightness.dark : Brightness.light,
-            systemNavigationBarColor: context.tokens.surface,
+            systemNavigationBarColor: context.tokens.canvas,
             systemNavigationBarIconBrightness:
                 dark ? Brightness.light : Brightness.dark,
-            systemNavigationBarDividerColor: context.tokens.border,
+            systemNavigationBarDividerColor: Colors.transparent,
           );
           return AnnotatedRegion<SystemUiOverlayStyle>(
             value: style,
@@ -162,13 +162,10 @@ class _HomeShellState extends State<HomeShell> {
     return Scaffold(
       backgroundColor: context.tokens.canvas,
       body: IndexedStack(index: index, children: pages),
-      bottomNavigationBar: DecoratedBox(
-        decoration: BoxDecoration(
-          color: context.tokens.surface,
-          border: Border(top: BorderSide(color: context.tokens.border)),
-        ),
-        child: SafeArea(
-          top: false,
+      bottomNavigationBar: SafeArea(
+        top: false,
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(12, 0, 12, 12),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
@@ -176,31 +173,107 @@ class _HomeShellState extends State<HomeShell> {
                 libraryService: widget.libraryService,
                 playerController: widget.playerController,
               ),
-              NavigationBar(
+              const SizedBox(height: 10),
+              _RoundedDock(
                 selectedIndex: index,
-                onDestinationSelected: navigate,
-                destinations: const <NavigationDestination>[
-                  NavigationDestination(
-                    icon: Icon(Icons.home_outlined),
-                    selectedIcon: Icon(Icons.home_rounded),
-                    label: 'Trang chủ',
-                  ),
-                  NavigationDestination(
-                    icon: Icon(Icons.library_music_outlined),
-                    selectedIcon: Icon(Icons.library_music_rounded),
-                    label: 'Thư viện',
-                  ),
-                  NavigationDestination(
-                    icon: Icon(Icons.graphic_eq_outlined),
-                    selectedIcon: Icon(Icons.graphic_eq_rounded),
-                    label: 'Âm thanh',
-                  ),
-                  NavigationDestination(
-                    icon: Icon(Icons.settings_outlined),
-                    selectedIcon: Icon(Icons.settings_rounded),
-                    label: 'Cài đặt',
-                  ),
-                ],
+                onSelected: navigate,
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _RoundedDock extends StatelessWidget {
+  const _RoundedDock({required this.selectedIndex, required this.onSelected});
+
+  final int selectedIndex;
+  final ValueChanged<int> onSelected;
+
+  @override
+  Widget build(BuildContext context) {
+    const items = <({IconData icon, IconData activeIcon, String label})>[
+      (icon: Icons.home_outlined, activeIcon: Icons.home_rounded, label: 'Trang chủ'),
+      (icon: Icons.library_music_outlined, activeIcon: Icons.library_music_rounded, label: 'Thư viện'),
+      (icon: Icons.graphic_eq_outlined, activeIcon: Icons.graphic_eq_rounded, label: 'Âm thanh'),
+      (icon: Icons.settings_outlined, activeIcon: Icons.settings_rounded, label: 'Cài đặt'),
+    ];
+
+    return Container(
+      padding: const EdgeInsets.all(8),
+      decoration: BoxDecoration(
+        color: context.tokens.surface,
+        borderRadius: BorderRadius.circular(28),
+        border: Border.all(color: context.tokens.border),
+      ),
+      child: Row(
+        children: [
+          for (var i = 0; i < items.length; i++)
+            Expanded(
+              child: _DockItem(
+                icon: items[i].icon,
+                activeIcon: items[i].activeIcon,
+                label: items[i].label,
+                selected: selectedIndex == i,
+                onTap: () => onSelected(i),
+              ),
+            ),
+        ],
+      ),
+    );
+  }
+}
+
+class _DockItem extends StatelessWidget {
+  const _DockItem({
+    required this.icon,
+    required this.activeIcon,
+    required this.label,
+    required this.selected,
+    required this.onTap,
+  });
+
+  final IconData icon;
+  final IconData activeIcon;
+  final String label;
+  final bool selected;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final dark = Theme.of(context).brightness == Brightness.dark;
+    return Material(
+      color: selected ? context.tokens.surfaceStrong : Colors.transparent,
+      borderRadius: BorderRadius.circular(22),
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(22),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 10),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(
+                selected ? activeIcon : icon,
+                size: 22,
+                color: selected
+                    ? (dark ? Colors.white : const Color(0xFF17181C))
+                    : context.tokens.textMuted,
+              ),
+              const SizedBox(height: 4),
+              Text(
+                label,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: TextStyle(
+                  fontSize: 11.5,
+                  fontWeight: selected ? FontWeight.w700 : FontWeight.w600,
+                  color: selected
+                      ? (dark ? Colors.white : const Color(0xFF17181C))
+                      : context.tokens.textMuted,
+                ),
               ),
             ],
           ),
@@ -221,9 +294,12 @@ class _StartupLoading extends StatelessWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            CircularProgressIndicator(color: Theme.of(context).colorScheme.primary),
-            const SizedBox(height: 18),
-            Text('Đang mở thư viện…', style: Theme.of(context).textTheme.titleMedium),
+            const CircularProgressIndicator(),
+            const SizedBox(height: 16),
+            Text(
+              'Đang chuẩn bị thư viện nhạc...',
+              style: Theme.of(context).textTheme.bodyLarge,
+            ),
           ],
         ),
       ),
@@ -239,11 +315,27 @@ class _StartupError extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return AppPage(
-      safeBottom: true,
-      child: EmptyState(
-        icon: Icons.error_outline_rounded,
-        title: 'Không thể mở ứng dụng',
-        message: message,
+      child: Center(
+        child: Padding(
+          padding: const EdgeInsets.all(24),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const Icon(Icons.error_outline_rounded, size: 56),
+              const SizedBox(height: 12),
+              Text(
+                'Không thể khởi tạo ứng dụng',
+                style: Theme.of(context).textTheme.titleLarge,
+              ),
+              const SizedBox(height: 8),
+              Text(
+                message,
+                textAlign: TextAlign.center,
+                style: Theme.of(context).textTheme.bodyMedium,
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }

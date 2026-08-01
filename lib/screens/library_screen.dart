@@ -63,13 +63,13 @@ class _LibraryScreenState extends State<LibraryScreen> {
             return Column(
               children: [
                 PageHeader(
-                  eyebrow: 'Quản lý',
-                  title: 'Thư viện',
+                  eyebrow: 'Bộ sưu tập',
+                  title: 'Library',
                   subtitle: '${widget.libraryService.songs.length} bài hát trong bộ nhớ ứng dụng',
                   actions: [
                     FlatIconButton(
                       icon: Icons.refresh_rounded,
-                      tooltip: 'Quét lại',
+                      tooltip: 'Làm mới',
                       onPressed: widget.libraryService.isImporting ? null : _rescan,
                     ),
                     FlatIconButton(
@@ -107,6 +107,68 @@ class _LibraryScreenState extends State<LibraryScreen> {
                     ],
                   ),
                 ),
+                if (widget.playerController.currentSong != null)
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(20, 8, 20, 14),
+                    child: SurfaceCard(
+                      radius: 26,
+                      color: context.tokens.surfaceMuted,
+                      onTap: () => widget.playerController.playOrPause(),
+                      child: Row(
+                        children: [
+                          SongArtwork(
+                            song: widget.playerController.currentSong!,
+                            size: 70,
+                            borderRadius: 18,
+                            showBorder: false,
+                          ),
+                          const SizedBox(width: 14),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  'Currently Playing',
+                                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                                        color: context.tokens.textMuted,
+                                        fontWeight: FontWeight.w700,
+                                      ),
+                                ),
+                                const SizedBox(height: 6),
+                                Text(
+                                  widget.playerController.currentSong!.title,
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: Theme.of(context).textTheme.titleLarge,
+                                ),
+                                const SizedBox(height: 4),
+                                Text(
+                                  widget.playerController.currentSong!.artist,
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                                        color: context.tokens.textMuted,
+                                      ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          const SizedBox(width: 10),
+                          FilledButton(
+                            onPressed: widget.playerController.playOrPause,
+                            style: FilledButton.styleFrom(
+                              minimumSize: const Size(68, 46),
+                              padding: const EdgeInsets.symmetric(horizontal: 16),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(16),
+                              ),
+                            ),
+                            child: const Icon(Icons.play_arrow_rounded),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
                 const TabBar(
                   isScrollable: true,
                   tabAlignment: TabAlignment.start,

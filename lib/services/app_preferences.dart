@@ -13,7 +13,7 @@ class AppPreferences extends ChangeNotifier {
       : _storageDirectoryOverride = storageDirectory;
 
   final Directory? _storageDirectoryOverride;
-  AppThemeChoice _themeChoice = AppThemeChoice.system;
+  AppThemeChoice _themeChoice = AppThemeChoice.dark;
   File? _file;
   bool _initialized = false;
 
@@ -40,11 +40,11 @@ class AppPreferences extends ChangeNotifier {
           final value = decoded['theme']?.toString();
           _themeChoice = AppThemeChoice.values.firstWhere(
             (choice) => choice.name == value,
-            orElse: () => AppThemeChoice.system,
+            orElse: () => AppThemeChoice.dark,
           );
         }
       } catch (_) {
-        _themeChoice = AppThemeChoice.system;
+        _themeChoice = AppThemeChoice.dark;
       }
     }
 
