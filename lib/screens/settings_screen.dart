@@ -5,6 +5,7 @@ import '../services/library_service.dart';
 import '../services/player_controller.dart';
 import '../utils/app_theme.dart';
 import '../utils/formatters.dart';
+import '../widgets/app_modal.dart';
 import '../widgets/import_music_sheet.dart';
 
 class SettingsScreen extends StatelessWidget {
@@ -149,7 +150,7 @@ class SettingsScreen extends StatelessWidget {
                     _SettingsTile(
                       icon: CupertinoIcons.music_note_2,
                       title: 'Offline Music',
-                      subtitle: 'Phiên bản 9.0.0',
+                      subtitle: 'Phiên bản 11.0.0',
                     ),
                     _GroupDivider(),
                     Padding(
@@ -177,73 +178,38 @@ class SettingsScreen extends StatelessWidget {
       '${time.hour.toString().padLeft(2, '0')}:${time.minute.toString().padLeft(2, '0')}';
 
   Future<void> _showSleepTimer(BuildContext context) async {
-    final duration = await showModalBottomSheet<Duration?>(
+    final duration = await showAppSelectionSheet<Duration>(
       context: context,
-      backgroundColor: Colors.transparent,
-      isScrollControlled: true,
-      builder: (context) => _LiquidSheet(
-        child: SafeArea(
-          top: false,
-          child: Padding(
-            padding: const EdgeInsets.fromLTRB(18, 16, 18, 18),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                const _SheetHandle(),
-                const SizedBox(height: 15),
-                const Align(
-                  alignment: Alignment.centerLeft,
-                  child: Text(
-                    'Hẹn giờ tắt nhạc',
-                    style: TextStyle(fontSize: 24, fontWeight: FontWeight.w800),
-                  ),
-                ),
-                const SizedBox(height: 10),
-                for (final minutes in [10, 20, 30, 45, 60, 90])
-                  ListTile(
-                    leading: const Icon(CupertinoIcons.timer),
-                    title: Text('$minutes phút'),
-                    trailing: const Icon(CupertinoIcons.chevron_forward, size: 18),
-                    onTap: () =>
-                        Navigator.pop(context, Duration(minutes: minutes)),
-                  ),
-                ListTile(
-                  leading: const Icon(CupertinoIcons.clear_circled),
-                  title: const Text('Tắt hẹn giờ'),
-                  onTap: () => Navigator.pop(context, Duration.zero),
-                ),
-              ],
-            ),
+      title: 'Hẹn giờ tắt nhạc',
+      subtitle: 'Nhạc sẽ dừng khi hết thời gian đã chọn.',
+      options: [
+        for (final minutes in [10, 20, 30, 45, 60, 90])
+          AppSelectionOption(
+            value: Duration(minutes: minutes),
+            title: '$minutes phút',
+            icon: CupertinoIcons.timer,
           ),
+        const AppSelectionOption(
+          value: Duration.zero,
+          title: 'Tắt hẹn giờ',
+          icon: CupertinoIcons.clear_circled,
         ),
-      ),
+      ],
     );
     if (duration == null) return;
     playerController.setSleepTimer(duration == Duration.zero ? null : duration);
   }
 
   Future<void> _clearLibrary(BuildContext context) async {
-    final confirmed = await showDialog<bool>(
+    final confirmed = await showAppConfirmation(
       context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Xóa toàn bộ thư viện?'),
-        content: const Text(
+      title: 'Xóa toàn bộ thư viện?',
+      message:
           'Tất cả file nhạc, ảnh bìa đã lưu và playlist sẽ bị xóa vĩnh viễn khỏi ứng dụng.',
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context, false),
-            child: const Text('Hủy'),
-          ),
-          FilledButton(
-            onPressed: () => Navigator.pop(context, true),
-            style: FilledButton.styleFrom(backgroundColor: AppColors.danger),
-            child: const Text('Xóa tất cả'),
-          ),
-        ],
-      ),
+      confirmLabel: 'Xóa tất cả',
+      destructive: true,
     );
-    if (confirmed != true) return;
+    if (!confirmed) return;
     await playerController.setQueue(const []);
     await libraryService.clearLibrary();
   }
@@ -470,42 +436,6 @@ class _VolumeTile extends StatelessWidget {
             ),
           ),
         ],
-      ),
-    );
-  }
-}
-
-class _LiquidSheet extends StatelessWidget {
-  const _LiquidSheet({required this.child});
-
-  final Widget child;
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(8, 0, 8, 8),
-      child: GlassPanel(
-        borderRadius: 36,
-        blur: 42,
-        opacity: .16,
-        shadow: true,
-        child: child,
-      ),
-    );
-  }
-}
-
-class _SheetHandle extends StatelessWidget {
-  const _SheetHandle();
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      width: 42,
-      height: 5,
-      decoration: BoxDecoration(
-        color: const Color(0x553C3C43),
-        borderRadius: BorderRadius.circular(10),
       ),
     );
   }

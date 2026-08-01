@@ -2,104 +2,59 @@ import 'package:flutter/material.dart';
 
 import '../services/library_service.dart';
 import '../utils/app_theme.dart';
+import 'app_modal.dart';
 
 Future<void> showImportMusicSheet(
   BuildContext context, {
   required LibraryService libraryService,
 }) async {
   final rootContext = context;
-  final shouldImport = await showModalBottomSheet<bool>(
+  final shouldImport = await showAppSheet<bool>(
     context: context,
-    useSafeArea: true,
-    backgroundColor: Colors.transparent,
-    builder: (context) => GlassPanel(
-      borderRadius: 34,
-      blur: 44,
-      opacity: .16,
-      padding: const EdgeInsets.fromLTRB(18, 10, 18, 24),
+    builder: (sheetContext) => Padding(
+      padding: const EdgeInsets.fromLTRB(8, 0, 8, 16),
       child: Column(
         mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Center(
-            child: Container(
-              width: 42,
-              height: 5,
-              decoration: BoxDecoration(
-                color: AppColors.lineStrong,
-                borderRadius: BorderRadius.circular(99),
-              ),
+          const AppSheetHeader(
+            title: 'Thêm nhạc offline',
+            subtitle:
+                'Chọn một hoặc nhiều file trong ứng dụng Files. Bài hát sẽ được sao chép vào bộ nhớ riêng của app.',
+          ),
+          AppSheetAction(
+            icon: Icons.folder_open_rounded,
+            title: 'Chọn nhạc từ Files',
+            subtitle: 'MP3, M4A, AAC, WAV, FLAC và định dạng phổ biến',
+            trailing: const Icon(
+              Icons.add_circle_rounded,
+              color: AppColors.accent,
+              size: 24,
             ),
+            onTap: () => Navigator.pop(sheetContext, true),
           ),
-          const SizedBox(height: 20),
-          const Text(
-            'Thêm nhạc offline',
-            style: TextStyle(
-              fontSize: 25,
-              fontWeight: FontWeight.w800,
-              letterSpacing: -.45,
-            ),
-          ),
-          const SizedBox(height: 7),
-          const Text(
-            'Chọn một hoặc nhiều file nhạc trong ứng dụng Files. Bài hát sẽ được sao chép vào bộ nhớ riêng của app.',
-            style: TextStyle(color: AppColors.muted, height: 1.45),
-          ),
-          const SizedBox(height: 20),
-          GlassPanel(
-            padding: const EdgeInsets.all(16),
-            borderRadius: 20,
-            blur: 34,
-            opacity: .065,
-            onTap: () => Navigator.pop(context, true),
-            child: const Row(
+          const Padding(
+            padding: EdgeInsets.fromLTRB(16, 14, 16, 4),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                _ImportIcon(),
-                SizedBox(width: 14),
+                Icon(
+                  Icons.shield_outlined,
+                  color: AppColors.graphite,
+                  size: 18,
+                ),
+                SizedBox(width: 9),
                 Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        'Chọn nhạc từ Files',
-                        style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.w800,
-                        ),
-                      ),
-                      SizedBox(height: 5),
-                      Text(
-                        'MP3, M4A, AAC, WAV, FLAC và các định dạng phổ biến',
-                        style: TextStyle(
-                          color: AppColors.muted,
-                          fontSize: 12.5,
-                          height: 1.35,
-                        ),
-                      ),
-                    ],
+                  child: Text(
+                    'App chỉ đọc các file bạn chọn, không tải nhạc và không yêu cầu đăng nhập.',
+                    style: TextStyle(
+                      color: AppColors.muted,
+                      fontSize: 12.5,
+                      height: 1.4,
+                    ),
                   ),
                 ),
-                Icon(Icons.chevron_right_rounded, color: AppColors.muted),
               ],
             ),
-          ),
-          const SizedBox(height: 14),
-          const Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Icon(Icons.shield_outlined, color: AppColors.graphite, size: 19),
-              SizedBox(width: 9),
-              Expanded(
-                child: Text(
-                  'App chỉ đọc các file bạn chọn và không cần đăng nhập tài khoản đám mây.',
-                  style: TextStyle(
-                    color: AppColors.muted,
-                    fontSize: 12.5,
-                    height: 1.4,
-                  ),
-                ),
-              ),
-            ],
           ),
         ],
       ),
@@ -119,27 +74,6 @@ Future<void> showImportMusicSheet(
       SnackBar(
         content: Text(error.toString().replaceFirst('Exception: ', '')),
         backgroundColor: AppColors.danger,
-      ),
-    );
-  }
-}
-
-class _ImportIcon extends StatelessWidget {
-  const _ImportIcon();
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      width: 50,
-      height: 50,
-      decoration: BoxDecoration(
-        color: Colors.white.withValues(alpha: .28),
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: Colors.white.withValues(alpha: .86)),
-      ),
-      child: const Icon(
-        Icons.folder_open_rounded,
-        color: AppColors.accent,
       ),
     );
   }

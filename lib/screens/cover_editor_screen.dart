@@ -9,6 +9,7 @@ import '../services/library_service.dart';
 import '../services/online_cover_service.dart';
 import '../services/player_controller.dart';
 import '../utils/app_theme.dart';
+import '../widgets/app_modal.dart';
 import '../widgets/song_artwork.dart';
 
 class CoverEditorScreen extends StatefulWidget {
@@ -500,16 +501,20 @@ class _OnlineCoverSearchScreenState extends State<OnlineCoverSearchScreen> {
   }
 
   Future<void> _select(OnlineCoverResult result) async {
-    final confirmed = await showModalBottomSheet<bool>(
+    final confirmed = await showAppSheet<bool>(
       context: context,
-      isScrollControlled: true,
-      builder: (context) => SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.fromLTRB(20, 16, 20, 24),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              ClipRRect(
+      builder: (sheetContext) => Padding(
+        padding: const EdgeInsets.fromLTRB(18, 10, 18, 20),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const AppSheetHandle(),
+            const SizedBox(height: 16),
+            ConstrainedBox(
+              constraints: BoxConstraints(
+                maxHeight: MediaQuery.of(sheetContext).size.height * .46,
+              ),
+              child: ClipRRect(
                 borderRadius: BorderRadius.circular(22),
                 child: AspectRatio(
                   aspectRatio: 1,
@@ -518,37 +523,43 @@ class _OnlineCoverSearchScreenState extends State<OnlineCoverSearchScreen> {
                     fit: BoxFit.cover,
                     headers: const {
                       'User-Agent':
-                          'OfflineMusic/3.0 (https://github.com/ducmanhit/music)',
+                          'OfflineMusic/11.0 (https://github.com/ducmanhit/music)',
                     },
                     errorBuilder: (_, __, ___) => const _NetworkImageError(),
                   ),
                 ),
               ),
-              const SizedBox(height: 18),
-              Text(
-                result.title,
-                maxLines: 2,
-                overflow: TextOverflow.ellipsis,
-                textAlign: TextAlign.center,
-                style: const TextStyle(fontSize: 21, fontWeight: FontWeight.w900),
+            ),
+            const SizedBox(height: 16),
+            Text(
+              result.title,
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+              textAlign: TextAlign.center,
+              style: const TextStyle(
+                fontSize: 20,
+                fontWeight: FontWeight.w700,
+                letterSpacing: -.35,
               ),
-              const SizedBox(height: 6),
-              Text(
-                [result.artist, result.year].whereType<String>().join(' • '),
-                textAlign: TextAlign.center,
-                style: const TextStyle(color: AppColors.muted),
+            ),
+            const SizedBox(height: 5),
+            Text(
+              [result.artist, result.year].whereType<String>().join(' • '),
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+              textAlign: TextAlign.center,
+              style: const TextStyle(color: AppColors.muted),
+            ),
+            const SizedBox(height: 18),
+            SizedBox(
+              width: double.infinity,
+              child: FilledButton.icon(
+                onPressed: () => Navigator.pop(sheetContext, true),
+                icon: const Icon(Icons.check_rounded),
+                label: const Text('Dùng ảnh này'),
               ),
-              const SizedBox(height: 18),
-              SizedBox(
-                width: double.infinity,
-                child: FilledButton.icon(
-                  onPressed: () => Navigator.pop(context, true),
-                  icon: const Icon(Icons.check_rounded),
-                  label: const Text('Dùng ảnh này'),
-                ),
-              ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );
@@ -614,7 +625,7 @@ class _CoverResultCard extends StatelessWidget {
                       fit: BoxFit.cover,
                       headers: const {
                         'User-Agent':
-                            'OfflineMusic/3.0 (https://github.com/ducmanhit/music)',
+                            'OfflineMusic/11.0 (https://github.com/ducmanhit/music)',
                       },
                       errorBuilder: (_, __, ___) => const _NetworkImageError(),
                     ),

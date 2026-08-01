@@ -1,16 +1,18 @@
-# Offline Music V10 — Flat Clear iOS
+# Offline Music V11
 
-Ứng dụng nghe nhạc offline bằng Flutter, đóng gói IPA chưa ký qua GitHub Actions.
+Ứng dụng nghe nhạc offline cho iPhone, viết bằng Flutter.
 
-## Giao diện V10
+## V11 – Polished Popups
 
-- Thanh điều hướng dưới trong suốt hơn, blur cao nhưng gần như không phủ màu.
-- Tab được chọn dùng nền xanh rất nhạt dạng phẳng, không dùng thấu kính nổi.
-- Toàn bộ card và bảng thông tin bỏ bóng, phản chiếu cạnh và hiệu ứng 3D.
-- Nút tròn, ảnh bìa, mini player và popup sử dụng bề mặt phẳng, bo góc mềm.
-- Không có gradient đen/trắng, neon hoặc bóng nổi.
-- Giữ nguyên các chức năng nghe nhạc, sửa ảnh bìa và tìm ảnh bìa online.
+- Toàn bộ popup, hộp xác nhận, menu hành động và bottom sheet dùng một hệ component thống nhất.
+- Tự xử lý Safe Area, Dynamic Island, thanh Home Indicator và bàn phím.
+- Giới hạn chiều cao, hỗ trợ cuộn và chống tràn nội dung trên iPhone màn hình nhỏ.
+- Popup phẳng, trắng, bo tròn; không gradient, không bóng 3D, không phản chiếu giả.
+- Chuyển động mở/đóng ngắn, nhẹ và có phản hồi rung kiểu iOS.
+- Menu sắp xếp và menu playlist không còn phụ thuộc PopupMenuButton định vị nổi.
+- Hộp nhập tên playlist tự vô hiệu hóa nút lưu khi nội dung trống.
+- Hộp xóa dùng màu cảnh báo thống nhất và không chồng route khi mở sau bottom sheet.
 
-## Build IPA
+## Build IPA chưa ký
 
-Vào GitHub Actions và chạy workflow `Build iOS unsigned IPA`. Artifact tạo ra chứa IPA chưa ký để ký bằng ESign.
+Workflow nằm tại `.github/workflows/build-ipa.yml`. Sau khi push lên nhánh `main`, tải artifact IPA và ký bằng ESign.

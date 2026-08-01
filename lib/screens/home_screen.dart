@@ -5,6 +5,7 @@ import '../models/song.dart';
 import '../services/library_service.dart';
 import '../services/player_controller.dart';
 import '../utils/app_theme.dart';
+import '../widgets/app_modal.dart';
 import '../widgets/import_music_sheet.dart';
 import '../widgets/song_artwork.dart';
 import '../widgets/song_tile.dart';
@@ -265,60 +266,23 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Future<void> _showAudioTools(BuildContext context) async {
-    final selected = await showModalBottomSheet<Duration?>(
+    final selected = await showAppSelectionSheet<Duration>(
       context: context,
-      backgroundColor: Colors.transparent,
-      builder: (context) => Padding(
-        padding: const EdgeInsets.fromLTRB(8, 0, 8, 8),
-        child: GlassPanel(
-          borderRadius: 36,
-          blur: 44,
-          opacity: .16,
-          child: SafeArea(
-            top: false,
-            child: Padding(
-              padding: const EdgeInsets.fromLTRB(18, 16, 18, 18),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Container(
-                    width: 42,
-                    height: 5,
-                    decoration: BoxDecoration(
-                      color: const Color(0x553C3C43),
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                  ),
-                  const SizedBox(height: 16),
-                  const Align(
-                    alignment: Alignment.centerLeft,
-                    child: Text(
-                      'Hẹn giờ tắt nhạc',
-                      style: TextStyle(fontSize: 24, fontWeight: FontWeight.w800),
-                    ),
-                  ),
-                  const SizedBox(height: 8),
-                  for (final minutes in [10, 20, 30, 45, 60, 90])
-                    ListTile(
-                      leading: const Icon(CupertinoIcons.timer),
-                      title: Text('$minutes phút'),
-                      trailing: const Icon(CupertinoIcons.chevron_forward, size: 18),
-                      onTap: () => Navigator.pop(
-                        context,
-                        Duration(minutes: minutes),
-                      ),
-                    ),
-                  ListTile(
-                    leading: const Icon(CupertinoIcons.clear_circled),
-                    title: const Text('Tắt hẹn giờ'),
-                    onTap: () => Navigator.pop(context, Duration.zero),
-                  ),
-                ],
-              ),
-            ),
+      title: 'Hẹn giờ tắt nhạc',
+      subtitle: 'Chọn thời gian để ứng dụng tự dừng phát.',
+      options: [
+        for (final minutes in [10, 20, 30, 45, 60, 90])
+          AppSelectionOption(
+            value: Duration(minutes: minutes),
+            title: '$minutes phút',
+            icon: CupertinoIcons.timer,
           ),
+        const AppSelectionOption(
+          value: Duration.zero,
+          title: 'Tắt hẹn giờ',
+          icon: CupertinoIcons.clear_circled,
         ),
-      ),
+      ],
     );
     if (selected == null) return;
     widget.playerController.setSleepTimer(

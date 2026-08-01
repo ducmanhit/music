@@ -6,6 +6,7 @@ import '../models/song.dart';
 import '../services/library_service.dart';
 import '../services/player_controller.dart';
 import '../utils/app_theme.dart';
+import '../widgets/app_modal.dart';
 import '../widgets/import_music_sheet.dart';
 import '../widgets/song_artwork.dart';
 import '../widgets/song_tile.dart';
@@ -241,33 +242,39 @@ class _SortButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return PopupMenuButton<SongSort>(
+    return GlassIconButton(
+      icon: Icons.sort_rounded,
       tooltip: 'Sắp xếp',
-      initialValue: value,
-      onSelected: onSelected,
-      position: PopupMenuPosition.under,
-      itemBuilder: (context) => const [
-        PopupMenuItem(value: SongSort.title, child: Text('Tên bài hát')),
-        PopupMenuItem(value: SongSort.artist, child: Text('Nghệ sĩ')),
-        PopupMenuItem(value: SongSort.added, child: Text('Ngày thêm')),
-        PopupMenuItem(value: SongSort.duration, child: Text('Thời lượng')),
-      ],
-      child: const SizedBox.square(
-        dimension: 46,
-        child: GlassPanel(
-          borderRadius: 23,
-          blur: 34,
-          opacity: .08,
-          shadow: false,
-          child: Center(
-            child: Icon(
-              Icons.sort_rounded,
-              size: 21,
-              color: AppColors.graphite,
+      onPressed: () async {
+        final selected = await showAppSelectionSheet<SongSort>(
+          context: context,
+          title: 'Sắp xếp thư viện',
+          selectedValue: value,
+          options: const [
+            AppSelectionOption(
+              value: SongSort.title,
+              title: 'Tên bài hát',
+              icon: CupertinoIcons.textformat,
             ),
-          ),
-        ),
-      ),
+            AppSelectionOption(
+              value: SongSort.artist,
+              title: 'Nghệ sĩ',
+              icon: CupertinoIcons.person_2,
+            ),
+            AppSelectionOption(
+              value: SongSort.added,
+              title: 'Ngày thêm',
+              icon: CupertinoIcons.calendar,
+            ),
+            AppSelectionOption(
+              value: SongSort.duration,
+              title: 'Thời lượng',
+              icon: CupertinoIcons.time,
+            ),
+          ],
+        );
+        if (selected != null && context.mounted) onSelected(selected);
+      },
     );
   }
 }
@@ -438,33 +445,14 @@ class _PlaylistsTab extends StatelessWidget {
   }
 
   Future<void> _createPlaylist(BuildContext context) async {
-    final controller = TextEditingController();
-    final name = await showDialog<String>(
+    final name = await showAppTextPrompt(
       context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Tạo playlist'),
-        content: TextField(
-          controller: controller,
-          autofocus: true,
-          decoration: const InputDecoration(hintText: 'Tên playlist'),
-          onSubmitted: (value) => Navigator.pop(context, value),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Hủy'),
-          ),
-          FilledButton(
-            onPressed: () => Navigator.pop(context, controller.text),
-            child: const Text('Tạo'),
-          ),
-        ],
-      ),
+      title: 'Tạo playlist',
+      message: 'Đặt một tên ngắn gọn để dễ tìm trong thư viện.',
+      placeholder: 'Tên playlist',
+      confirmLabel: 'Tạo',
     );
-    controller.dispose();
-    if (name != null && name.trim().isNotEmpty) {
-      await libraryService.createPlaylist(name);
-    }
+    if (name != null) await libraryService.createPlaylist(name);
   }
 }
 
@@ -729,19 +717,9 @@ class PlaylistDetailScreen extends StatelessWidget {
                             ),
                           ),
                         ),
-                        PopupMenuButton<String>(
-                          onSelected: (value) {
-                            if (value == 'rename') _rename(context, playlist);
-                            if (value == 'delete') _delete(context, playlist);
-                          },
-                          itemBuilder: (_) => const [
-                            PopupMenuItem(value: 'rename', child: Text('Đổi tên')),
-                            PopupMenuItem(value: 'delete', child: Text('Xóa playlist')),
-                          ],
-                          child: const GlassIconButton(
-                            icon: CupertinoIcons.ellipsis,
-                            onPressed: null,
-                          ),
+                        GlassIconButton(
+                          icon: CupertinoIcons.ellipsis,
+                          onPressed: () => _showPlaylistMenu(context, playlist),
                         ),
                       ],
                     ),
@@ -808,52 +786,58 @@ class PlaylistDetailScreen extends StatelessWidget {
     );
   }
 
-  Future<void> _rename(BuildContext context, MusicPlaylist playlist) async {
-    final controller = TextEditingController(text: playlist.name);
-    final name = await showDialog<String>(
+  Future<void> _showPlaylistMenu(
+    BuildContext context,
+    MusicPlaylist playlist,
+  ) async {
+    final selected = await showAppSelectionSheet<String>(
       context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Đổi tên playlist'),
-        content: TextField(controller: controller, autofocus: true),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Hủy'),
-          ),
-          FilledButton(
-            onPressed: () => Navigator.pop(context, controller.text),
-            child: const Text('Lưu'),
-          ),
-        ],
-      ),
+      title: playlist.name,
+      subtitle: '${playlist.songIds.length} bài hát',
+      options: const [
+        AppSelectionOption(
+          value: 'rename',
+          title: 'Đổi tên playlist',
+          icon: CupertinoIcons.pencil,
+        ),
+        AppSelectionOption(
+          value: 'delete',
+          title: 'Xóa playlist',
+          icon: CupertinoIcons.delete,
+          destructive: true,
+        ),
+      ],
     );
-    controller.dispose();
+    if (!context.mounted || selected == null) return;
+    if (selected == 'rename') await _rename(context, playlist);
+    if (selected == 'delete') await _delete(context, playlist);
+  }
+
+  Future<void> _rename(BuildContext context, MusicPlaylist playlist) async {
+    final name = await showAppTextPrompt(
+      context: context,
+      title: 'Đổi tên playlist',
+      initialValue: playlist.name,
+      placeholder: 'Tên playlist',
+      confirmLabel: 'Lưu',
+    );
     if (name != null) await libraryService.renamePlaylist(playlist.id, name);
   }
 
   Future<void> _delete(BuildContext context, MusicPlaylist playlist) async {
-    final confirmed = await showDialog<bool>(
+    final confirmed = await showAppConfirmation(
       context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Xóa playlist?'),
-        content: const Text('Các file nhạc không bị xóa.'),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context, false),
-            child: const Text('Hủy'),
-          ),
-          FilledButton(
-            onPressed: () => Navigator.pop(context, true),
-            child: const Text('Xóa'),
-          ),
-        ],
-      ),
+      title: 'Xóa playlist?',
+      message: 'Các file nhạc vẫn được giữ nguyên trong thư viện.',
+      confirmLabel: 'Xóa',
+      destructive: true,
     );
-    if (confirmed == true) {
+    if (confirmed) {
       await libraryService.deletePlaylist(playlist.id);
       if (context.mounted) Navigator.pop(context);
     }
   }
+
 }
 
 extension _FirstOrNull<T> on Iterable<T> {

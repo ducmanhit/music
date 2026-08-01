@@ -9,6 +9,7 @@ import '../services/library_service.dart';
 import '../services/player_controller.dart';
 import '../utils/app_theme.dart';
 import '../utils/formatters.dart';
+import '../widgets/app_modal.dart';
 import '../widgets/song_artwork.dart';
 import '../widgets/song_tile.dart';
 import '../widgets/waveform_seek_bar.dart';
@@ -154,253 +155,210 @@ class NowPlayingScreen extends StatelessWidget {
   }
 
   Future<void> _showQueue(BuildContext context) async {
-    await showModalBottomSheet<void>(
+    await showAppSheet<void>(
       context: context,
-      backgroundColor: Colors.transparent,
-      isScrollControlled: true,
-      builder: (context) => _LiquidBottomSheet(
-        child: DraggableScrollableSheet(
-          expand: false,
-          initialChildSize: .72,
-          minChildSize: .42,
-          maxChildSize: .94,
-          builder: (context, controller) => Column(
-            children: [
-              const SizedBox(height: 12),
-              const _SheetHandle(),
-              const Padding(
-                padding: EdgeInsets.fromLTRB(20, 18, 20, 10),
-                child: Align(
-                  alignment: Alignment.centerLeft,
-                  child: Text(
-                    'Danh sách chờ',
-                    style: TextStyle(fontSize: 24, fontWeight: FontWeight.w800),
-                  ),
+      builder: (sheetContext) => DraggableScrollableSheet(
+        expand: false,
+        initialChildSize: .72,
+        minChildSize: .42,
+        maxChildSize: .94,
+        builder: (context, controller) => Column(
+          children: [
+            const AppSheetHeader(
+              title: 'Danh sách chờ',
+              subtitle: 'Chạm vào một bài để phát ngay.',
+            ),
+            Expanded(
+              child: ListView.separated(
+                controller: controller,
+                padding: const EdgeInsets.fromLTRB(10, 0, 10, 18),
+                itemCount: playerController.queue.length,
+                separatorBuilder: (_, __) => const Divider(
+                  indent: 70,
+                  endIndent: 12,
+                  height: 1,
                 ),
+                itemBuilder: (context, index) {
+                  final queued = playerController.queue[index];
+                  final song = libraryService.songById(queued.id) ?? queued;
+                  final selected = index == playerController.currentIndex;
+                  return DecoratedBox(
+                    decoration: BoxDecoration(
+                      color: selected
+                          ? AppColors.accent.withValues(alpha: .07)
+                          : Colors.transparent,
+                      borderRadius: BorderRadius.circular(16),
+                    ),
+                    child: SongTile(
+                      song: song,
+                      dense: true,
+                      onTap: () async {
+                        await playerController.player.seek(
+                          Duration.zero,
+                          index: index,
+                        );
+                        await playerController.player.play();
+                        if (sheetContext.mounted) {
+                          Navigator.pop(sheetContext);
+                        }
+                      },
+                    ),
+                  );
+                },
               ),
-              Expanded(
-                child: ListView.builder(
-                  controller: controller,
-                  padding: const EdgeInsets.fromLTRB(12, 0, 12, 24),
-                  itemCount: playerController.queue.length,
-                  itemBuilder: (context, index) {
-                    final queued = playerController.queue[index];
-                    final song = libraryService.songById(queued.id) ?? queued;
-                    final selected = index == playerController.currentIndex;
-                    return Padding(
-                      padding: const EdgeInsets.only(bottom: 5),
-                      child: DecoratedBox(
-                        decoration: BoxDecoration(
-                          color: selected
-                              ? Colors.white.withValues(alpha: .36)
-                              : Colors.transparent,
-                          borderRadius: BorderRadius.circular(19),
-                        ),
-                        child: SongTile(
-                          song: song,
-                          dense: true,
-                          onTap: () async {
-                            await playerController.player.seek(
-                              Duration.zero,
-                              index: index,
-                            );
-                            await playerController.player.play();
-                            if (context.mounted) Navigator.pop(context);
-                          },
-                        ),
-                      ),
-                    );
-                  },
-                ),
-              ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );
   }
 
   Future<void> _showMore(BuildContext context, Song song) async {
-    final rootContext = context;
-    await showModalBottomSheet<void>(
+    final selected = await showAppSelectionSheet<String>(
       context: context,
-      backgroundColor: Colors.transparent,
-      builder: (sheetContext) => _LiquidBottomSheet(
-        child: SafeArea(
-          top: false,
-          child: Padding(
-            padding: const EdgeInsets.fromLTRB(14, 13, 14, 18),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                const _SheetHandle(),
-                const SizedBox(height: 10),
-                ListTile(
-                  leading: const Icon(CupertinoIcons.pencil),
-                  title: const Text('Sửa ảnh bìa & thông tin'),
-                  onTap: () {
-                    Navigator.pop(sheetContext);
-                    _openEditor(rootContext, song);
-                  },
-                ),
-                ListTile(
-                  leading: const Icon(Icons.lyrics_outlined),
-                  title: const Text('Lời bài hát'),
-                  onTap: () {
-                    Navigator.pop(sheetContext);
-                    _showLyrics(rootContext, song);
-                  },
-                ),
-                ListTile(
-                  leading: const Icon(CupertinoIcons.info_circle),
-                  title: const Text('Thông tin âm thanh'),
-                  onTap: () {
-                    Navigator.pop(sheetContext);
-                    _showQuality(rootContext, song);
-                  },
-                ),
-              ],
-            ),
-          ),
+      title: song.title,
+      subtitle: song.artist,
+      options: const [
+        AppSelectionOption(
+          value: 'edit',
+          title: 'Sửa ảnh bìa & thông tin',
+          icon: CupertinoIcons.pencil,
         ),
-      ),
+        AppSelectionOption(
+          value: 'lyrics',
+          title: 'Lời bài hát',
+          icon: Icons.lyrics_outlined,
+        ),
+        AppSelectionOption(
+          value: 'quality',
+          title: 'Thông tin âm thanh',
+          icon: CupertinoIcons.info_circle,
+        ),
+      ],
     );
+    if (!context.mounted || selected == null) return;
+    switch (selected) {
+      case 'edit':
+        _openEditor(context, song);
+        break;
+      case 'lyrics':
+        await _showLyrics(context, song);
+        break;
+      case 'quality':
+        await _showQuality(context, song);
+        break;
+    }
   }
 
   Future<void> _showLyrics(BuildContext context, Song song) async {
-    await showModalBottomSheet<void>(
+    await showAppSheet<void>(
       context: context,
-      backgroundColor: Colors.transparent,
-      isScrollControlled: true,
-      builder: (context) => _LiquidBottomSheet(
-        child: DraggableScrollableSheet(
-          expand: false,
-          initialChildSize: .72,
-          maxChildSize: .95,
-          builder: (context, controller) => Padding(
-            padding: const EdgeInsets.fromLTRB(22, 14, 22, 0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const Center(child: _SheetHandle()),
-                const SizedBox(height: 16),
-                const Text(
-                  'Lời bài hát',
-                  style: TextStyle(fontSize: 24, fontWeight: FontWeight.w800),
-                ),
-                const SizedBox(height: 6),
-                Text(song.title, style: const TextStyle(color: AppColors.muted)),
-                const SizedBox(height: 18),
-                Expanded(
-                  child: SingleChildScrollView(
-                    controller: controller,
-                    child: Text(
-                      song.lyrics?.trim().isNotEmpty == true
-                          ? song.lyrics!
-                          : 'File nhạc này không có lời bài hát trong metadata.',
-                      style: const TextStyle(fontSize: 18, height: 1.68),
-                    ),
-                  ),
-                ),
-              ],
+      builder: (sheetContext) => DraggableScrollableSheet(
+        expand: false,
+        initialChildSize: .72,
+        minChildSize: .48,
+        maxChildSize: .95,
+        builder: (context, controller) => Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            AppSheetHeader(
+              title: 'Lời bài hát',
+              subtitle: song.title,
             ),
-          ),
+            Expanded(
+              child: SingleChildScrollView(
+                controller: controller,
+                physics: const BouncingScrollPhysics(),
+                padding: const EdgeInsets.fromLTRB(22, 4, 22, 28),
+                child: Text(
+                  song.lyrics?.trim().isNotEmpty == true
+                      ? song.lyrics!
+                      : 'File nhạc này không có lời bài hát trong metadata.',
+                  style: const TextStyle(fontSize: 18, height: 1.68),
+                ),
+              ),
+            ),
+          ],
         ),
       ),
     );
   }
 
   Future<void> _showQuality(BuildContext context, Song song) async {
-    await showModalBottomSheet<void>(
+    await showAppSheet<void>(
       context: context,
-      backgroundColor: Colors.transparent,
-      builder: (context) => _LiquidBottomSheet(
-        child: SafeArea(
-          top: false,
-          child: Padding(
-            padding: const EdgeInsets.fromLTRB(22, 14, 22, 25),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const Center(child: _SheetHandle()),
-                const SizedBox(height: 16),
-                const Text(
-                  'Thông tin âm thanh',
-                  style: TextStyle(fontSize: 24, fontWeight: FontWeight.w800),
-                ),
-                const SizedBox(height: 16),
-                _QualityRow(
-                  label: 'Định dạng',
-                  value: song.extension.isEmpty ? 'Không rõ' : song.extension,
-                ),
-                _QualityRow(
-                  label: 'Bitrate',
-                  value: song.bitrateKbps == null
-                      ? 'Không rõ'
-                      : '${song.bitrateKbps} kbps',
-                ),
-                _QualityRow(
-                  label: 'Sample rate',
-                  value: song.sampleRate == null
-                      ? 'Không rõ'
-                      : '${(song.sampleRate! / 1000).toStringAsFixed(1)} kHz',
-                ),
-                _QualityRow(
-                  label: 'Dung lượng',
-                  value: formatBytes(song.fileSize),
-                ),
-              ],
+      builder: (sheetContext) => Padding(
+        padding: const EdgeInsets.fromLTRB(8, 0, 8, 16),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const AppSheetHeader(
+              title: 'Thông tin âm thanh',
+              subtitle: 'Dữ liệu được đọc trực tiếp từ file nhạc.',
             ),
-          ),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 12),
+              child: Column(
+                children: [
+                  _QualityRow(
+                    label: 'Định dạng',
+                    value: song.extension.isEmpty
+                        ? 'Không rõ'
+                        : song.extension,
+                  ),
+                  const Divider(height: 1),
+                  _QualityRow(
+                    label: 'Bitrate',
+                    value: song.bitrateKbps == null
+                        ? 'Không rõ'
+                        : '${song.bitrateKbps} kbps',
+                  ),
+                  const Divider(height: 1),
+                  _QualityRow(
+                    label: 'Sample rate',
+                    value: song.sampleRate == null
+                        ? 'Không rõ'
+                        : '${(song.sampleRate! / 1000).toStringAsFixed(1)} kHz',
+                  ),
+                  const Divider(height: 1),
+                  _QualityRow(
+                    label: 'Dung lượng',
+                    value: formatBytes(song.fileSize),
+                  ),
+                ],
+              ),
+            ),
+          ],
         ),
       ),
     );
   }
 
   Future<void> _showSleepTimer(BuildContext context) async {
-    final selected = await showModalBottomSheet<Duration?>(
+    final selected = await showAppSelectionSheet<Duration>(
       context: context,
-      backgroundColor: Colors.transparent,
-      builder: (context) => _LiquidBottomSheet(
-        child: SafeArea(
-          top: false,
-          child: Padding(
-            padding: const EdgeInsets.fromLTRB(16, 13, 16, 18),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                const _SheetHandle(),
-                const SizedBox(height: 10),
-                const ListTile(
-                  title: Text(
-                    'Hẹn giờ tắt nhạc',
-                    style: TextStyle(fontSize: 22, fontWeight: FontWeight.w800),
-                  ),
-                ),
-                for (final minutes in [10, 20, 30, 45, 60, 90])
-                  ListTile(
-                    leading: const Icon(CupertinoIcons.timer),
-                    title: Text('$minutes phút'),
-                    onTap: () =>
-                        Navigator.pop(context, Duration(minutes: minutes)),
-                  ),
-                ListTile(
-                  leading: const Icon(CupertinoIcons.clear_circled),
-                  title: const Text('Tắt hẹn giờ'),
-                  onTap: () => Navigator.pop(context, Duration.zero),
-                ),
-              ],
-            ),
+      title: 'Hẹn giờ tắt nhạc',
+      subtitle: 'Chọn thời gian để ứng dụng tự dừng phát.',
+      options: [
+        for (final minutes in [10, 20, 30, 45, 60, 90])
+          AppSelectionOption(
+            value: Duration(minutes: minutes),
+            title: '$minutes phút',
+            icon: CupertinoIcons.timer,
           ),
+        const AppSelectionOption(
+          value: Duration.zero,
+          title: 'Tắt hẹn giờ',
+          icon: CupertinoIcons.clear_circled,
         ),
-      ),
+      ],
     );
     if (selected == null) return;
     playerController.setSleepTimer(
       selected == Duration.zero ? null : selected,
     );
   }
+
 }
 
 class _TopBar extends StatelessWidget {
@@ -825,43 +783,6 @@ class _QualityRow extends StatelessWidget {
           ),
           Text(value, style: const TextStyle(fontWeight: FontWeight.w700)),
         ],
-      ),
-    );
-  }
-}
-
-class _LiquidBottomSheet extends StatelessWidget {
-  const _LiquidBottomSheet({required this.child});
-
-  final Widget child;
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(8, 0, 8, 8),
-      child: GlassPanel(
-        borderRadius: 36,
-        blur: 44,
-        opacity: .18,
-        shadow: true,
-        pressable: false,
-        child: child,
-      ),
-    );
-  }
-}
-
-class _SheetHandle extends StatelessWidget {
-  const _SheetHandle();
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      width: 42,
-      height: 5,
-      decoration: BoxDecoration(
-        color: const Color(0x553C3C43),
-        borderRadius: BorderRadius.circular(10),
       ),
     );
   }

@@ -4,6 +4,7 @@ import '../models/song.dart';
 import '../services/library_service.dart';
 import '../services/player_controller.dart';
 import '../utils/app_theme.dart';
+import '../widgets/app_modal.dart';
 import 'cover_editor_screen.dart';
 import '../widgets/song_tile.dart';
 
@@ -102,115 +103,84 @@ Future<void> showSongActions(
   required PlayerController playerController,
 }) async {
   final rootContext = context;
-  await showModalBottomSheet<void>(
+  await showAppSheet<void>(
     context: context,
-    backgroundColor: Colors.transparent,
     builder: (sheetContext) => Padding(
-      padding: const EdgeInsets.fromLTRB(8, 0, 8, 8),
-      child: GlassPanel(
-        borderRadius: 34,
-        blur: 44,
-        opacity: .16,
-        shadow: true,
-        pressable: false,
-        child: SafeArea(
-          top: false,
-          child: Padding(
-            padding: const EdgeInsets.fromLTRB(10, 10, 10, 14),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Container(
-                  width: 42,
-                  height: 5,
-                  margin: const EdgeInsets.only(bottom: 10),
-                  decoration: BoxDecoration(
-                    color: const Color(0x443C3C43),
-                    borderRadius: BorderRadius.circular(99),
-                  ),
-                ),
-                ListTile(
-                  leading: Icon(
-                    song.isFavorite
-                        ? Icons.favorite_rounded
-                        : Icons.favorite_border_rounded,
-                  ),
-                  title: Text(
-                    song.isFavorite ? 'Bỏ yêu thích' : 'Thêm vào yêu thích',
-                  ),
-                  onTap: () async {
-                    Navigator.pop(sheetContext);
-                    await libraryService.toggleFavorite(song.id);
-                  },
-                ),
-                ListTile(
-                  leading: const Icon(Icons.image_outlined),
-                  title: const Text('Sửa ảnh bìa & thông tin'),
-                  onTap: () {
-                    Navigator.pop(sheetContext);
-                    Navigator.of(rootContext).push(
-                      MaterialPageRoute<void>(
-                        builder: (_) => CoverEditorScreen(
-                          songId: song.id,
-                          libraryService: libraryService,
-                          playerController: playerController,
-                        ),
-                      ),
-                    );
-                  },
-                ),
-                ListTile(
-                  leading: const Icon(Icons.playlist_add_rounded),
-                  title: const Text('Thêm vào playlist'),
-                  onTap: () {
-                    Navigator.pop(sheetContext);
-                    showPlaylistPicker(
-                      rootContext,
-                      song: song,
-                      libraryService: libraryService,
-                    );
-                  },
-                ),
-                ListTile(
-                  leading: const Icon(
-                    Icons.delete_outline_rounded,
-                    color: AppColors.danger,
-                  ),
-                  title: const Text(
-                    'Xóa khỏi ứng dụng',
-                    style: TextStyle(color: AppColors.danger),
-                  ),
-                  onTap: () async {
-                    Navigator.pop(sheetContext);
-                    final confirmed = await showDialog<bool>(
-                      context: rootContext,
-                      builder: (dialogContext) => AlertDialog(
-                        title: const Text('Xóa bài hát?'),
-                        content: Text(
-                          'File “${song.title}” sẽ bị xóa khỏi bộ nhớ ứng dụng.',
-                        ),
-                        actions: [
-                          TextButton(
-                            onPressed: () => Navigator.pop(dialogContext, false),
-                            child: const Text('Hủy'),
-                          ),
-                          FilledButton(
-                            onPressed: () => Navigator.pop(dialogContext, true),
-                            child: const Text('Xóa'),
-                          ),
-                        ],
-                      ),
-                    );
-                    if (confirmed == true) {
-                      await libraryService.deleteSong(song.id);
-                      await playerController.refreshQueueMetadata();
-                    }
-                  },
-                ),
-              ],
-            ),
+      padding: const EdgeInsets.fromLTRB(8, 0, 8, 12),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          AppSheetHeader(
+            title: song.title,
+            subtitle: song.artist,
           ),
-        ),
+          AppSheetAction(
+            icon: song.isFavorite
+                ? Icons.favorite_rounded
+                : Icons.favorite_border_rounded,
+            title: song.isFavorite ? 'Bỏ yêu thích' : 'Thêm vào yêu thích',
+            onTap: () async {
+              Navigator.pop(sheetContext);
+              await libraryService.toggleFavorite(song.id);
+            },
+          ),
+          const AppSheetDivider(),
+          AppSheetAction(
+            icon: Icons.image_outlined,
+            title: 'Sửa ảnh bìa & thông tin',
+            onTap: () async {
+              Navigator.pop(sheetContext);
+              await Future<void>.delayed(const Duration(milliseconds: 170));
+              if (!rootContext.mounted) return;
+              Navigator.of(rootContext).push(
+                MaterialPageRoute<void>(
+                  builder: (_) => CoverEditorScreen(
+                    songId: song.id,
+                    libraryService: libraryService,
+                    playerController: playerController,
+                  ),
+                ),
+              );
+            },
+          ),
+          const AppSheetDivider(),
+          AppSheetAction(
+            icon: Icons.playlist_add_rounded,
+            title: 'Thêm vào playlist',
+            onTap: () async {
+              Navigator.pop(sheetContext);
+              await Future<void>.delayed(const Duration(milliseconds: 170));
+              if (!rootContext.mounted) return;
+              await showPlaylistPicker(
+                rootContext,
+                song: song,
+                libraryService: libraryService,
+              );
+            },
+          ),
+          const AppSheetDivider(),
+          AppSheetAction(
+            icon: Icons.delete_outline_rounded,
+            title: 'Xóa khỏi ứng dụng',
+            destructive: true,
+            onTap: () async {
+              Navigator.pop(sheetContext);
+              await Future<void>.delayed(const Duration(milliseconds: 170));
+              if (!rootContext.mounted) return;
+              final confirmed = await showAppConfirmation(
+                context: rootContext,
+                title: 'Xóa bài hát?',
+                message: 'File “${song.title}” sẽ bị xóa khỏi bộ nhớ ứng dụng.',
+                confirmLabel: 'Xóa',
+                destructive: true,
+              );
+              if (confirmed) {
+                await libraryService.deleteSong(song.id);
+                await playerController.refreshQueueMetadata();
+              }
+            },
+          ),
+        ],
       ),
     ),
   );
@@ -221,61 +191,64 @@ Future<void> showPlaylistPicker(
   required Song song,
   required LibraryService libraryService,
 }) async {
-  await showModalBottomSheet<void>(
+  await showAppSheet<void>(
     context: context,
-    backgroundColor: Colors.transparent,
-    builder: (context) => Padding(
-      padding: const EdgeInsets.fromLTRB(8, 0, 8, 8),
-      child: GlassPanel(
-        borderRadius: 34,
-        blur: 44,
-        opacity: .16,
-        shadow: true,
-        pressable: false,
-        child: AnimatedBuilder(
-          animation: libraryService,
-          builder: (context, _) => SafeArea(
-            top: false,
-            child: Padding(
-              padding: const EdgeInsets.fromLTRB(12, 12, 12, 20),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Container(
-                    width: 42,
-                    height: 5,
-                    decoration: BoxDecoration(
-                      color: const Color(0x443C3C43),
-                      borderRadius: BorderRadius.circular(99),
-                    ),
-                  ),
-                  const ListTile(
-                    title: Text(
-                      'Chọn playlist',
-                      style: TextStyle(fontSize: 22, fontWeight: FontWeight.w800),
-                    ),
-                  ),
-                  if (libraryService.playlists.isEmpty)
-                    const Padding(
-                      padding: EdgeInsets.all(24),
-                      child: Text(
-                        'Chưa có playlist. Hãy tạo playlist trong Thư viện.',
+    builder: (sheetContext) => AnimatedBuilder(
+      animation: libraryService,
+      builder: (context, _) => Padding(
+        padding: const EdgeInsets.fromLTRB(8, 0, 8, 12),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const AppSheetHeader(
+              title: 'Chọn playlist',
+              subtitle: 'Chạm để thêm hoặc gỡ bài hát khỏi playlist.',
+            ),
+            if (libraryService.playlists.isEmpty)
+              const Padding(
+                padding: EdgeInsets.fromLTRB(18, 18, 18, 28),
+                child: Text(
+                  'Chưa có playlist. Hãy tạo playlist trong Thư viện.',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(color: AppColors.muted, height: 1.4),
+                ),
+              )
+            else
+              ConstrainedBox(
+                constraints: BoxConstraints(
+                  maxHeight: MediaQuery.of(context).size.height * .55,
+                ),
+                child: ListView.separated(
+                  shrinkWrap: true,
+                  physics: const BouncingScrollPhysics(),
+                  itemCount: libraryService.playlists.length,
+                  separatorBuilder: (_, __) => const AppSheetDivider(),
+                  itemBuilder: (context, index) {
+                    final playlist = libraryService.playlists[index];
+                    final selected = playlist.songIds.contains(song.id);
+                    return AppSheetAction(
+                      icon: Icons.playlist_play_rounded,
+                      title: playlist.name,
+                      subtitle: '${playlist.songIds.length} bài hát',
+                      selected: selected,
+                      trailing: Icon(
+                        selected
+                            ? Icons.check_circle_rounded
+                            : Icons.add_circle_outline_rounded,
+                        size: 22,
+                        color: selected
+                            ? AppColors.accent
+                            : AppColors.mutedSoft,
                       ),
-                    ),
-                  for (final playlist in libraryService.playlists)
-                    CheckboxListTile(
-                      value: playlist.songIds.contains(song.id),
-                      title: Text(playlist.name),
-                      subtitle: Text('${playlist.songIds.length} bài hát'),
-                      onChanged: (_) => libraryService.toggleSongInPlaylist(
+                      onTap: () => libraryService.toggleSongInPlaylist(
                         playlist.id,
                         song.id,
                       ),
-                    ),
-                ],
+                    );
+                  },
+                ),
               ),
-            ),
-          ),
+          ],
         ),
       ),
     ),
