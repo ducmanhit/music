@@ -19,24 +19,19 @@ Future<T?> showAppSheet<T>({
     isDismissible: isDismissible,
     enableDrag: enableDrag,
     backgroundColor: Colors.transparent,
-    barrierColor: Colors.black.withValues(alpha: .42),
+    barrierColor: Colors.black.withValues(alpha: 0.55),
     elevation: 0,
     builder: (sheetContext) {
       final media = MediaQuery.of(sheetContext);
-      final availableHeight = (media.size.height - media.viewInsets.bottom)
-          .clamp(220.0, media.size.height)
-          .toDouble();
+      final maxHeight = media.size.height * 0.82;
       return AnimatedPadding(
-        duration: const Duration(milliseconds: 180),
+        duration: const Duration(milliseconds: 220),
         curve: Curves.easeOutCubic,
         padding: EdgeInsets.only(bottom: media.viewInsets.bottom),
         child: Align(
           alignment: Alignment.bottomCenter,
           child: ConstrainedBox(
-            constraints: BoxConstraints(
-              maxWidth: 680,
-              maxHeight: availableHeight * .90,
-            ),
+            constraints: BoxConstraints(maxWidth: 680, maxHeight: maxHeight),
             child: AppSheetSurface(child: builder(sheetContext)),
           ),
         ),
@@ -50,12 +45,10 @@ class AppSheetSurface extends StatelessWidget {
     super.key,
     required this.child,
     this.padding = EdgeInsets.zero,
-    this.radius = 26,
   });
 
   final Widget child;
   final EdgeInsetsGeometry padding;
-  final double radius;
 
   @override
   Widget build(BuildContext context) {
@@ -64,11 +57,26 @@ class AppSheetSurface extends StatelessWidget {
       surfaceTintColor: Colors.transparent,
       elevation: 0,
       clipBehavior: Clip.antiAlias,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(radius)),
-        side: BorderSide(color: context.tokens.border),
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(30)),
       ),
       child: Padding(padding: padding, child: child),
+    );
+  }
+}
+
+class AppSheetHandle extends StatelessWidget {
+  const AppSheetHandle({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: 38,
+      height: 5,
+      decoration: BoxDecoration(
+        color: context.tokens.textTertiary.withValues(alpha: 0.55),
+        borderRadius: BorderRadius.circular(99),
+      ),
     );
   }
 }
@@ -80,47 +88,39 @@ class AppSheetHeader extends StatelessWidget {
     this.subtitle,
     this.trailing,
     this.showHandle = true,
-    this.padding = const EdgeInsets.fromLTRB(20, 10, 16, 14),
   });
 
   final String title;
   final String? subtitle;
   final Widget? trailing;
   final bool showHandle;
-  final EdgeInsetsGeometry padding;
 
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: padding,
+      padding: const EdgeInsets.fromLTRB(20, 12, 16, 14),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           if (showHandle) ...[
             const Center(child: AppSheetHandle()),
-            const SizedBox(height: 16),
+            const SizedBox(height: 18),
           ],
           Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
-                      title,
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
-                      style: Theme.of(context).textTheme.titleLarge,
-                    ),
+                    Text(title, style: Theme.of(context).textTheme.titleLarge),
                     if (subtitle != null && subtitle!.trim().isNotEmpty) ...[
                       const SizedBox(height: 5),
                       Text(
                         subtitle!,
                         maxLines: 3,
                         overflow: TextOverflow.ellipsis,
-                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                          color: context.tokens.textMuted,
-                        ),
+                        style: Theme.of(context).textTheme.bodyMedium,
                       ),
                     ],
                   ],
@@ -133,22 +133,6 @@ class AppSheetHeader extends StatelessWidget {
             ],
           ),
         ],
-      ),
-    );
-  }
-}
-
-class AppSheetHandle extends StatelessWidget {
-  const AppSheetHandle({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      width: 42,
-      height: 4,
-      decoration: BoxDecoration(
-        color: context.tokens.surfaceStrong,
-        borderRadius: BorderRadius.circular(99),
       ),
     );
   }
@@ -178,50 +162,44 @@ class AppSheetAction extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final primary = Theme.of(context).colorScheme.primary;
     final foreground = destructive
         ? context.tokens.danger
-        : Theme.of(context).colorScheme.onSurface;
+        : context.tokens.textPrimary;
     return Opacity(
-      opacity: enabled ? 1 : .45,
+      opacity: enabled ? 1 : 0.45,
       child: Material(
-        color: Colors.transparent,
+        color: selected ? context.tokens.surfaceHigh : Colors.transparent,
         child: InkWell(
           onTap: enabled && onTap != null
               ? () {
-                  if (destructive) {
-                    HapticFeedback.mediumImpact();
-                  } else {
-                    HapticFeedback.selectionClick();
-                  }
-                  onTap!();
+                  destructive
+                      ? HapticFeedback.mediumImpact()
+                      : HapticFeedback.selectionClick();
+                  onTap?.call();
                 }
               : null,
           child: ConstrainedBox(
-            constraints: const BoxConstraints(minHeight: 64),
+            constraints: const BoxConstraints(minHeight: 62),
             child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 9),
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 9),
               child: Row(
                 children: [
-                  Container(
-                    width: 40,
-                    height: 40,
-                    decoration: BoxDecoration(
-                      color: destructive
-                          ? context.tokens.danger.withValues(alpha: .10)
-                          : selected
-                              ? context.tokens.accentSoft
-                              : context.tokens.surfaceMuted,
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: Icon(
-                      icon,
-                      size: 21,
-                      color: destructive
-                          ? context.tokens.danger
-                          : selected
-                              ? primary
-                              : context.tokens.textMuted,
+                  SizedBox.square(
+                    dimension: 38,
+                    child: DecoratedBox(
+                      decoration: BoxDecoration(
+                        color: destructive
+                            ? context.tokens.danger.withValues(alpha: 0.1)
+                            : context.tokens.surfaceHigh,
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: Icon(
+                        icon,
+                        size: 20,
+                        color: destructive
+                            ? context.tokens.danger
+                            : context.tokens.textSecondary,
+                      ),
                     ),
                   ),
                   const SizedBox(width: 13),
@@ -232,21 +210,20 @@ class AppSheetAction extends StatelessWidget {
                       children: [
                         Text(
                           title,
-                          maxLines: 2,
+                          maxLines: 1,
                           overflow: TextOverflow.ellipsis,
-                          style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                            color: foreground,
-                          ),
+                          style: Theme.of(context)
+                              .textTheme
+                              .titleMedium
+                              ?.copyWith(color: foreground),
                         ),
                         if (subtitle != null && subtitle!.trim().isNotEmpty) ...[
-                          const SizedBox(height: 3),
+                          const SizedBox(height: 2),
                           Text(
                             subtitle!,
                             maxLines: 2,
                             overflow: TextOverflow.ellipsis,
-                            style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                              color: context.tokens.textMuted,
-                            ),
+                            style: Theme.of(context).textTheme.bodySmall,
                           ),
                         ],
                       ],
@@ -255,9 +232,13 @@ class AppSheetAction extends StatelessWidget {
                   const SizedBox(width: 8),
                   trailing ??
                       Icon(
-                        selected ? Icons.check_circle_rounded : Icons.chevron_right_rounded,
-                        color: selected ? primary : context.tokens.textFaint,
-                        size: selected ? 22 : 21,
+                        selected
+                            ? Icons.check_circle_rounded
+                            : Icons.chevron_right_rounded,
+                        color: selected
+                            ? context.tokens.textPrimary
+                            : context.tokens.textTertiary,
+                        size: selected ? 22 : 20,
                       ),
                 ],
               ),
@@ -276,7 +257,7 @@ class AppSheetDivider extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Divider(height: 1, indent: indent, endIndent: 18);
+    return Divider(height: 1, indent: indent, endIndent: 20);
   }
 }
 
@@ -292,23 +273,61 @@ Future<bool> showAppConfirmation({
   final result = await showDialog<bool>(
     context: context,
     useRootNavigator: true,
-    barrierColor: Colors.black.withValues(alpha: .46),
-    builder: (dialogContext) => AppAlertDialog(
-      title: title,
-      message: message,
-      actions: [
-        AppDialogAction(
-          label: cancelLabel,
-          onPressed: () => Navigator.pop(dialogContext, false),
+    barrierColor: Colors.black.withValues(alpha: 0.58),
+    builder: (dialogContext) {
+      return Dialog(
+        insetPadding: const EdgeInsets.symmetric(horizontal: 28),
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 320),
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(22, 22, 22, 18),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  title,
+                  textAlign: TextAlign.center,
+                  style: Theme.of(dialogContext).textTheme.titleLarge,
+                ),
+                const SizedBox(height: 9),
+                Text(
+                  message,
+                  textAlign: TextAlign.center,
+                  style: Theme.of(dialogContext).textTheme.bodyMedium,
+                ),
+                const SizedBox(height: 22),
+                Row(
+                  children: [
+                    Expanded(
+                      child: OutlinedButton(
+                        onPressed: () => Navigator.pop(dialogContext, false),
+                        child: Text(cancelLabel),
+                      ),
+                    ),
+                    const SizedBox(width: 10),
+                    Expanded(
+                      child: FilledButton(
+                        onPressed: () {
+                          if (destructive) HapticFeedback.mediumImpact();
+                          Navigator.pop(dialogContext, true);
+                        },
+                        style: destructive
+                            ? FilledButton.styleFrom(
+                                backgroundColor: context.tokens.danger,
+                                foregroundColor: Colors.white,
+                              )
+                            : null,
+                        child: Text(confirmLabel),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
         ),
-        AppDialogAction(
-          label: confirmLabel,
-          destructive: destructive,
-          emphasized: true,
-          onPressed: () => Navigator.pop(dialogContext, true),
-        ),
-      ],
-    ),
+      );
+    },
   );
   return result ?? false;
 }
@@ -322,239 +341,120 @@ Future<String?> showAppTextPrompt({
   String confirmLabel = 'Lưu',
   String cancelLabel = 'Hủy',
   int maxLength = 80,
-}) async {
-  FocusManager.instance.primaryFocus?.unfocus();
-  final controller = TextEditingController(text: initialValue);
-  final focusNode = FocusNode();
-  try {
-    return await showDialog<String>(
-      context: context,
-      useRootNavigator: true,
-      barrierColor: Colors.black.withValues(alpha: .46),
-      builder: (dialogContext) => _TextPromptDialog(
-        title: title,
-        message: message,
-        placeholder: placeholder,
-        confirmLabel: confirmLabel,
-        cancelLabel: cancelLabel,
-        maxLength: maxLength,
-        controller: controller,
-        focusNode: focusNode,
-      ),
-    );
-  } finally {
-    controller.dispose();
-    focusNode.dispose();
-  }
+}) {
+  return showAppSheet<String>(
+    context: context,
+    enableDrag: false,
+    builder: (sheetContext) => _TextPromptSheet(
+      title: title,
+      message: message,
+      placeholder: placeholder,
+      initialValue: initialValue,
+      confirmLabel: confirmLabel,
+      cancelLabel: cancelLabel,
+      maxLength: maxLength,
+    ),
+  );
 }
 
-class _TextPromptDialog extends StatefulWidget {
-  const _TextPromptDialog({
+class _TextPromptSheet extends StatefulWidget {
+  const _TextPromptSheet({
     required this.title,
+    required this.message,
     required this.placeholder,
+    required this.initialValue,
     required this.confirmLabel,
     required this.cancelLabel,
     required this.maxLength,
-    required this.controller,
-    required this.focusNode,
-    this.message,
   });
 
   final String title;
   final String? message;
   final String placeholder;
+  final String initialValue;
   final String confirmLabel;
   final String cancelLabel;
   final int maxLength;
-  final TextEditingController controller;
-  final FocusNode focusNode;
 
   @override
-  State<_TextPromptDialog> createState() => _TextPromptDialogState();
+  State<_TextPromptSheet> createState() => _TextPromptSheetState();
 }
 
-class _TextPromptDialogState extends State<_TextPromptDialog> {
-  bool get _valid => widget.controller.text.trim().isNotEmpty;
+class _TextPromptSheetState extends State<_TextPromptSheet> {
+  late final TextEditingController controller;
+  late final FocusNode focusNode;
+  String? errorText;
+
+  @override
+  void initState() {
+    super.initState();
+    controller = TextEditingController(text: widget.initialValue);
+    focusNode = FocusNode();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) focusNode.requestFocus();
+    });
+  }
+
+  @override
+  void dispose() {
+    controller.dispose();
+    focusNode.dispose();
+    super.dispose();
+  }
 
   void _submit() {
-    final value = widget.controller.text.trim();
-    if (value.isEmpty) return;
+    final value = controller.text.trim();
+    if (value.isEmpty) {
+      setState(() => errorText = 'Nội dung không được để trống.');
+      return;
+    }
     Navigator.pop(context, value);
   }
 
   @override
   Widget build(BuildContext context) {
-    return AppAlertDialog(
-      title: widget.title,
-      message: widget.message,
-      content: Padding(
-        padding: const EdgeInsets.fromLTRB(20, 2, 20, 18),
-        child: TextField(
-          controller: widget.controller,
-          focusNode: widget.focusNode,
-          autofocus: true,
-          maxLength: widget.maxLength,
-          textInputAction: TextInputAction.done,
-          onChanged: (_) => setState(() {}),
-          onSubmitted: (_) => _submit(),
-          decoration: InputDecoration(
-            hintText: widget.placeholder,
-            counterText: '',
+    return SingleChildScrollView(
+      padding: const EdgeInsets.fromLTRB(20, 0, 20, 20),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          AppSheetHeader(
+            title: widget.title,
+            subtitle: widget.message,
           ),
-        ),
-      ),
-      actions: [
-        AppDialogAction(
-          label: widget.cancelLabel,
-          onPressed: () => Navigator.pop(context),
-        ),
-        AppDialogAction(
-          label: widget.confirmLabel,
-          enabled: _valid,
-          emphasized: true,
-          onPressed: _valid ? _submit : null,
-        ),
-      ],
-    );
-  }
-}
-
-class AppAlertDialog extends StatelessWidget {
-  const AppAlertDialog({
-    super.key,
-    required this.title,
-    required this.actions,
-    this.message,
-    this.content,
-  });
-
-  final String title;
-  final String? message;
-  final Widget? content;
-  final List<AppDialogAction> actions;
-
-  @override
-  Widget build(BuildContext context) {
-    final media = MediaQuery.of(context);
-    return Dialog(
-      insetPadding: EdgeInsets.fromLTRB(
-        20,
-        media.padding.top + 20,
-        20,
-        media.viewInsets.bottom + media.padding.bottom + 20,
-      ),
-      child: ConstrainedBox(
-        constraints: const BoxConstraints(maxWidth: 390),
-        child: SingleChildScrollView(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Padding(
-                padding: EdgeInsets.fromLTRB(22, 22, 22, content == null ? 20 : 12),
-                child: Column(
-                  children: [
-                    Text(
-                      title,
-                      textAlign: TextAlign.center,
-                      style: Theme.of(context).textTheme.titleLarge,
-                    ),
-                    if (message != null && message!.trim().isNotEmpty) ...[
-                      const SizedBox(height: 8),
-                      Text(
-                        message!,
-                        textAlign: TextAlign.center,
-                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                          color: context.tokens.textMuted,
-                        ),
-                      ),
-                    ],
-                  ],
-                ),
-              ),
-              if (content != null) content!,
-              const Divider(height: 1),
-              if (actions.length <= 2)
-                IntrinsicHeight(
-                  child: Row(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [
-                      for (var index = 0; index < actions.length; index++) ...[
-                        Expanded(child: actions[index]),
-                        if (index < actions.length - 1)
-                          const VerticalDivider(width: 1),
-                      ],
-                    ],
-                  ),
-                )
-              else
-                Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    for (var index = 0; index < actions.length; index++) ...[
-                      SizedBox(width: double.infinity, child: actions[index]),
-                      if (index < actions.length - 1) const Divider(height: 1),
-                    ],
-                  ],
-                ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-class AppDialogAction extends StatelessWidget {
-  const AppDialogAction({
-    super.key,
-    required this.label,
-    required this.onPressed,
-    this.destructive = false,
-    this.emphasized = false,
-    this.enabled = true,
-  });
-
-  final String label;
-  final VoidCallback? onPressed;
-  final bool destructive;
-  final bool emphasized;
-  final bool enabled;
-
-  @override
-  Widget build(BuildContext context) {
-    final primary = Theme.of(context).colorScheme.primary;
-    final foreground = destructive ? context.tokens.danger : primary;
-    return Material(
-      color: Colors.transparent,
-      child: InkWell(
-        onTap: enabled && onPressed != null
-            ? () {
-                if (destructive) {
-                  HapticFeedback.mediumImpact();
-                } else {
-                  HapticFeedback.selectionClick();
-                }
-                onPressed!();
-              }
-            : null,
-        child: ConstrainedBox(
-          constraints: const BoxConstraints(minHeight: 52),
-          child: Center(
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 12),
-              child: Text(
-                label,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                style: TextStyle(
-                  color: enabled ? foreground : context.tokens.textFaint,
-                  fontSize: 15.5,
-                  fontWeight: emphasized ? FontWeight.w800 : FontWeight.w600,
-                ),
-              ),
+          TextField(
+            controller: controller,
+            focusNode: focusNode,
+            maxLength: widget.maxLength,
+            textInputAction: TextInputAction.done,
+            onSubmitted: (_) => _submit(),
+            onChanged: (_) {
+              if (errorText != null) setState(() => errorText = null);
+            },
+            decoration: InputDecoration(
+              hintText: widget.placeholder,
+              errorText: errorText,
             ),
           ),
-        ),
+          const SizedBox(height: 12),
+          Row(
+            children: [
+              Expanded(
+                child: OutlinedButton(
+                  onPressed: () => Navigator.pop(context),
+                  child: Text(widget.cancelLabel),
+                ),
+              ),
+              const SizedBox(width: 10),
+              Expanded(
+                child: FilledButton(
+                  onPressed: _submit,
+                  child: Text(widget.confirmLabel),
+                ),
+              ),
+            ],
+          ),
+        ],
       ),
     );
   }
@@ -592,7 +492,9 @@ Future<T?> showAppSelectionSheet<T>({
         Flexible(
           child: ListView.separated(
             shrinkWrap: true,
-            padding: const EdgeInsets.only(bottom: 12),
+            padding: EdgeInsets.only(
+              bottom: MediaQuery.paddingOf(sheetContext).bottom + 12,
+            ),
             itemCount: options.length,
             separatorBuilder: (_, __) => const AppSheetDivider(),
             itemBuilder: (context, index) {

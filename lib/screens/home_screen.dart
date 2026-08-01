@@ -27,32 +27,32 @@ class HomeScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return AppPage(
       child: AnimatedBuilder(
-        animation: Listenable.merge(<Listenable>[libraryService, playerController]),
+        animation: Listenable.merge(<Listenable>[
+          libraryService,
+          playerController,
+        ]),
         builder: (context, _) {
           final songs = libraryService.songs;
-          final recent = libraryService.recentlyPlayed.take(6).toList();
-          final featured = libraryService.dailyMix.take(8).toList();
+          final recents = libraryService.recentlyPlayed.take(8).toList();
+          final favorites = libraryService.favorites.take(8).toList();
+          final mostPlayed = libraryService.dailyMix.take(6).toList();
+          final albums = libraryService.byAlbum.entries.take(8).toList();
+
           return CustomScrollView(
-            key: const PageStorageKey<String>('home-scroll'),
+            key: const PageStorageKey<String>('home-page'),
             slivers: [
               SliverToBoxAdapter(
                 child: PageHeader(
-                  eyebrow: 'Offline Music Studio',
-                  title: 'Nhạc của bạn',
+                  eyebrow: _greeting(),
+                  title: 'Dành cho bạn',
                   subtitle: songs.isEmpty
-                      ? 'Thêm file âm thanh để bắt đầu.'
-                      : '${songs.length} bài hát · ${libraryService.playlists.length} playlist',
+                      ? 'Thêm nhạc để bắt đầu thư viện cá nhân.'
+                      : '${songs.length} bài hát • nghe hoàn toàn offline',
                   actions: [
-                    FlatIconButton(
-                      icon: Icons.add_rounded,
-                      selected: true,
-                      tooltip: 'Thêm nhạc',
-                      onPressed: libraryService.isImporting
-                          ? null
-                          : () => showImportMusicSheet(
-                                context: context,
-                                libraryService: libraryService,
-                              ),
+                    CircleIconButton(
+                      icon: Icons.settings_outlined,
+                      tooltip: 'Cài đặt',
+                      onPressed: () => onNavigate(3),
                     ),
                   ],
                 ),
@@ -63,139 +63,151 @@ class HomeScreen extends StatelessWidget {
                   child: EmptyState(
                     icon: Icons.library_music_rounded,
                     title: 'Thư viện đang trống',
-                    message: 'Chọn file MP3, M4A, AAC, WAV hoặc FLAC từ ứng dụng Files. Nhạc được lưu trong app để nghe offline.',
-                    actionLabel: 'Chọn nhạc',
-                    onAction: () => showImportMusicSheet(
-                      context: context,
-                      libraryService: libraryService,
+                    message:
+                        'Nhập file nhạc từ ứng dụng Files để nghe offline.',
+                    action: PrimaryButton(
+                      label: 'Thêm nhạc',
+                      icon: Icons.add_rounded,
+                      expanded: false,
+                      onPressed: libraryService.isImporting
+                          ? null
+                          : () => showImportMusicSheet(
+                                context: context,
+                                libraryService: libraryService,
+                              ),
                     ),
                   ),
                 )
               else ...[
-                SliverToBoxAdapter(
-                  child: Padding(
-                    padding: const EdgeInsets.fromLTRB(20, 8, 20, 0),
-                    child: SizedBox(
-                      height: 132,
-                      child: Row(
-                        children: [
-                          Expanded(
-                            child: MetricCard(
-                              label: 'Bài hát',
-                              value: '${songs.length}',
-                              icon: Icons.music_note_rounded,
-                              onTap: () => onNavigate(1),
-                            ),
-                          ),
-                          const SizedBox(width: 10),
-                          Expanded(
-                            child: MetricCard(
-                              label: 'Yêu thích',
-                              value: '${libraryService.favoriteCount}',
-                              icon: Icons.favorite_rounded,
-                              onTap: () => _openCollection(
-                                context,
-                                'Yêu thích',
-                                libraryService.favorites,
-                              ),
-                            ),
-                          ),
-                          const SizedBox(width: 10),
-                          Expanded(
-                            child: MetricCard(
-                              label: 'Playlist',
-                              value: '${libraryService.playlists.length}',
-                              icon: Icons.queue_music_rounded,
-                              onTap: () => onNavigate(1),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                ),
-                SliverToBoxAdapter(
-                  child: _QuickActions(
-                    onPlayAll: () => playerController.playAll(songs),
-                    onShuffle: () => playerController.playAll(songs, shuffle: true),
-                    onFavorites: () => _openCollection(
-                      context,
-                      'Yêu thích',
-                      libraryService.favorites,
-                    ),
-                    onLibrary: () => onNavigate(1),
-                  ),
-                ),
                 if (playerController.currentSong != null)
-                  SliverToBoxAdapter(
-                    child: _ContinueCard(
-                      song: playerController.currentSong!,
-                      playerController: playerController,
-                      onOpen: () => Navigator.of(context).push(
-                        MaterialPageRoute<void>(
-                          builder: (_) => NowPlayingScreen(
-                            libraryService: libraryService,
-                            playerController: playerController,
-                          ),
-                        ),
+                  SliverPadding(
+                    padding: const EdgeInsets.fromLTRB(20, 0, 20, 4),
+                    sliver: SliverToBoxAdapter(
+                      child: _ContinueCard(
+                        song: playerController.currentSong!,
+                        libraryService: libraryService,
+                        playerController: playerController,
                       ),
                     ),
                   ),
-                if (featured.isNotEmpty) ...[
-                  SliverToBoxAdapter(
-                    child: SectionHeader(
-                      title: 'Gợi ý từ thư viện',
-                      subtitle: 'Dựa trên bài đã nghe và bài mới thêm',
-                      actionLabel: 'Phát tất cả',
-                      onAction: () => playerController.playAll(featured),
+                SectionHeaderSliver(
+                  title: 'Nghe gần đây',
+                  subtitle: recents.isEmpty
+                      ? 'Các bài đã phát sẽ xuất hiện ở đây'
+                      : '${recents.length} bài gần nhất',
+                  onViewAll: recents.isEmpty
+                      ? null
+                      : () => _openCollection(
+                            context,
+                            'Nghe gần đây',
+                            recents,
+                          ),
+                ),
+                if (recents.isEmpty)
+                  const SliverToBoxAdapter(
+                    child: Padding(
+                      padding: EdgeInsets.symmetric(horizontal: 20),
+                      child: EmptyState(
+                        icon: Icons.history_rounded,
+                        title: 'Chưa có lịch sử nghe',
+                        message: 'Phát một bài hát để bắt đầu.',
+                        compact: true,
+                      ),
                     ),
-                  ),
+                  )
+                else
                   SliverToBoxAdapter(
                     child: SizedBox(
-                      height: 190,
+                      height: 205,
                       child: ListView.separated(
                         padding: const EdgeInsets.symmetric(horizontal: 20),
                         scrollDirection: Axis.horizontal,
-                        itemCount: featured.length,
-                        separatorBuilder: (_, __) => const SizedBox(width: 12),
+                        itemCount: recents.length,
+                        separatorBuilder: (_, __) => const SizedBox(width: 14),
                         itemBuilder: (context, index) {
-                          final song = featured[index];
-                          return _FeaturedSongCard(
+                          final song = recents[index];
+                          return _MusicCard(
                             song: song,
-                            onTap: () => playerController.playSong(featured, song),
+                            onTap: () => playerController.playSong(recents, song),
                           );
                         },
                       ),
                     ),
                   ),
+                SectionHeaderSliver(
+                  title: 'Album gần đây',
+                  subtitle: '${albums.length} album trong thư viện',
+                ),
+                if (albums.isNotEmpty)
+                  SliverToBoxAdapter(
+                    child: SizedBox(
+                      height: 210,
+                      child: ListView.separated(
+                        padding: const EdgeInsets.symmetric(horizontal: 20),
+                        scrollDirection: Axis.horizontal,
+                        itemCount: albums.length,
+                        separatorBuilder: (_, __) => const SizedBox(width: 14),
+                        itemBuilder: (context, index) {
+                          final entry = albums[index];
+                          return _AlbumCard(
+                            name: entry.key,
+                            songs: entry.value,
+                            onTap: () => _openCollection(
+                              context,
+                              entry.key,
+                              entry.value,
+                              subtitle: '${entry.value.length} bài hát',
+                            ),
+                          );
+                        },
+                      ),
+                    ),
+                  ),
+                if (favorites.isNotEmpty) ...[
+                  SectionHeaderSliver(
+                    title: 'Yêu thích',
+                    subtitle: '${libraryService.favoriteCount} bài hát',
+                    onViewAll: () => _openCollection(
+                      context,
+                      'Yêu thích',
+                      libraryService.favorites,
+                    ),
+                  ),
+                  SliverPadding(
+                    padding: const EdgeInsets.symmetric(horizontal: 20),
+                    sliver: SliverList.separated(
+                      itemCount: favorites.length,
+                      separatorBuilder: (_, __) =>
+                          const Divider(height: 1, indent: 68),
+                      itemBuilder: (context, index) => SongTile(
+                        song: favorites[index],
+                        source: libraryService.favorites,
+                        libraryService: libraryService,
+                        playerController: playerController,
+                      ),
+                    ),
+                  ),
                 ],
-                SliverToBoxAdapter(
-                  child: SectionHeader(
-                    title: recent.isEmpty ? 'Mới thêm' : 'Nghe gần đây',
-                    actionLabel: 'Xem thư viện',
-                    onAction: () => onNavigate(1),
+                SectionHeaderSliver(
+                  title: 'Nghe nhiều',
+                  subtitle: 'Dựa trên lịch sử phát của bạn',
+                  onViewAll: () => _openCollection(
+                    context,
+                    'Nghe nhiều',
+                    libraryService.dailyMix,
                   ),
                 ),
                 SliverPadding(
-                  padding: const EdgeInsets.fromLTRB(14, 0, 14, 28),
-                  sliver: SliverList(
-                    delegate: SliverChildBuilderDelegate(
-                      (context, index) {
-                        final source = recent.isEmpty ? songs.take(6).toList() : recent;
-                        final song = source[index];
-                        return SongTile(
-                          song: song,
-                          selected: playerController.currentSong?.id == song.id,
-                          onTap: () => playerController.playSong(source, song),
-                          onMore: () => showSongActions(
-                            context,
-                            song: song,
-                            libraryService: libraryService,
-                            playerController: playerController,
-                          ),
-                        );
-                      },
-                      childCount: (recent.isEmpty ? songs.take(6) : recent).length,
+                  padding: const EdgeInsets.fromLTRB(20, 0, 20, 28),
+                  sliver: SliverList.separated(
+                    itemCount: mostPlayed.length,
+                    separatorBuilder: (_, __) =>
+                        const Divider(height: 1, indent: 68),
+                    itemBuilder: (context, index) => SongTile(
+                      song: mostPlayed[index],
+                      source: libraryService.dailyMix,
+                      libraryService: libraryService,
+                      playerController: playerController,
                     ),
                   ),
                 ),
@@ -207,11 +219,24 @@ class HomeScreen extends StatelessWidget {
     );
   }
 
-  void _openCollection(BuildContext context, String title, List<Song> songs) {
+  String _greeting() {
+    final hour = DateTime.now().hour;
+    if (hour < 11) return 'Chào buổi sáng';
+    if (hour < 18) return 'Chào buổi chiều';
+    return 'Chào buổi tối';
+  }
+
+  void _openCollection(
+    BuildContext context,
+    String title,
+    List<Song> songs, {
+    String? subtitle,
+  }) {
     Navigator.of(context).push(
       MaterialPageRoute<void>(
         builder: (_) => SongCollectionScreen(
           title: title,
+          subtitle: subtitle ?? '${songs.length} bài hát',
           songs: songs,
           libraryService: libraryService,
           playerController: playerController,
@@ -221,69 +246,30 @@ class HomeScreen extends StatelessWidget {
   }
 }
 
-class _QuickActions extends StatelessWidget {
-  const _QuickActions({
-    required this.onPlayAll,
-    required this.onShuffle,
-    required this.onFavorites,
-    required this.onLibrary,
+class SectionHeaderSliver extends StatelessWidget {
+  const SectionHeaderSliver({
+    super.key,
+    required this.title,
+    this.subtitle,
+    this.onViewAll,
   });
 
-  final VoidCallback onPlayAll;
-  final VoidCallback onShuffle;
-  final VoidCallback onFavorites;
-  final VoidCallback onLibrary;
+  final String title;
+  final String? subtitle;
+  final VoidCallback? onViewAll;
 
   @override
   Widget build(BuildContext context) {
-    final actions = <({IconData icon, String label, VoidCallback onTap})>[
-      (icon: Icons.play_arrow_rounded, label: 'Phát tất cả', onTap: onPlayAll),
-      (icon: Icons.shuffle_rounded, label: 'Ngẫu nhiên', onTap: onShuffle),
-      (icon: Icons.favorite_border_rounded, label: 'Yêu thích', onTap: onFavorites),
-      (icon: Icons.folder_copy_outlined, label: 'Thư viện', onTap: onLibrary),
-    ];
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(20, 18, 20, 0),
-      child: SurfaceCard(
-        padding: const EdgeInsets.all(8),
-        child: Row(
-          children: [
-            for (var index = 0; index < actions.length; index++) ...[
-              Expanded(
-                child: InkWell(
-                  onTap: actions[index].onTap,
-                  borderRadius: BorderRadius.circular(13),
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 3),
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Icon(
-                          actions[index].icon,
-                          color: Theme.of(context).colorScheme.primary,
-                        ),
-                        const SizedBox(height: 7),
-                        Text(
-                          actions[index].label,
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          style: Theme.of(context).textTheme.labelMedium?.copyWith(
-                            fontWeight: FontWeight.w700,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
+    return SliverToBoxAdapter(
+      child: SectionHeader(
+        title: title,
+        subtitle: subtitle,
+        trailing: onViewAll == null
+            ? null
+            : TextButton(
+                onPressed: onViewAll,
+                child: const Text('Xem tất cả'),
               ),
-              if (index < actions.length - 1)
-                SizedBox(
-                  height: 38,
-                  child: VerticalDivider(color: context.tokens.border),
-                ),
-            ],
-          ],
-        ),
       ),
     );
   }
@@ -292,65 +278,114 @@ class _QuickActions extends StatelessWidget {
 class _ContinueCard extends StatelessWidget {
   const _ContinueCard({
     required this.song,
+    required this.libraryService,
     required this.playerController,
-    required this.onOpen,
   });
 
   final Song song;
+  final LibraryService libraryService;
   final PlayerController playerController;
-  final VoidCallback onOpen;
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(20, 22, 20, 0),
-      child: SurfaceCard(
-        padding: const EdgeInsets.all(14),
-        onTap: onOpen,
-        color: context.tokens.accentSoft,
-        child: Row(
-          children: [
-            SongArtwork(song: song, size: 72, borderRadius: 16),
-            const SizedBox(width: 15),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    'ĐANG PHÁT',
-                    style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                      color: Theme.of(context).colorScheme.primary,
-                      fontWeight: FontWeight.w800,
-                      letterSpacing: 1,
-                    ),
-                  ),
-                  const SizedBox(height: 6),
-                  Text(
-                    song.title,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: Theme.of(context).textTheme.titleLarge,
-                  ),
-                  const SizedBox(height: 4),
-                  Text(
-                    song.artist,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                      color: context.tokens.textMuted,
-                    ),
-                  ),
-                ],
-              ),
+    return RoundedSurface(
+      radius: 26,
+      color: context.tokens.surfaceHigh,
+      padding: const EdgeInsets.all(14),
+      onTap: () => Navigator.of(context).push(
+        MaterialPageRoute<void>(
+          builder: (_) => NowPlayingScreen(
+            libraryService: libraryService,
+            playerController: playerController,
+          ),
+        ),
+      ),
+      child: Row(
+        children: [
+          SongArtwork(
+            song: song,
+            size: 78,
+            borderRadius: 20,
+            showBorder: false,
+          ),
+          const SizedBox(width: 15),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'TIẾP TỤC NGHE',
+                  style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                        letterSpacing: 1.0,
+                      ),
+                ),
+                const SizedBox(height: 6),
+                Text(
+                  song.title,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: Theme.of(context).textTheme.titleLarge,
+                ),
+                const SizedBox(height: 3),
+                Text(
+                  song.artist,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: Theme.of(context).textTheme.bodySmall,
+                ),
+              ],
             ),
-            const SizedBox(width: 10),
-            IconButton.filled(
-              onPressed: playerController.playOrPause,
-              icon: Icon(
-                playerController.player.playing
-                    ? Icons.pause_rounded
-                    : Icons.play_arrow_rounded,
-              ),
+          ),
+          const SizedBox(width: 10),
+          CircleIconButton(
+            icon: playerController.player.playing
+                ? Icons.pause_rounded
+                : Icons.play_arrow_rounded,
+            selected: true,
+            tooltip: 'Phát hoặc tạm dừng',
+            onPressed: playerController.playOrPause,
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _MusicCard extends StatelessWidget {
+  const _MusicCard({required this.song, required this.onTap});
+
+  final Song song;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      width: 150,
+      child: PressableScale(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(22),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            SongArtwork(
+              song: song,
+              size: 150,
+              borderRadius: 22,
+              showBorder: false,
+            ),
+            const SizedBox(height: 9),
+            Text(
+              song.title,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: Theme.of(context).textTheme.titleMedium,
+            ),
+            const SizedBox(height: 2),
+            Text(
+              song.artist,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: Theme.of(context).textTheme.bodySmall,
             ),
           ],
         ),
@@ -359,45 +394,47 @@ class _ContinueCard extends StatelessWidget {
   }
 }
 
-class _FeaturedSongCard extends StatelessWidget {
-  const _FeaturedSongCard({required this.song, required this.onTap});
+class _AlbumCard extends StatelessWidget {
+  const _AlbumCard({
+    required this.name,
+    required this.songs,
+    required this.onTap,
+  });
 
-  final Song song;
+  final String name;
+  final List<Song> songs;
   final VoidCallback onTap;
 
   @override
   Widget build(BuildContext context) {
+    final artworkSong = songs.first;
     return SizedBox(
-      width: 142,
-      child: InkWell(
+      width: 150,
+      child: PressableScale(
         onTap: onTap,
-        borderRadius: BorderRadius.circular(16),
-        child: Padding(
-          padding: const EdgeInsets.all(4),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              SongArtwork(song: song, size: 134, borderRadius: 16),
-              const SizedBox(height: 9),
-              Text(
-                song.title,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                  fontWeight: FontWeight.w700,
-                ),
-              ),
-              const SizedBox(height: 2),
-              Text(
-                song.artist,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                  color: context.tokens.textMuted,
-                ),
-              ),
-            ],
-          ),
+        borderRadius: BorderRadius.circular(22),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            SongArtwork(
+              song: artworkSong,
+              size: 150,
+              borderRadius: 22,
+              showBorder: false,
+            ),
+            const SizedBox(height: 9),
+            Text(
+              name,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: Theme.of(context).textTheme.titleMedium,
+            ),
+            const SizedBox(height: 2),
+            Text(
+              '${songs.length} bài hát',
+              style: Theme.of(context).textTheme.bodySmall,
+            ),
+          ],
         ),
       ),
     );

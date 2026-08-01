@@ -25,14 +25,14 @@ void main() {
     expect(restored.isFavorite, isTrue);
   });
 
-  testWidgets('flat surface renders in both light and dark themes', (tester) async {
+  testWidgets('rounded surface renders in light and dark themes', (tester) async {
     Future<void> pump(ThemeData theme) {
       return tester.pumpWidget(
         MaterialApp(
           theme: theme,
           home: const Scaffold(
             body: Center(
-              child: SurfaceCard(child: Text('Studio Flat')),
+              child: RoundedSurface(child: Text('Dark Rounded Premium')),
             ),
           ),
         ),
@@ -40,11 +40,37 @@ void main() {
     }
 
     await pump(buildLightTheme());
-    expect(find.text('Studio Flat'), findsOneWidget);
+    expect(find.text('Dark Rounded Premium'), findsOneWidget);
     expect(tester.takeException(), isNull);
 
     await pump(buildDarkTheme());
-    expect(find.text('Studio Flat'), findsOneWidget);
+    expect(find.text('Dark Rounded Premium'), findsOneWidget);
+    expect(tester.takeException(), isNull);
+  });
+
+  testWidgets('pressable control keeps a stable layout', (tester) async {
+    var taps = 0;
+    await tester.pumpWidget(
+      MaterialApp(
+        theme: buildDarkTheme(),
+        home: Scaffold(
+          body: Center(
+            child: PressableScale(
+              onTap: () => taps++,
+              child: const SizedBox(
+                width: 120,
+                height: 48,
+                child: Center(child: Text('Phát')),
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+
+    await tester.tap(find.text('Phát'));
+    await tester.pumpAndSettle();
+    expect(taps, 1);
     expect(tester.takeException(), isNull);
   });
 }

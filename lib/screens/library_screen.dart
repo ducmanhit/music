@@ -36,10 +36,14 @@ class _LibraryScreenState extends State<LibraryScreen> {
     final result = widget.libraryService.search(query);
     switch (sort) {
       case SongSort.title:
-        result.sort((a, b) => a.title.toLowerCase().compareTo(b.title.toLowerCase()));
+        result.sort(
+          (a, b) => a.title.toLowerCase().compareTo(b.title.toLowerCase()),
+        );
         break;
       case SongSort.artist:
-        result.sort((a, b) => a.artist.toLowerCase().compareTo(b.artist.toLowerCase()));
+        result.sort(
+          (a, b) => a.artist.toLowerCase().compareTo(b.artist.toLowerCase()),
+        );
         break;
       case SongSort.added:
         result.sort((a, b) => b.addedAt.compareTo(a.addedAt));
@@ -57,22 +61,33 @@ class _LibraryScreenState extends State<LibraryScreen> {
       child: DefaultTabController(
         length: 5,
         child: AnimatedBuilder(
-          animation: Listenable.merge(<Listenable>[widget.libraryService, widget.playerController]),
+          animation: Listenable.merge(<Listenable>[
+            widget.libraryService,
+            widget.playerController,
+          ]),
           builder: (context, _) {
             final songs = _sortedSongs();
             return Column(
               children: [
                 PageHeader(
                   eyebrow: 'Bộ sưu tập',
-                  title: 'Library',
-                  subtitle: '${widget.libraryService.songs.length} bài hát trong bộ nhớ ứng dụng',
+                  title: 'Thư viện',
+                  subtitle:
+                      '${widget.libraryService.songs.length} bài hát trong bộ nhớ ứng dụng',
                   actions: [
-                    FlatIconButton(
-                      icon: Icons.refresh_rounded,
-                      tooltip: 'Làm mới',
-                      onPressed: widget.libraryService.isImporting ? null : _rescan,
+                    CircleIconButton(
+                      icon: Icons.sort_rounded,
+                      tooltip: 'Sắp xếp',
+                      onPressed: _selectSort,
                     ),
-                    FlatIconButton(
+                    CircleIconButton(
+                      icon: Icons.refresh_rounded,
+                      tooltip: 'Làm mới thư viện',
+                      onPressed: widget.libraryService.isImporting
+                          ? null
+                          : _rescan,
+                    ),
+                    CircleIconButton(
                       icon: Icons.add_rounded,
                       tooltip: 'Thêm nhạc',
                       selected: true,
@@ -86,100 +101,36 @@ class _LibraryScreenState extends State<LibraryScreen> {
                   ],
                 ),
                 Padding(
-                  padding: const EdgeInsets.fromLTRB(20, 4, 20, 12),
-                  child: Row(
-                    children: [
-                      Expanded(
-                        child: TextField(
-                          onChanged: (value) => setState(() => query = value),
-                          decoration: const InputDecoration(
-                            hintText: 'Tìm bài hát, nghệ sĩ, album',
-                            prefixIcon: Icon(Icons.search_rounded),
-                          ),
-                        ),
-                      ),
-                      const SizedBox(width: 10),
-                      FlatIconButton(
-                        icon: Icons.sort_rounded,
-                        tooltip: 'Sắp xếp',
-                        onPressed: _selectSort,
-                      ),
-                    ],
+                  padding: const EdgeInsets.fromLTRB(20, 0, 20, 12),
+                  child: AppSearchField(
+                    hintText: 'Tìm trong thư viện',
+                    onChanged: (value) => setState(() => query = value),
                   ),
                 ),
-                if (widget.playerController.currentSong != null)
-                  Padding(
-                    padding: const EdgeInsets.fromLTRB(20, 8, 20, 14),
-                    child: SurfaceCard(
-                      radius: 26,
-                      color: context.tokens.surfaceMuted,
-                      onTap: () => widget.playerController.playOrPause(),
-                      child: Row(
-                        children: [
-                          SongArtwork(
-                            song: widget.playerController.currentSong!,
-                            size: 70,
-                            borderRadius: 18,
-                            showBorder: false,
-                          ),
-                          const SizedBox(width: 14),
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  'Currently Playing',
-                                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                                        color: context.tokens.textMuted,
-                                        fontWeight: FontWeight.w700,
-                                      ),
-                                ),
-                                const SizedBox(height: 6),
-                                Text(
-                                  widget.playerController.currentSong!.title,
-                                  maxLines: 1,
-                                  overflow: TextOverflow.ellipsis,
-                                  style: Theme.of(context).textTheme.titleLarge,
-                                ),
-                                const SizedBox(height: 4),
-                                Text(
-                                  widget.playerController.currentSong!.artist,
-                                  maxLines: 1,
-                                  overflow: TextOverflow.ellipsis,
-                                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                                        color: context.tokens.textMuted,
-                                      ),
-                                ),
-                              ],
-                            ),
-                          ),
-                          const SizedBox(width: 10),
-                          FilledButton(
-                            onPressed: widget.playerController.playOrPause,
-                            style: FilledButton.styleFrom(
-                              minimumSize: const Size(68, 46),
-                              padding: const EdgeInsets.symmetric(horizontal: 16),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(16),
-                              ),
-                            ),
-                            child: const Icon(Icons.play_arrow_rounded),
-                          ),
-                        ],
-                      ),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 20),
+                  child: Container(
+                    height: 48,
+                    decoration: BoxDecoration(
+                      color: context.tokens.surface,
+                      borderRadius: BorderRadius.circular(18),
+                      border: Border.all(color: context.tokens.border),
+                    ),
+                    padding: const EdgeInsets.all(4),
+                    child: const TabBar(
+                      isScrollable: true,
+                      tabAlignment: TabAlignment.start,
+                      tabs: [
+                        Tab(text: 'Bài hát'),
+                        Tab(text: 'Playlist'),
+                        Tab(text: 'Nghệ sĩ'),
+                        Tab(text: 'Album'),
+                        Tab(text: 'Thư mục'),
+                      ],
                     ),
                   ),
-                const TabBar(
-                  isScrollable: true,
-                  tabAlignment: TabAlignment.start,
-                  tabs: [
-                    Tab(text: 'Bài hát'),
-                    Tab(text: 'Playlist'),
-                    Tab(text: 'Thư mục'),
-                    Tab(text: 'Nghệ sĩ'),
-                    Tab(text: 'Album'),
-                  ],
                 ),
+                const SizedBox(height: 8),
                 Expanded(
                   child: TabBarView(
                     children: [
@@ -193,23 +144,20 @@ class _LibraryScreenState extends State<LibraryScreen> {
                         playerController: widget.playerController,
                       ),
                       _GroupsTab(
-                        groups: widget.libraryService.byFolder,
-                        emptyText: 'Chưa có thư mục nhạc',
-                        icon: Icons.folder_outlined,
-                        libraryService: widget.libraryService,
-                        playerController: widget.playerController,
-                      ),
-                      _GroupsTab(
                         groups: widget.libraryService.byArtist,
-                        emptyText: 'Chưa có thông tin nghệ sĩ',
-                        icon: Icons.person_outline_rounded,
+                        icon: Icons.person_rounded,
                         libraryService: widget.libraryService,
                         playerController: widget.playerController,
                       ),
                       _GroupsTab(
                         groups: widget.libraryService.byAlbum,
-                        emptyText: 'Chưa có thông tin album',
-                        icon: Icons.album_outlined,
+                        icon: Icons.album_rounded,
+                        libraryService: widget.libraryService,
+                        playerController: widget.playerController,
+                      ),
+                      _GroupsTab(
+                        groups: widget.libraryService.byFolder,
+                        icon: Icons.folder_rounded,
                         libraryService: widget.libraryService,
                         playerController: widget.playerController,
                       ),
@@ -242,12 +190,12 @@ class _LibraryScreenState extends State<LibraryScreen> {
         ),
         AppSelectionOption(
           value: SongSort.added,
-          title: 'Ngày thêm mới nhất',
+          title: 'Ngày thêm',
           icon: Icons.schedule_rounded,
         ),
         AppSelectionOption(
           value: SongSort.duration,
-          title: 'Thời lượng dài nhất',
+          title: 'Thời lượng',
           icon: Icons.timer_outlined,
         ),
       ],
@@ -278,55 +226,53 @@ class _SongsTab extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (songs.isEmpty) {
-      return const EmptyState(
-        icon: Icons.music_off_rounded,
+      return EmptyState(
+        icon: Icons.music_note_rounded,
         title: 'Không có bài hát',
-        message: 'Hãy thêm nhạc hoặc thử từ khóa tìm kiếm khác.',
-        compact: true,
+        message: libraryService.songs.isEmpty
+            ? 'Nhấn dấu cộng để nhập nhạc từ ứng dụng Files.'
+            : 'Không có bài hát phù hợp với từ khóa.',
       );
     }
     return Column(
       children: [
         Padding(
-          padding: const EdgeInsets.fromLTRB(20, 14, 20, 8),
+          padding: const EdgeInsets.fromLTRB(20, 8, 20, 8),
           child: Row(
             children: [
               Expanded(
-                child: FilledButton.icon(
+                child: PrimaryButton(
+                  label: 'Phát tất cả',
+                  icon: Icons.play_arrow_rounded,
                   onPressed: () => playerController.playAll(songs),
-                  icon: const Icon(Icons.play_arrow_rounded),
-                  label: const Text('Phát tất cả'),
                 ),
               ),
               const SizedBox(width: 10),
               Expanded(
-                child: OutlinedButton.icon(
-                  onPressed: () => playerController.playAll(songs, shuffle: true),
-                  icon: const Icon(Icons.shuffle_rounded),
-                  label: const Text('Ngẫu nhiên'),
+                child: SecondaryButton(
+                  label: 'Ngẫu nhiên',
+                  icon: Icons.shuffle_rounded,
+                  onPressed: () => playerController.playAll(
+                    songs,
+                    shuffle: true,
+                  ),
                 ),
               ),
             ],
           ),
         ),
         Expanded(
-          child: ListView.builder(
-            padding: const EdgeInsets.fromLTRB(14, 0, 14, 24),
+          child: ListView.separated(
+            key: const PageStorageKey<String>('library-songs'),
+            padding: const EdgeInsets.fromLTRB(20, 4, 20, 24),
             itemCount: songs.length,
-            itemBuilder: (context, index) {
-              final song = songs[index];
-              return SongTile(
-                song: song,
-                selected: playerController.currentSong?.id == song.id,
-                onTap: () => playerController.playSong(songs, song),
-                onMore: () => showSongActions(
-                  context,
-                  song: song,
-                  libraryService: libraryService,
-                  playerController: playerController,
-                ),
-              );
-            },
+            separatorBuilder: (_, __) => const Divider(height: 1, indent: 68),
+            itemBuilder: (context, index) => SongTile(
+              song: songs[index],
+              source: songs,
+              libraryService: libraryService,
+              playerController: playerController,
+            ),
           ),
         ),
       ],
@@ -346,71 +292,33 @@ class _PlaylistsTab extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final playlists = libraryService.playlists;
-    return Column(
+    return ListView(
+      key: const PageStorageKey<String>('library-playlists'),
+      padding: const EdgeInsets.fromLTRB(20, 8, 20, 28),
       children: [
-        Padding(
-          padding: const EdgeInsets.fromLTRB(20, 14, 20, 8),
-          child: SizedBox(
-            width: double.infinity,
-            child: FilledButton.icon(
-              onPressed: () => _createPlaylist(context),
-              icon: const Icon(Icons.playlist_add_rounded),
-              label: const Text('Tạo playlist'),
+        SecondaryButton(
+          label: 'Tạo playlist mới',
+          icon: Icons.add_rounded,
+          onPressed: () => _createPlaylist(context),
+        ),
+        const SizedBox(height: 16),
+        if (playlists.isEmpty)
+          const EmptyState(
+            icon: Icons.queue_music_rounded,
+            title: 'Chưa có playlist',
+            message: 'Tạo playlist để sắp xếp nhạc theo sở thích.',
+            compact: true,
+          )
+        else
+          for (var index = 0; index < playlists.length; index++) ...[
+            _PlaylistRow(
+              playlist: playlists[index],
+              libraryService: libraryService,
+              playerController: playerController,
             ),
-          ),
-        ),
-        Expanded(
-          child: playlists.isEmpty
-              ? const EmptyState(
-                  icon: Icons.queue_music_rounded,
-                  title: 'Chưa có playlist',
-                  message: 'Tạo playlist để sắp xếp các bài hát theo sở thích.',
-                  compact: true,
-                )
-              : ListView.separated(
-                  padding: const EdgeInsets.fromLTRB(20, 6, 20, 24),
-                  itemCount: playlists.length,
-                  separatorBuilder: (_, __) => const SizedBox(height: 10),
-                  itemBuilder: (context, index) {
-                    final playlist = playlists[index];
-                    final songs = libraryService.songsForPlaylist(playlist);
-                    return SurfaceCard(
-                      padding: const EdgeInsets.all(12),
-                      onTap: () => Navigator.of(context).push(
-                        MaterialPageRoute<void>(
-                          builder: (_) => PlaylistDetailScreen(
-                            playlistId: playlist.id,
-                            libraryService: libraryService,
-                            playerController: playerController,
-                          ),
-                        ),
-                      ),
-                      child: Row(
-                        children: [
-                          _PlaylistArtwork(songs: songs),
-                          const SizedBox(width: 14),
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(playlist.name, style: Theme.of(context).textTheme.titleMedium),
-                                const SizedBox(height: 4),
-                                Text(
-                                  '${songs.length} bài hát',
-                                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                                    color: context.tokens.textMuted,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                          Icon(Icons.chevron_right_rounded, color: context.tokens.textFaint),
-                        ],
-                      ),
-                    );
-                  },
-                ),
-        ),
+            if (index < playlists.length - 1)
+              const Divider(height: 1, indent: 70),
+          ],
       ],
     );
   }
@@ -425,6 +333,72 @@ class _PlaylistsTab extends StatelessWidget {
   }
 }
 
+class _PlaylistRow extends StatelessWidget {
+  const _PlaylistRow({
+    required this.playlist,
+    required this.libraryService,
+    required this.playerController,
+  });
+
+  final MusicPlaylist playlist;
+  final LibraryService libraryService;
+  final PlayerController playerController;
+
+  @override
+  Widget build(BuildContext context) {
+    final songs = libraryService.songsForPlaylist(playlist);
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: () => Navigator.of(context).push(
+          MaterialPageRoute<void>(
+            builder: (_) => SongCollectionScreen(
+              title: playlist.name,
+              subtitle: '${songs.length} bài hát',
+              songs: songs,
+              playlist: playlist,
+              libraryService: libraryService,
+              playerController: playerController,
+            ),
+          ),
+        ),
+        borderRadius: BorderRadius.circular(18),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 8),
+          child: Row(
+            children: [
+              _PlaylistArtwork(songs: songs),
+              const SizedBox(width: 13),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      playlist.name,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: Theme.of(context).textTheme.titleMedium,
+                    ),
+                    const SizedBox(height: 3),
+                    Text(
+                      '${songs.length} bài hát',
+                      style: Theme.of(context).textTheme.bodySmall,
+                    ),
+                  ],
+                ),
+              ),
+              Icon(
+                Icons.chevron_right_rounded,
+                color: context.tokens.textTertiary,
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
 class _PlaylistArtwork extends StatelessWidget {
   const _PlaylistArtwork({required this.songs});
 
@@ -434,30 +408,36 @@ class _PlaylistArtwork extends StatelessWidget {
   Widget build(BuildContext context) {
     if (songs.isEmpty) {
       return Container(
-        width: 58,
-        height: 58,
+        width: 54,
+        height: 54,
         decoration: BoxDecoration(
-          color: context.tokens.surfaceMuted,
-          borderRadius: BorderRadius.circular(14),
+          color: context.tokens.surfaceHigh,
+          borderRadius: BorderRadius.circular(15),
         ),
-        child: Icon(Icons.queue_music_rounded, color: context.tokens.textMuted),
+        child: Icon(
+          Icons.queue_music_rounded,
+          color: context.tokens.textSecondary,
+        ),
       );
     }
-    return SongArtwork(song: songs.first, size: 58, borderRadius: 14);
+    return SongArtwork(
+      song: songs.first,
+      size: 54,
+      borderRadius: 15,
+      showBorder: false,
+    );
   }
 }
 
 class _GroupsTab extends StatelessWidget {
   const _GroupsTab({
     required this.groups,
-    required this.emptyText,
     required this.icon,
     required this.libraryService,
     required this.playerController,
   });
 
   final Map<String, List<Song>> groups;
-  final String emptyText;
   final IconData icon;
   final LibraryService libraryService;
   final PlayerController playerController;
@@ -466,206 +446,80 @@ class _GroupsTab extends StatelessWidget {
   Widget build(BuildContext context) {
     final entries = groups.entries.toList();
     if (entries.isEmpty) {
-      return EmptyState(
-        icon: icon,
-        title: emptyText,
-        message: 'Thông tin sẽ xuất hiện sau khi bạn thêm file nhạc có metadata.',
-        compact: true,
+      return const EmptyState(
+        icon: Icons.collections_bookmark_outlined,
+        title: 'Chưa có dữ liệu',
+        message: 'Thông tin sẽ được tạo từ metadata của file nhạc.',
       );
     }
     return ListView.separated(
-      padding: const EdgeInsets.fromLTRB(20, 14, 20, 24),
+      padding: const EdgeInsets.fromLTRB(20, 8, 20, 28),
       itemCount: entries.length,
-      separatorBuilder: (_, __) => const SizedBox(height: 10),
+      separatorBuilder: (_, __) => const Divider(height: 1, indent: 70),
       itemBuilder: (context, index) {
         final entry = entries[index];
-        return SurfaceCard(
-          padding: const EdgeInsets.all(12),
-          onTap: () => Navigator.of(context).push(
-            MaterialPageRoute<void>(
-              builder: (_) => SongCollectionScreen(
-                title: entry.key,
-                songs: entry.value,
-                libraryService: libraryService,
-                playerController: playerController,
-              ),
-            ),
-          ),
-          child: Row(
-            children: [
-              SongArtwork(song: entry.value.first, size: 58, borderRadius: 14),
-              const SizedBox(width: 14),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(entry.key, style: Theme.of(context).textTheme.titleMedium),
-                    const SizedBox(height: 4),
-                    Text(
-                      '${entry.value.length} bài hát',
-                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                        color: context.tokens.textMuted,
-                      ),
-                    ),
-                  ],
+        final artwork = entry.value.first;
+        return Material(
+          color: Colors.transparent,
+          child: InkWell(
+            onTap: () => Navigator.of(context).push(
+              MaterialPageRoute<void>(
+                builder: (_) => SongCollectionScreen(
+                  title: entry.key,
+                  subtitle: '${entry.value.length} bài hát',
+                  songs: entry.value,
+                  libraryService: libraryService,
+                  playerController: playerController,
                 ),
               ),
-              Icon(Icons.chevron_right_rounded, color: context.tokens.textFaint),
-            ],
-          ),
-        );
-      },
-    );
-  }
-}
-
-class PlaylistDetailScreen extends StatelessWidget {
-  const PlaylistDetailScreen({
-    super.key,
-    required this.playlistId,
-    required this.libraryService,
-    required this.playerController,
-  });
-
-  final String playlistId;
-  final LibraryService libraryService;
-  final PlayerController playerController;
-
-  MusicPlaylist? _playlist() {
-    for (final playlist in libraryService.playlists) {
-      if (playlist.id == playlistId) return playlist;
-    }
-    return null;
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return AnimatedBuilder(
-      animation: libraryService,
-      builder: (context, _) {
-        final playlist = _playlist();
-        if (playlist == null) {
-          return const Scaffold(
-            body: EmptyState(
-              icon: Icons.playlist_remove_rounded,
-              title: 'Playlist không còn tồn tại',
-              message: 'Playlist này có thể đã bị xóa.',
             ),
-          );
-        }
-        final songs = libraryService.songsForPlaylist(playlist);
-        return Scaffold(
-          appBar: AppBar(
-            title: Text(playlist.name),
-            actions: [
-              IconButton(
-                onPressed: () => _showMenu(context, playlist),
-                icon: const Icon(Icons.more_horiz_rounded),
-              ),
-            ],
-          ),
-          body: AppPage(
-            safeTop: false,
-            child: Column(
-              children: [
-                Padding(
-                  padding: const EdgeInsets.fromLTRB(20, 10, 20, 12),
-                  child: Row(
+            borderRadius: BorderRadius.circular(18),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(vertical: 9, horizontal: 8),
+              child: Row(
+                children: [
+                  Stack(
+                    alignment: Alignment.center,
                     children: [
-                      Expanded(
-                        child: FilledButton.icon(
-                          onPressed: songs.isEmpty ? null : () => playerController.playAll(songs),
-                          icon: const Icon(Icons.play_arrow_rounded),
-                          label: const Text('Phát tất cả'),
-                        ),
+                      SongArtwork(
+                        song: artwork,
+                        size: 54,
+                        borderRadius: 15,
+                        showBorder: false,
                       ),
-                      const SizedBox(width: 10),
-                      Expanded(
-                        child: OutlinedButton.icon(
-                          onPressed: songs.isEmpty
-                              ? null
-                              : () => playerController.playAll(songs, shuffle: true),
-                          icon: const Icon(Icons.shuffle_rounded),
-                          label: const Text('Ngẫu nhiên'),
-                        ),
-                      ),
+                      if (artwork.artworkPath == null)
+                        Icon(icon, color: context.tokens.textPrimary),
                     ],
                   ),
-                ),
-                Expanded(
-                  child: songs.isEmpty
-                      ? const EmptyState(
-                          icon: Icons.playlist_add_rounded,
-                          title: 'Playlist chưa có bài hát',
-                          message: 'Mở menu của một bài hát và chọn “Thêm vào playlist”.',
-                          compact: true,
-                        )
-                      : ListView.builder(
-                          padding: const EdgeInsets.fromLTRB(14, 0, 14, 24),
-                          itemCount: songs.length,
-                          itemBuilder: (context, index) {
-                            final song = songs[index];
-                            return SongTile(
-                              song: song,
-                              selected: playerController.currentSong?.id == song.id,
-                              onTap: () => playerController.playSong(songs, song),
-                              onMore: () => showSongActions(
-                                context,
-                                song: song,
-                                libraryService: libraryService,
-                                playerController: playerController,
-                              ),
-                            );
-                          },
+                  const SizedBox(width: 13),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          entry.key,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: Theme.of(context).textTheme.titleMedium,
                         ),
-                ),
-              ],
+                        const SizedBox(height: 3),
+                        Text(
+                          '${entry.value.length} bài hát',
+                          style: Theme.of(context).textTheme.bodySmall,
+                        ),
+                      ],
+                    ),
+                  ),
+                  Icon(
+                    Icons.chevron_right_rounded,
+                    color: context.tokens.textTertiary,
+                  ),
+                ],
+              ),
             ),
           ),
         );
       },
     );
-  }
-
-  Future<void> _showMenu(BuildContext context, MusicPlaylist playlist) async {
-    final selected = await showAppSelectionSheet<String>(
-      context: context,
-      title: playlist.name,
-      options: const [
-        AppSelectionOption(
-          value: 'rename',
-          title: 'Đổi tên playlist',
-          icon: Icons.edit_outlined,
-        ),
-        AppSelectionOption(
-          value: 'delete',
-          title: 'Xóa playlist',
-          icon: Icons.delete_outline_rounded,
-          destructive: true,
-        ),
-      ],
-    );
-    if (!context.mounted || selected == null) return;
-    if (selected == 'rename') {
-      final name = await showAppTextPrompt(
-        context: context,
-        title: 'Đổi tên playlist',
-        initialValue: playlist.name,
-        placeholder: 'Tên playlist',
-      );
-      if (name != null) await libraryService.renamePlaylist(playlist.id, name);
-      return;
-    }
-    final confirmed = await showAppConfirmation(
-      context: context,
-      title: 'Xóa playlist?',
-      message: 'Các bài hát vẫn được giữ trong thư viện.',
-      confirmLabel: 'Xóa',
-      destructive: true,
-    );
-    if (confirmed) {
-      await libraryService.deletePlaylist(playlist.id);
-      if (context.mounted) Navigator.pop(context);
-    }
   }
 }

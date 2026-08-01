@@ -1,3 +1,5 @@
+import 'dart:math' as math;
+
 import 'package:flutter/material.dart';
 import 'package:just_audio/just_audio.dart';
 
@@ -25,284 +27,116 @@ class NowPlayingScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return AnimatedBuilder(
-      animation: Listenable.merge(<Listenable>[libraryService, playerController]),
+      animation: Listenable.merge(<Listenable>[
+        libraryService,
+        playerController,
+      ]),
       builder: (context, _) {
         final song = playerController.currentSong;
         if (song == null) {
-          return const Scaffold(
-            body: EmptyState(
+          return Scaffold(
+            backgroundColor: context.tokens.background,
+            appBar: AppBar(),
+            body: const EmptyState(
               icon: Icons.music_off_rounded,
               title: 'Chưa có bài hát đang phát',
-              message: 'Chọn một bài hát trong thư viện để bắt đầu.',
+              message: 'Chọn một bài trong thư viện để bắt đầu.',
             ),
           );
         }
+
         return Scaffold(
-          body: ColoredBox(
-            color: context.tokens.canvas,
-            child: SafeArea(
-              child: LayoutBuilder(
-                builder: (context, constraints) {
-                  final compact = constraints.maxHeight < 760;
-                  return SingleChildScrollView(
-                    padding: EdgeInsets.fromLTRB(20, 8, 20, compact ? 20 : 30),
-                    child: Center(
-                      child: ConstrainedBox(
-                        constraints: const BoxConstraints(maxWidth: 480),
-                        child: Column(
-                          children: [
-                            _TopBar(
-                              onClose: () => Navigator.maybePop(context),
-                              onEdit: () => Navigator.of(context).push(
-                                MaterialPageRoute<void>(
-                                  builder: (_) => CoverEditorScreen(
-                                    songId: song.id,
-                                    libraryService: libraryService,
-                                    playerController: playerController,
-                                  ),
-                                ),
-                              ),
-                            ),
-                            SizedBox(height: compact ? 12 : 22),
-                            Container(
-                              padding: const EdgeInsets.all(14),
+          backgroundColor: context.tokens.background,
+          body: SafeArea(
+            child: LayoutBuilder(
+              builder: (context, constraints) {
+                final compact = constraints.maxHeight < 690;
+                final veryCompact = constraints.maxHeight < 610;
+                final horizontal = constraints.maxWidth < 390 ? 20.0 : 24.0;
+                final controlsSize = compact ? 64.0 : 72.0;
+                final maxArtwork = math
+                    .min(
+                      constraints.maxWidth - horizontal * 2,
+                      constraints.maxHeight *
+                          (veryCompact ? 0.29 : compact ? 0.34 : 0.42),
+                    )
+                    .toDouble();
+                final artworkSize = math.min(maxArtwork, 360.0).toDouble();
+
+                return Padding(
+                  padding: EdgeInsets.symmetric(horizontal: horizontal),
+                  child: Column(
+                    children: [
+                      _TopBar(
+                        onClose: () => Navigator.pop(context),
+                        onQueue: () => _showQueue(context),
+                      ),
+                      SizedBox(height: veryCompact ? 4 : 10),
+                      Expanded(
+                        child: Center(
+                          child: SizedBox.square(
+                            dimension: artworkSize,
+                            child: DecoratedBox(
                               decoration: BoxDecoration(
-                                color: context.tokens.surfaceMuted,
-                                borderRadius: BorderRadius.circular(36),
-                                border: Border.all(color: context.tokens.border),
+                                borderRadius: BorderRadius.circular(28),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: Colors.black.withValues(alpha: 0.20),
+                                    blurRadius: 24,
+                                    offset: const Offset(0, 12),
+                                  ),
+                                ],
                               ),
                               child: SongArtwork(
                                 song: song,
-                                size: 360,
-                                borderRadius: 30,
+                                size: artworkSize,
+                                borderRadius: 28,
                                 showBorder: false,
                               ),
                             ),
-                            SizedBox(height: compact ? 18 : 24),
-                            _PlayerPanel(
-                              song: song,
-                              compact: compact,
+                          ),
+                        ),
+                      ),
+                      SizedBox(height: veryCompact ? 8 : compact ? 12 : 18),
+                      _TrackInfo(
+                        song: song,
+                        libraryService: libraryService,
+                      ),
+                      SizedBox(height: veryCompact ? 6 : 10),
+                      WaveformSeekBar(
+                        position: playerController.player.position,
+                        duration: playerController.player.duration ?? song.duration,
+                        onSeek: playerController.seek,
+                      ),
+                      SizedBox(height: veryCompact ? 4 : 8),
+                      _TransportControls(
+                        playerController: playerController,
+                        playButtonSize: controlsSize,
+                      ),
+                      SizedBox(height: veryCompact ? 4 : 8),
+                      _SecondaryActions(
+                        onQueue: () => _showQueue(context),
+                        onLyrics: () => _showLyrics(context, song),
+                        onDevice: () => _showDeviceInfo(context),
+                        onEdit: () => Navigator.of(context).push(
+                          MaterialPageRoute<void>(
+                            builder: (_) => CoverEditorScreen(
+                              songId: song.id,
                               libraryService: libraryService,
                               playerController: playerController,
                             ),
-                          ],
+                          ),
                         ),
                       ),
-                    ),
-                  );
-                },
-              ),
+                      SizedBox(height: veryCompact ? 4 : 10),
+                    ],
+                  ),
+                );
+              },
             ),
           ),
         );
       },
-    );
-  }
-}
-
-class _TopBar extends StatelessWidget {
-  const _TopBar({required this.onClose, required this.onEdit});
-
-  final VoidCallback onClose;
-  final VoidCallback onEdit;
-
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      children: [
-        FlatIconButton(
-          icon: Icons.keyboard_arrow_down_rounded,
-          tooltip: 'Đóng',
-          onPressed: onClose,
-        ),
-        const SizedBox(width: 12),
-        Expanded(
-          child: Column(
-            children: [
-              Text(
-                'NOW PLAYING',
-                style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                      letterSpacing: 1.5,
-                      color: context.tokens.textFaint,
-                      fontWeight: FontWeight.w800,
-                    ),
-              ),
-              const SizedBox(height: 4),
-              Text(
-                'Phát từ thư viện offline',
-                style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                      color: context.tokens.textMuted,
-                    ),
-              ),
-            ],
-          ),
-        ),
-        const SizedBox(width: 12),
-        FlatIconButton(
-          icon: Icons.edit_outlined,
-          tooltip: 'Sửa thông tin',
-          onPressed: onEdit,
-        ),
-      ],
-    );
-  }
-}
-
-class _PlayerPanel extends StatelessWidget {
-  const _PlayerPanel({
-    required this.song,
-    required this.compact,
-    required this.libraryService,
-    required this.playerController,
-  });
-
-  final Song song;
-  final bool compact;
-  final LibraryService libraryService;
-  final PlayerController playerController;
-
-  @override
-  Widget build(BuildContext context) {
-    final player = playerController.player;
-    final duration = player.duration ?? song.duration;
-    final position = player.position;
-
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Row(
-          children: [
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    song.title,
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
-                    style: Theme.of(context).textTheme.headlineMedium,
-                  ),
-                  const SizedBox(height: 6),
-                  Text(
-                    song.artist,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                          color: context.tokens.textMuted,
-                        ),
-                  ),
-                ],
-              ),
-            ),
-            const SizedBox(width: 12),
-            FlatIconButton(
-              icon: song.isFavorite
-                  ? Icons.favorite_rounded
-                  : Icons.favorite_border_rounded,
-              selected: song.isFavorite,
-              danger: song.isFavorite,
-              tooltip: song.isFavorite ? 'Bỏ yêu thích' : 'Yêu thích',
-              onPressed: () => libraryService.toggleFavorite(song.id),
-            ),
-          ],
-        ),
-        SizedBox(height: compact ? 14 : 18),
-        SurfaceCard(
-          radius: 28,
-          color: context.tokens.surface,
-          padding: const EdgeInsets.fromLTRB(18, 16, 18, 18),
-          child: Column(
-            children: [
-              WaveformSeekBar(
-                position: position,
-                duration: duration,
-                onSeek: playerController.seek,
-              ),
-              const SizedBox(height: 18),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  _RoundToggle(
-                    icon: Icons.shuffle_rounded,
-                    selected: playerController.shuffleEnabled,
-                    onPressed: playerController.toggleShuffle,
-                  ),
-                  _RoundTransport(
-                    icon: Icons.skip_previous_rounded,
-                    onPressed: playerController.previous,
-                  ),
-                  FilledButton(
-                    onPressed: playerController.playOrPause,
-                    style: FilledButton.styleFrom(
-                      minimumSize: Size(compact ? 72 : 82, compact ? 72 : 82),
-                      shape: const CircleBorder(),
-                      padding: EdgeInsets.zero,
-                    ),
-                    child: Icon(
-                      player.processingState == ProcessingState.loading ||
-                              player.processingState == ProcessingState.buffering
-                          ? Icons.hourglass_top_rounded
-                          : player.playing
-                              ? Icons.pause_rounded
-                              : Icons.play_arrow_rounded,
-                      size: compact ? 38 : 44,
-                    ),
-                  ),
-                  _RoundTransport(
-                    icon: Icons.skip_next_rounded,
-                    onPressed: playerController.next,
-                  ),
-                  _RoundToggle(
-                    icon: playerController.loopMode == LoopMode.one
-                        ? Icons.repeat_one_rounded
-                        : Icons.repeat_rounded,
-                    selected: playerController.loopMode != LoopMode.off,
-                    onPressed: playerController.cycleLoopMode,
-                  ),
-                ],
-              ),
-            ],
-          ),
-        ),
-        SizedBox(height: compact ? 14 : 18),
-        SurfaceCard(
-          radius: 26,
-          color: context.tokens.surfaceMuted,
-          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
-          child: Row(
-            children: [
-              Expanded(
-                child: _PanelAction(
-                  icon: Icons.queue_music_rounded,
-                  label: 'Danh sách',
-                  onTap: () => _showQueue(context),
-                ),
-              ),
-              Expanded(
-                child: _PanelAction(
-                  icon: Icons.lyrics_outlined,
-                  label: 'Lời bài hát',
-                  onTap: () => _showLyrics(context),
-                ),
-              ),
-              Expanded(
-                child: _PanelAction(
-                  icon: Icons.timer_outlined,
-                  label: 'Hẹn giờ',
-                  onTap: () => _showSleepTimer(context),
-                ),
-              ),
-              Expanded(
-                child: _PanelAction(
-                  icon: Icons.info_outline_rounded,
-                  label: 'Thông tin',
-                  onTap: () => _showInfo(context),
-                ),
-              ),
-            ],
-          ),
-        ),
-      ],
     );
   }
 
@@ -313,29 +147,45 @@ class _PlayerPanel extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         children: [
           AppSheetHeader(
-            title: 'Danh sách phát',
+            title: 'Danh sách chờ',
             subtitle: '${playerController.queue.length} bài hát',
           ),
-          ConstrainedBox(
-            constraints: BoxConstraints(maxHeight: MediaQuery.sizeOf(context).height * .58),
-            child: ListView.builder(
+          Flexible(
+            child: ListView.separated(
               shrinkWrap: true,
-              padding: const EdgeInsets.only(bottom: 12),
+              padding: EdgeInsets.only(
+                bottom: MediaQuery.paddingOf(sheetContext).bottom + 12,
+              ),
               itemCount: playerController.queue.length,
+              separatorBuilder: (_, __) => const AppSheetDivider(indent: 20),
               itemBuilder: (context, index) {
-                final item = playerController.queue[index];
-                final current = playerController.currentIndex == index;
+                final song = playerController.queue[index];
+                final active = index == playerController.currentIndex;
                 return ListTile(
-                  selected: current,
-                  leading: SongArtwork(song: item, size: 46, borderRadius: 11),
-                  title: Text(item.title, maxLines: 1, overflow: TextOverflow.ellipsis),
-                  subtitle: Text(item.artist, maxLines: 1, overflow: TextOverflow.ellipsis),
-                  trailing: current
-                      ? const Icon(Icons.graphic_eq_rounded, color: Colors.white)
-                      : Text('${index + 1}', style: TextStyle(color: context.tokens.textMuted)),
-                  onTap: () {
+                  selected: active,
+                  selectedTileColor: context.tokens.surfaceHigh,
+                  leading: SongArtwork(
+                    song: song,
+                    size: 46,
+                    borderRadius: 13,
+                    showBorder: false,
+                  ),
+                  title: Text(
+                    song.title,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  subtitle: Text(
+                    song.artist,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  trailing: active
+                      ? const Icon(Icons.graphic_eq_rounded)
+                      : Text(formatDuration(song.duration)),
+                  onTap: () async {
                     Navigator.pop(sheetContext);
-                    playerController.playSong(playerController.queue, item);
+                    await playerController.playSong(playerController.queue, song);
                   },
                 );
               },
@@ -346,22 +196,25 @@ class _PlayerPanel extends StatelessWidget {
     );
   }
 
-  Future<void> _showLyrics(BuildContext context) async {
-    final lyrics = song.lyrics?.trim();
+  Future<void> _showLyrics(BuildContext context, Song song) async {
     await showAppSheet<void>(
       context: context,
-      builder: (_) => Column(
+      builder: (sheetContext) => Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          const AppSheetHeader(title: 'Lời bài hát'),
-          ConstrainedBox(
-            constraints: BoxConstraints(maxHeight: MediaQuery.sizeOf(context).height * .58),
+          AppSheetHeader(title: 'Lời bài hát', subtitle: song.title),
+          Flexible(
             child: SingleChildScrollView(
-              padding: const EdgeInsets.fromLTRB(22, 4, 22, 28),
+              padding: EdgeInsets.fromLTRB(
+                20,
+                0,
+                20,
+                MediaQuery.paddingOf(sheetContext).bottom + 24,
+              ),
               child: Text(
-                lyrics == null || lyrics.isEmpty
-                    ? 'File nhạc này chưa có lời bài hát được nhúng.'
-                    : lyrics,
+                song.lyrics?.trim().isNotEmpty == true
+                    ? song.lyrics!
+                    : 'File nhạc này không có lời bài hát trong metadata.',
                 style: Theme.of(context).textTheme.bodyLarge?.copyWith(height: 1.7),
               ),
             ),
@@ -371,52 +224,63 @@ class _PlayerPanel extends StatelessWidget {
     );
   }
 
-  Future<void> _showSleepTimer(BuildContext context) async {
-    final selected = await showAppSelectionSheet<String>(
-      context: context,
-      title: 'Hẹn giờ tắt nhạc',
-      options: const [
-        AppSelectionOption(value: '10', title: '10 phút', icon: Icons.timer_outlined),
-        AppSelectionOption(value: '20', title: '20 phút', icon: Icons.timer_outlined),
-        AppSelectionOption(value: '30', title: '30 phút', icon: Icons.timer_outlined),
-        AppSelectionOption(value: '45', title: '45 phút', icon: Icons.timer_outlined),
-        AppSelectionOption(value: '60', title: '60 phút', icon: Icons.timer_outlined),
-        AppSelectionOption(value: 'off', title: 'Tắt hẹn giờ', icon: Icons.timer_off_outlined),
-      ],
-    );
-    if (!context.mounted || selected == null) return;
-    if (selected == 'off') {
-      playerController.setSleepTimer(null);
-    } else {
-      playerController.setSleepTimer(Duration(minutes: int.parse(selected)));
-    }
-  }
-
-  Future<void> _showInfo(BuildContext context) async {
+  Future<void> _showDeviceInfo(BuildContext context) async {
     await showAppSheet<void>(
       context: context,
-      builder: (_) => Column(
+      builder: (sheetContext) => Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          const AppSheetHeader(title: 'Thông tin âm thanh'),
-          Padding(
-            padding: const EdgeInsets.fromLTRB(20, 0, 20, 24),
-            child: SurfaceCard(
-              radius: 22,
-              child: Column(
-                children: [
-                  _InfoRow(label: 'Định dạng', value: song.extension.isEmpty ? 'Không rõ' : song.extension),
-                  const Divider(),
-                  _InfoRow(label: 'Thời lượng', value: formatDuration(song.duration)),
-                  const Divider(),
-                  _InfoRow(label: 'Bitrate', value: song.bitrateKbps == null ? 'Không rõ' : '${song.bitrateKbps} kbps'),
-                  const Divider(),
-                  _InfoRow(label: 'Sample rate', value: song.sampleRate == null ? 'Không rõ' : '${song.sampleRate} Hz'),
-                  const Divider(),
-                  _InfoRow(label: 'Album', value: song.album),
-                ],
-              ),
+          const AppSheetHeader(
+            title: 'Thiết bị phát',
+            subtitle:
+                'Chọn AirPlay hoặc Bluetooth trong Control Center của iPhone.',
+          ),
+          AppSheetAction(
+            icon: Icons.airplay_rounded,
+            title: 'Mở Control Center',
+            subtitle: 'Vuốt từ góc trên bên phải của màn hình',
+            trailing: const SizedBox.shrink(),
+            onTap: () => Navigator.pop(sheetContext),
+          ),
+          SizedBox(height: MediaQuery.paddingOf(sheetContext).bottom + 12),
+        ],
+      ),
+    );
+  }
+}
+
+class _TopBar extends StatelessWidget {
+  const _TopBar({required this.onClose, required this.onQueue});
+
+  final VoidCallback onClose;
+  final VoidCallback onQueue;
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      height: 48,
+      child: Row(
+        children: [
+          CircleIconButton(
+            icon: Icons.keyboard_arrow_down_rounded,
+            tooltip: 'Thu nhỏ',
+            onPressed: onClose,
+            size: 40,
+          ),
+          Expanded(
+            child: Text(
+              'ĐANG PHÁT',
+              textAlign: TextAlign.center,
+              style: Theme.of(context).textTheme.labelMedium?.copyWith(
+                    letterSpacing: 1.1,
+                  ),
             ),
+          ),
+          CircleIconButton(
+            icon: Icons.queue_music_rounded,
+            tooltip: 'Danh sách chờ',
+            onPressed: onQueue,
+            size: 40,
           ),
         ],
       ),
@@ -424,8 +288,138 @@ class _PlayerPanel extends StatelessWidget {
   }
 }
 
-class _RoundToggle extends StatelessWidget {
-  const _RoundToggle({
+class _TrackInfo extends StatelessWidget {
+  const _TrackInfo({required this.song, required this.libraryService});
+
+  final Song song;
+  final LibraryService libraryService;
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      children: [
+        const SizedBox(width: 42),
+        Expanded(
+          child: Column(
+            children: [
+              Text(
+                song.title,
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+                textAlign: TextAlign.center,
+                style: Theme.of(context).textTheme.headlineMedium,
+              ),
+              const SizedBox(height: 5),
+              Text(
+                song.artist,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                textAlign: TextAlign.center,
+                style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                      color: context.tokens.textSecondary,
+                    ),
+              ),
+            ],
+          ),
+        ),
+        SizedBox(
+          width: 42,
+          child: IconButton(
+            onPressed: () => libraryService.toggleFavorite(song.id),
+            icon: Icon(
+              song.isFavorite
+                  ? Icons.favorite_rounded
+                  : Icons.favorite_border_rounded,
+              color: song.isFavorite
+                  ? context.tokens.danger
+                  : context.tokens.textSecondary,
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _TransportControls extends StatelessWidget {
+  const _TransportControls({
+    required this.playerController,
+    required this.playButtonSize,
+  });
+
+  final PlayerController playerController;
+  final double playButtonSize;
+
+  @override
+  Widget build(BuildContext context) {
+    final player = playerController.player;
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        _ToggleButton(
+          icon: Icons.shuffle_rounded,
+          selected: playerController.shuffleEnabled,
+          onPressed: playerController.toggleShuffle,
+        ),
+        _TransportButton(
+          icon: Icons.skip_previous_rounded,
+          onPressed: playerController.previous,
+        ),
+        SizedBox.square(
+          dimension: playButtonSize,
+          child: FilledButton(
+            onPressed: playerController.playOrPause,
+            style: FilledButton.styleFrom(
+              shape: const CircleBorder(),
+              padding: EdgeInsets.zero,
+            ),
+            child: Icon(
+              player.processingState == ProcessingState.loading ||
+                      player.processingState == ProcessingState.buffering
+                  ? Icons.hourglass_top_rounded
+                  : player.playing
+                      ? Icons.pause_rounded
+                      : Icons.play_arrow_rounded,
+              size: playButtonSize * 0.53,
+            ),
+          ),
+        ),
+        _TransportButton(
+          icon: Icons.skip_next_rounded,
+          onPressed: playerController.next,
+        ),
+        _ToggleButton(
+          icon: playerController.loopMode == LoopMode.one
+              ? Icons.repeat_one_rounded
+              : Icons.repeat_rounded,
+          selected: playerController.loopMode != LoopMode.off,
+          onPressed: playerController.cycleLoopMode,
+        ),
+      ],
+    );
+  }
+}
+
+class _TransportButton extends StatelessWidget {
+  const _TransportButton({required this.icon, required this.onPressed});
+
+  final IconData icon;
+  final VoidCallback onPressed;
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox.square(
+      dimension: 48,
+      child: IconButton(
+        onPressed: onPressed,
+        icon: Icon(icon, size: 31),
+      ),
+    );
+  }
+}
+
+class _ToggleButton extends StatelessWidget {
+  const _ToggleButton({
     required this.icon,
     required this.selected,
     required this.onPressed,
@@ -437,108 +431,78 @@ class _RoundToggle extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Material(
-      color: selected ? context.tokens.surfaceStrong : context.tokens.surfaceMuted,
-      borderRadius: BorderRadius.circular(18),
-      child: InkWell(
-        borderRadius: BorderRadius.circular(18),
-        onTap: onPressed,
-        child: SizedBox(
-          width: 42,
-          height: 42,
-          child: Icon(
-            icon,
-            color: selected ? Colors.white : context.tokens.textMuted,
-          ),
+    return SizedBox.square(
+      dimension: 42,
+      child: IconButton(
+        onPressed: onPressed,
+        style: IconButton.styleFrom(
+          backgroundColor:
+              selected ? context.tokens.surfaceHigh : Colors.transparent,
+        ),
+        icon: Icon(
+          icon,
+          size: 22,
+          color: selected
+              ? context.tokens.textPrimary
+              : context.tokens.textTertiary,
         ),
       ),
     );
   }
 }
 
-class _RoundTransport extends StatelessWidget {
-  const _RoundTransport({required this.icon, required this.onPressed});
+class _SecondaryActions extends StatelessWidget {
+  const _SecondaryActions({
+    required this.onQueue,
+    required this.onLyrics,
+    required this.onDevice,
+    required this.onEdit,
+  });
 
-  final IconData icon;
-  final VoidCallback onPressed;
-
-  @override
-  Widget build(BuildContext context) {
-    return Material(
-      color: context.tokens.surfaceMuted,
-      borderRadius: BorderRadius.circular(22),
-      child: InkWell(
-        borderRadius: BorderRadius.circular(22),
-        onTap: onPressed,
-        child: SizedBox(
-          width: 48,
-          height: 48,
-          child: Icon(icon, color: Theme.of(context).colorScheme.onSurface, size: 28),
-        ),
-      ),
-    );
-  }
-}
-
-class _PanelAction extends StatelessWidget {
-  const _PanelAction({required this.icon, required this.label, required this.onTap});
-
-  final IconData icon;
-  final String label;
-  final VoidCallback onTap;
+  final VoidCallback onQueue;
+  final VoidCallback onLyrics;
+  final VoidCallback onDevice;
+  final VoidCallback onEdit;
 
   @override
   Widget build(BuildContext context) {
-    return InkWell(
-      onTap: onTap,
-      borderRadius: BorderRadius.circular(16),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 4),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(icon, size: 21, color: context.tokens.textMuted),
-            const SizedBox(height: 6),
-            Text(
-              label,
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-              style: Theme.of(context).textTheme.labelSmall?.copyWith(fontWeight: FontWeight.w700),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class _InfoRow extends StatelessWidget {
-  const _InfoRow({required this.label, required this.value});
-
-  final String label;
-  final String value;
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 10),
-      child: Row(
-        children: [
+    final actions = <({IconData icon, String label, VoidCallback onTap})>[
+      (icon: Icons.queue_music_rounded, label: 'Hàng chờ', onTap: onQueue),
+      (icon: Icons.lyrics_outlined, label: 'Lời bài hát', onTap: onLyrics),
+      (icon: Icons.airplay_rounded, label: 'Thiết bị', onTap: onDevice),
+      (icon: Icons.edit_outlined, label: 'Chỉnh sửa', onTap: onEdit),
+    ];
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceAround,
+      children: [
+        for (final action in actions)
           Expanded(
-            child: Text(label, style: TextStyle(color: context.tokens.textMuted)),
-          ),
-          const SizedBox(width: 16),
-          Flexible(
-            child: Text(
-              value,
-              textAlign: TextAlign.end,
-              maxLines: 2,
-              overflow: TextOverflow.ellipsis,
-              style: const TextStyle(fontWeight: FontWeight.w700),
+            child: InkWell(
+              onTap: action.onTap,
+              borderRadius: BorderRadius.circular(16),
+              child: Padding(
+                padding: const EdgeInsets.symmetric(vertical: 7),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(
+                      action.icon,
+                      size: 20,
+                      color: context.tokens.textSecondary,
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      action.label,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: Theme.of(context).textTheme.labelSmall,
+                    ),
+                  ],
+                ),
+              ),
             ),
           ),
-        ],
-      ),
+      ],
     );
   }
 }

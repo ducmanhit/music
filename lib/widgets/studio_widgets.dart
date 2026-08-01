@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 import '../utils/app_theme.dart';
 
@@ -6,27 +7,134 @@ class AppPage extends StatelessWidget {
   const AppPage({
     super.key,
     required this.child,
-    this.padding = EdgeInsets.zero,
     this.safeTop = true,
     this.safeBottom = false,
+    this.backgroundColor,
   });
 
   final Widget child;
-  final EdgeInsetsGeometry padding;
   final bool safeTop;
   final bool safeBottom;
+  final Color? backgroundColor;
 
   @override
   Widget build(BuildContext context) {
     return ColoredBox(
-      color: context.tokens.canvas,
+      color: backgroundColor ?? context.tokens.background,
       child: SafeArea(
         top: safeTop,
         bottom: safeBottom,
-        child: Padding(padding: padding, child: child),
+        child: child,
       ),
     );
   }
+}
+
+class PressableScale extends StatefulWidget {
+  const PressableScale({
+    super.key,
+    required this.child,
+    required this.onTap,
+    this.borderRadius = const BorderRadius.all(Radius.circular(18)),
+    this.enabled = true,
+    this.behavior = HitTestBehavior.opaque,
+  });
+
+  final Widget child;
+  final VoidCallback? onTap;
+  final BorderRadius borderRadius;
+  final bool enabled;
+  final HitTestBehavior behavior;
+
+  @override
+  State<PressableScale> createState() => _PressableScaleState();
+}
+
+class _PressableScaleState extends State<PressableScale> {
+  bool pressed = false;
+
+  void _setPressed(bool value) {
+    if (!mounted || pressed == value) return;
+    setState(() => pressed = value);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final enabled = widget.enabled && widget.onTap != null;
+    return GestureDetector(
+      behavior: widget.behavior,
+      onTapDown: enabled ? (_) => _setPressed(true) : null,
+      onTapCancel: enabled ? () => _setPressed(false) : null,
+      onTapUp: enabled ? (_) => _setPressed(false) : null,
+      onTap: enabled
+          ? () {
+              HapticFeedback.selectionClick();
+              widget.onTap?.call();
+            }
+          : null,
+      child: AnimatedScale(
+        scale: pressed ? 0.97 : 1,
+        duration: const Duration(milliseconds: 120),
+        curve: Curves.easeOutCubic,
+        child: widget.child,
+      ),
+    );
+  }
+}
+
+class RoundedSurface extends StatelessWidget {
+  const RoundedSurface({
+    super.key,
+    required this.child,
+    this.padding = const EdgeInsets.all(18),
+    this.radius = 26,
+    this.color,
+    this.borderColor,
+    this.onTap,
+    this.clipBehavior = Clip.antiAlias,
+  });
+
+  final Widget child;
+  final EdgeInsetsGeometry padding;
+  final double radius;
+  final Color? color;
+  final Color? borderColor;
+  final VoidCallback? onTap;
+  final Clip clipBehavior;
+
+  @override
+  Widget build(BuildContext context) {
+    final decoration = BoxDecoration(
+      color: color ?? context.tokens.surface,
+      borderRadius: BorderRadius.circular(radius),
+      border: Border.all(color: borderColor ?? context.tokens.border),
+    );
+    final content = Container(
+      decoration: decoration,
+      padding: padding,
+      clipBehavior: clipBehavior,
+      child: child,
+    );
+    if (onTap == null) return content;
+    return PressableScale(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(radius),
+      child: content,
+    );
+  }
+}
+
+class SurfaceCard extends RoundedSurface {
+  const SurfaceCard({
+    super.key,
+    required super.child,
+    super.padding = const EdgeInsets.all(18),
+    super.radius = 26,
+    super.color,
+    super.borderColor,
+    super.onTap,
+    super.clipBehavior = Clip.antiAlias,
+  });
 }
 
 class PageHeader extends StatelessWidget {
@@ -36,7 +144,7 @@ class PageHeader extends StatelessWidget {
     this.eyebrow,
     this.subtitle,
     this.actions = const [],
-    this.padding = const EdgeInsets.fromLTRB(20, 18, 16, 12),
+    this.padding = const EdgeInsets.fromLTRB(20, 20, 20, 18),
   });
 
   final String title;
@@ -47,44 +155,40 @@ class PageHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
     return Padding(
       padding: padding,
       child: Row(
-        crossAxisAlignment: CrossAxisAlignment.center,
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                if (eyebrow != null) ...[
+                if (eyebrow != null && eyebrow!.trim().isNotEmpty) ...[
                   Text(
                     eyebrow!.toUpperCase(),
-                    style: theme.textTheme.labelSmall?.copyWith(
-                      color: context.tokens.textFaint,
-                      fontWeight: FontWeight.w800,
-                      letterSpacing: 1.15,
-                    ),
+                    style: Theme.of(context).textTheme.labelMedium?.copyWith(
+                          color: context.tokens.textTertiary,
+                          letterSpacing: 1.15,
+                        ),
                   ),
                   const SizedBox(height: 6),
                 ],
-                Text(title, style: theme.textTheme.headlineMedium),
+                Text(title, style: Theme.of(context).textTheme.displaySmall),
                 if (subtitle != null && subtitle!.trim().isNotEmpty) ...[
                   const SizedBox(height: 7),
                   Text(
                     subtitle!,
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
-                    style: theme.textTheme.bodyMedium?.copyWith(
-                      color: context.tokens.textMuted,
-                    ),
+                    style: Theme.of(context).textTheme.bodyMedium,
                   ),
                 ],
               ],
             ),
           ),
           if (actions.isNotEmpty) ...[
-            const SizedBox(width: 12),
+            const SizedBox(width: 14),
             Wrap(spacing: 8, children: actions),
           ],
         ],
@@ -98,15 +202,13 @@ class SectionHeader extends StatelessWidget {
     super.key,
     required this.title,
     this.subtitle,
-    this.actionLabel,
-    this.onAction,
-    this.padding = const EdgeInsets.fromLTRB(20, 24, 20, 12),
+    this.trailing,
+    this.padding = const EdgeInsets.fromLTRB(20, 28, 20, 12),
   });
 
   final String title;
   final String? subtitle;
-  final String? actionLabel;
-  final VoidCallback? onAction;
+  final Widget? trailing;
   final EdgeInsetsGeometry padding;
 
   @override
@@ -120,179 +222,173 @@ class SectionHeader extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(title, style: Theme.of(context).textTheme.titleLarge),
-                if (subtitle != null) ...[
+                Text(title, style: Theme.of(context).textTheme.headlineSmall),
+                if (subtitle != null && subtitle!.trim().isNotEmpty) ...[
                   const SizedBox(height: 4),
-                  Text(
-                    subtitle!,
-                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                      color: context.tokens.textMuted,
-                    ),
-                  ),
+                  Text(subtitle!, style: Theme.of(context).textTheme.bodySmall),
                 ],
               ],
             ),
           ),
-          if (actionLabel != null && onAction != null)
-            TextButton(onPressed: onAction, child: Text(actionLabel!)),
+          if (trailing != null) ...[
+            const SizedBox(width: 12),
+            trailing!,
+          ],
         ],
       ),
     );
   }
 }
 
-class SurfaceCard extends StatelessWidget {
-  const SurfaceCard({
-    super.key,
-    required this.child,
-    this.padding = const EdgeInsets.all(16),
-    this.margin = EdgeInsets.zero,
-    this.radius = 24,
-    this.color,
-    this.onTap,
-  });
-
-  final Widget child;
-  final EdgeInsetsGeometry padding;
-  final EdgeInsetsGeometry margin;
-  final double radius;
-  final Color? color;
-  final VoidCallback? onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    final borderRadius = BorderRadius.circular(radius);
-    final content = AnimatedContainer(
-      duration: const Duration(milliseconds: 180),
-      margin: margin,
-      padding: padding,
-      decoration: BoxDecoration(
-        color: color ?? context.tokens.surface,
-        borderRadius: borderRadius,
-        border: Border.all(color: context.tokens.border),
-      ),
-      child: child,
-    );
-    if (onTap == null) return content;
-    return Material(
-      color: Colors.transparent,
-      child: InkWell(
-        onTap: onTap,
-        borderRadius: borderRadius,
-        child: content,
-      ),
-    );
-  }
-}
-
-class MetricCard extends StatelessWidget {
-  const MetricCard({
-    super.key,
-    required this.label,
-    required this.value,
-    required this.icon,
-    this.onTap,
-  });
-
-  final String label;
-  final String value;
-  final IconData icon;
-  final VoidCallback? onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    final accent = Theme.of(context).brightness == Brightness.dark
-        ? Colors.white
-        : const Color(0xFF17181C);
-    return SurfaceCard(
-      onTap: onTap,
-      padding: const EdgeInsets.all(16),
-      radius: 24,
-      color: context.tokens.surfaceMuted,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Container(
-            width: 40,
-            height: 40,
-            decoration: BoxDecoration(
-              color: context.tokens.surfaceStrong,
-              borderRadius: BorderRadius.circular(14),
-            ),
-            child: Icon(icon, color: accent, size: 20),
-          ),
-          const Spacer(),
-          Text(
-            value,
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-            style: Theme.of(context).textTheme.headlineSmall,
-          ),
-          const SizedBox(height: 4),
-          Text(
-            label,
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-            style: Theme.of(context).textTheme.bodySmall?.copyWith(
-              color: context.tokens.textMuted,
-              fontWeight: FontWeight.w600,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class FlatIconButton extends StatelessWidget {
-  const FlatIconButton({
+class CircleIconButton extends StatelessWidget {
+  const CircleIconButton({
     super.key,
     required this.icon,
     required this.onPressed,
     this.tooltip,
+    this.size = 42,
+    this.iconSize = 21,
     this.selected = false,
     this.danger = false,
-    this.size = 46,
   });
 
   final IconData icon;
   final VoidCallback? onPressed;
   final String? tooltip;
+  final double size;
+  final double iconSize;
   final bool selected;
   final bool danger;
-  final double size;
 
   @override
   Widget build(BuildContext context) {
-    final accent = Theme.of(context).brightness == Brightness.dark
-        ? Colors.white
-        : const Color(0xFF17181C);
     final foreground = danger
         ? context.tokens.danger
         : selected
-            ? accent
-            : Theme.of(context).colorScheme.onSurface;
+            ? context.tokens.accentText
+            : context.tokens.textPrimary;
     final background = danger
-        ? context.tokens.danger.withValues(alpha: .10)
+        ? context.tokens.danger.withValues(alpha: 0.11)
         : selected
-            ? context.tokens.surfaceStrong
-            : context.tokens.surfaceMuted;
-    return Tooltip(
-      message: tooltip ?? '',
-      child: SizedBox.square(
-        dimension: size,
-        child: Material(
-          color: background,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(16),
-            side: BorderSide(color: context.tokens.border),
-          ),
-          child: InkWell(
-            onTap: onPressed,
-            borderRadius: BorderRadius.circular(16),
-            child: Icon(icon, color: foreground, size: size * .46),
-          ),
+            ? context.tokens.accent
+            : context.tokens.surface;
+
+    final button = SizedBox.square(
+      dimension: size,
+      child: Material(
+        color: background,
+        shape: CircleBorder(side: BorderSide(color: context.tokens.border)),
+        clipBehavior: Clip.antiAlias,
+        child: InkWell(
+          onTap: onPressed,
+          child: Icon(icon, size: iconSize, color: foreground),
         ),
+      ),
+    );
+    return tooltip == null ? button : Tooltip(message: tooltip!, child: button);
+  }
+}
+
+class FlatIconButton extends CircleIconButton {
+  const FlatIconButton({
+    super.key,
+    required super.icon,
+    required super.onPressed,
+    super.tooltip,
+    super.size = 42,
+    super.iconSize = 21,
+    super.selected = false,
+    super.danger = false,
+  });
+}
+
+class PrimaryButton extends StatelessWidget {
+  const PrimaryButton({
+    super.key,
+    required this.label,
+    required this.onPressed,
+    this.icon,
+    this.expanded = true,
+  });
+
+  final String label;
+  final VoidCallback? onPressed;
+  final IconData? icon;
+  final bool expanded;
+
+  @override
+  Widget build(BuildContext context) {
+    final button = icon == null
+        ? FilledButton(onPressed: onPressed, child: Text(label))
+        : FilledButton.icon(
+            onPressed: onPressed,
+            icon: Icon(icon, size: 20),
+            label: Text(label),
+          );
+    return expanded ? SizedBox(width: double.infinity, child: button) : button;
+  }
+}
+
+class SecondaryButton extends StatelessWidget {
+  const SecondaryButton({
+    super.key,
+    required this.label,
+    required this.onPressed,
+    this.icon,
+    this.expanded = true,
+  });
+
+  final String label;
+  final VoidCallback? onPressed;
+  final IconData? icon;
+  final bool expanded;
+
+  @override
+  Widget build(BuildContext context) {
+    final button = icon == null
+        ? OutlinedButton(onPressed: onPressed, child: Text(label))
+        : OutlinedButton.icon(
+            onPressed: onPressed,
+            icon: Icon(icon, size: 20),
+            label: Text(label),
+          );
+    return expanded ? SizedBox(width: double.infinity, child: button) : button;
+  }
+}
+
+class AppSearchField extends StatelessWidget {
+  const AppSearchField({
+    super.key,
+    this.controller,
+    this.onChanged,
+    this.onSubmitted,
+    this.hintText = 'Tìm kiếm',
+    this.autofocus = false,
+    this.focusNode,
+    this.trailing,
+  });
+
+  final TextEditingController? controller;
+  final ValueChanged<String>? onChanged;
+  final ValueChanged<String>? onSubmitted;
+  final String hintText;
+  final bool autofocus;
+  final FocusNode? focusNode;
+  final Widget? trailing;
+
+  @override
+  Widget build(BuildContext context) {
+    return TextField(
+      controller: controller,
+      focusNode: focusNode,
+      autofocus: autofocus,
+      onChanged: onChanged,
+      onSubmitted: onSubmitted,
+      textInputAction: TextInputAction.search,
+      decoration: InputDecoration(
+        hintText: hintText,
+        prefixIcon: const Icon(Icons.search_rounded),
+        suffixIcon: trailing,
       ),
     );
   }
@@ -304,42 +400,41 @@ class EmptyState extends StatelessWidget {
     required this.icon,
     required this.title,
     required this.message,
-    this.actionLabel,
-    this.onAction,
+    this.action,
     this.compact = false,
   });
 
   final IconData icon;
   final String title;
   final String message;
-  final String? actionLabel;
-  final VoidCallback? onAction;
+  final Widget? action;
   final bool compact;
 
   @override
   Widget build(BuildContext context) {
-    final accent = Theme.of(context).brightness == Brightness.dark
-        ? Colors.white
-        : const Color(0xFF17181C);
     return Center(
       child: Padding(
         padding: EdgeInsets.all(compact ? 20 : 32),
         child: ConstrainedBox(
-          constraints: const BoxConstraints(maxWidth: 380),
+          constraints: const BoxConstraints(maxWidth: 360),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
               Container(
-                width: compact ? 58 : 74,
-                height: compact ? 58 : 74,
+                width: compact ? 58 : 72,
+                height: compact ? 58 : 72,
                 decoration: BoxDecoration(
-                  color: context.tokens.surfaceMuted,
+                  color: context.tokens.surfaceHigh,
                   borderRadius: BorderRadius.circular(compact ? 19 : 24),
                   border: Border.all(color: context.tokens.border),
                 ),
-                child: Icon(icon, size: compact ? 27 : 34, color: accent),
+                child: Icon(
+                  icon,
+                  size: compact ? 27 : 34,
+                  color: context.tokens.textSecondary,
+                ),
               ),
-              SizedBox(height: compact ? 14 : 18),
+              SizedBox(height: compact ? 16 : 20),
               Text(
                 title,
                 textAlign: TextAlign.center,
@@ -349,59 +444,15 @@ class EmptyState extends StatelessWidget {
               Text(
                 message,
                 textAlign: TextAlign.center,
-                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                  color: context.tokens.textMuted,
-                ),
+                style: Theme.of(context).textTheme.bodyMedium,
               ),
-              if (actionLabel != null && onAction != null) ...[
-                const SizedBox(height: 18),
-                FilledButton(onPressed: onAction, child: Text(actionLabel!)),
+              if (action != null) ...[
+                const SizedBox(height: 20),
+                action!,
               ],
             ],
           ),
         ),
-      ),
-    );
-  }
-}
-
-class InfoPill extends StatelessWidget {
-  const InfoPill({
-    super.key,
-    required this.label,
-    this.icon,
-    this.color,
-  });
-
-  final String label;
-  final IconData? icon;
-  final Color? color;
-
-  @override
-  Widget build(BuildContext context) {
-    final foreground = color ?? context.tokens.textMuted;
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
-      decoration: BoxDecoration(
-        color: context.tokens.surfaceMuted,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: context.tokens.border),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          if (icon != null) ...[
-            Icon(icon, size: 15, color: foreground),
-            const SizedBox(width: 6),
-          ],
-          Text(
-            label,
-            style: Theme.of(context).textTheme.labelMedium?.copyWith(
-              color: foreground,
-              fontWeight: FontWeight.w700,
-            ),
-          ),
-        ],
       ),
     );
   }
@@ -415,7 +466,8 @@ class SettingsRow extends StatelessWidget {
     this.subtitle,
     this.trailing,
     this.onTap,
-    this.danger = false,
+    this.destructive = false,
+    this.enabled = true,
   });
 
   final IconData icon;
@@ -423,65 +475,144 @@ class SettingsRow extends StatelessWidget {
   final String? subtitle;
   final Widget? trailing;
   final VoidCallback? onTap;
-  final bool danger;
+  final bool destructive;
+  final bool enabled;
 
   @override
   Widget build(BuildContext context) {
-    final foreground = danger
+    final foreground = destructive
         ? context.tokens.danger
-        : Theme.of(context).colorScheme.onSurface;
-    return Material(
-      color: Colors.transparent,
-      child: InkWell(
-        onTap: onTap,
-        borderRadius: BorderRadius.circular(18),
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
-          child: Row(
-            children: [
-              Container(
-                width: 42,
-                height: 42,
-                decoration: BoxDecoration(
-                  color: danger
-                      ? context.tokens.danger.withValues(alpha: .10)
-                      : context.tokens.surfaceMuted,
-                  borderRadius: BorderRadius.circular(14),
-                ),
-                child: Icon(icon, color: foreground, size: 21),
-              ),
-              const SizedBox(width: 13),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      title,
-                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                        color: foreground,
+        : context.tokens.textPrimary;
+    return Opacity(
+      opacity: enabled ? 1 : 0.45,
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          onTap: enabled ? onTap : null,
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(minHeight: 58),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 9),
+              child: Row(
+                children: [
+                  SizedBox.square(
+                    dimension: 34,
+                    child: DecoratedBox(
+                      decoration: BoxDecoration(
+                        color: destructive
+                            ? context.tokens.danger.withValues(alpha: 0.1)
+                            : context.tokens.surfaceHigh,
+                        borderRadius: BorderRadius.circular(11),
+                      ),
+                      child: Icon(
+                        icon,
+                        size: 19,
+                        color: destructive
+                            ? context.tokens.danger
+                            : context.tokens.textSecondary,
                       ),
                     ),
-                    if (subtitle != null) ...[
-                      const SizedBox(height: 3),
-                      Text(
-                        subtitle!,
-                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                          color: context.tokens.textMuted,
-                        ),
-                      ),
-                    ],
-                  ],
-                ),
-              ),
-              const SizedBox(width: 10),
-              trailing ??
-                  Icon(
-                    Icons.chevron_right_rounded,
-                    color: context.tokens.textFaint,
                   ),
-            ],
+                  const SizedBox(width: 13),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Text(
+                          title,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: Theme.of(context)
+                              .textTheme
+                              .titleMedium
+                              ?.copyWith(color: foreground),
+                        ),
+                        if (subtitle != null && subtitle!.trim().isNotEmpty) ...[
+                          const SizedBox(height: 2),
+                          Text(
+                            subtitle!,
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
+                            style: Theme.of(context).textTheme.bodySmall,
+                          ),
+                        ],
+                      ],
+                    ),
+                  ),
+                  const SizedBox(width: 10),
+                  trailing ??
+                      (onTap == null
+                          ? const SizedBox.shrink()
+                          : Icon(
+                              Icons.chevron_right_rounded,
+                              color: context.tokens.textTertiary,
+                              size: 21,
+                            )),
+                ],
+              ),
+            ),
           ),
         ),
+      ),
+    );
+  }
+}
+
+class GroupDivider extends StatelessWidget {
+  const GroupDivider({super.key, this.indent = 63});
+
+  final double indent;
+
+  @override
+  Widget build(BuildContext context) {
+    return Divider(height: 1, indent: indent, endIndent: 16);
+  }
+}
+
+class StatusPill extends StatelessWidget {
+  const StatusPill({
+    super.key,
+    required this.label,
+    this.icon,
+    this.active = false,
+  });
+
+  final String label;
+  final IconData? icon;
+  final bool active;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 11, vertical: 7),
+      decoration: BoxDecoration(
+        color: active ? context.tokens.accent : context.tokens.surfaceHigh,
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(color: context.tokens.border),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          if (icon != null) ...[
+            Icon(
+              icon,
+              size: 15,
+              color: active
+                  ? context.tokens.accentText
+                  : context.tokens.textSecondary,
+            ),
+            const SizedBox(width: 6),
+          ],
+          Text(
+            label,
+            style: Theme.of(context).textTheme.labelMedium?.copyWith(
+                  color: active
+                      ? context.tokens.accentText
+                      : context.tokens.textSecondary,
+                ),
+          ),
+        ],
       ),
     );
   }

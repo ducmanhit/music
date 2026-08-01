@@ -10,7 +10,7 @@ class SongArtwork extends StatelessWidget {
     super.key,
     required this.song,
     this.size = 54,
-    this.borderRadius = 12,
+    this.borderRadius = 14,
     this.showBorder = true,
   });
 
@@ -24,12 +24,12 @@ class SongArtwork extends StatelessWidget {
     final path = song.artworkPath;
     final file = path == null ? null : File(path);
     final radius = BorderRadius.circular(borderRadius);
-    final child = ClipRRect(
+    final image = ClipRRect(
       borderRadius: radius,
       child: AnimatedSwitcher(
-        duration: const Duration(milliseconds: 220),
+        duration: const Duration(milliseconds: 260),
         switchInCurve: Curves.easeOutCubic,
-        switchOutCurve: Curves.easeInCubic,
+        switchOutCurve: Curves.easeOutCubic,
         child: file != null && file.existsSync()
             ? Image.file(
                 file,
@@ -58,7 +58,8 @@ class SongArtwork extends StatelessWidget {
         borderRadius: radius,
         border: showBorder ? Border.all(color: context.tokens.border) : null,
       ),
-      child: child,
+      clipBehavior: Clip.antiAlias,
+      child: image,
     );
   }
 }
@@ -70,36 +71,31 @@ class _Placeholder extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final seed = song.title.codeUnits.fold<int>(0, (sum, value) => sum + value);
-    final colors = context.isDarkMode
-        ? const <Color>[
-            Color(0xFF253044),
-            Color(0xFF2C2A3B),
-            Color(0xFF203631),
-            Color(0xFF3A2C2A),
-            Color(0xFF2B3035),
-          ]
-        : const <Color>[
-            Color(0xFFDDE7FA),
-            Color(0xFFE8E2F1),
-            Color(0xFFDDECE7),
-            Color(0xFFF0E2DC),
-            Color(0xFFE3E7EB),
-          ];
-    final background = colors[seed % colors.length];
     final letter = song.title.trim().isEmpty
         ? '♪'
         : song.title.trim().substring(0, 1).toUpperCase();
     return ColoredBox(
-      color: background,
-      child: Center(
-        child: Text(
-          letter,
-          style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-            color: Theme.of(context).colorScheme.onSurface,
-            fontWeight: FontWeight.w800,
+      color: context.tokens.surfaceHigh,
+      child: Stack(
+        alignment: Alignment.center,
+        children: [
+          Icon(
+            Icons.music_note_rounded,
+            size: 30,
+            color: context.tokens.textTertiary.withValues(alpha: 0.55),
           ),
-        ),
+          Positioned(
+            bottom: 7,
+            right: 8,
+            child: Text(
+              letter,
+              style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                    color: context.tokens.textSecondary,
+                    fontWeight: FontWeight.w700,
+                  ),
+            ),
+          ),
+        ],
       ),
     );
   }

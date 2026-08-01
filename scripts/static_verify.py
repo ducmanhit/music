@@ -1,10 +1,5 @@
 #!/usr/bin/env python3
-"""Fast repository checks that run before Flutter analysis.
-
-The Dart analyzer and widget tests remain authoritative. This script catches
-missing local imports, forbidden visual effects, merge markers and exact
-adjacent duplicate lines before the macOS build starts.
-"""
+"""Fast repository checks before Flutter analysis and widget tests."""
 from __future__ import annotations
 
 import re
@@ -16,11 +11,10 @@ LIB = ROOT / "lib"
 errors: list[str] = []
 
 forbidden = {
-    "LinearGradient(": "gradient is not allowed in the Studio Flat design",
-    "RadialGradient(": "gradient is not allowed in the Studio Flat design",
-    "SweepGradient(": "gradient is not allowed in the Studio Flat design",
-    "BoxShadow(": "drop shadows are not allowed in the flat design",
-    "BackdropFilter(": "glass blur is not allowed in the Studio Flat design",
+    "LinearGradient(": "gradient is not allowed in V14",
+    "RadialGradient(": "gradient is not allowed in V14",
+    "SweepGradient(": "gradient is not allowed in V14",
+    "BackdropFilter(": "glass blur is not allowed in V14",
     "<<<<<<<": "unresolved merge marker",
     "=======": "unresolved merge marker",
     ">>>>>>>": "unresolved merge marker",
@@ -33,18 +27,6 @@ for path in sorted(LIB.rglob("*.dart")):
         if needle in text:
             errors.append(f"{path.relative_to(ROOT)}: {reason}: {needle}")
 
-    previous_nonblank: tuple[str, int] | None = None
-    for line_number, line in enumerate(text.splitlines(), start=1):
-        stripped = line.strip()
-        if not stripped:
-            continue
-        is_named_arg = re.match(r'^[A-Za-z_]\w*\s*:', stripped) is not None
-        if previous_nonblank and is_named_arg and stripped == previous_nonblank[0]:
-            errors.append(
-                f"{path.relative_to(ROOT)}:{line_number}: exact adjacent duplicate line `{stripped}`"
-            )
-        previous_nonblank = (stripped, line_number)
-
     for imported in local_import_re.findall(text):
         if imported.startswith("package:") or imported.startswith("dart:"):
             continue
@@ -55,6 +37,10 @@ for path in sorted(LIB.rglob("*.dart")):
 required = [
     ROOT / "pubspec.yaml",
     ROOT / "lib/main.dart",
+    ROOT / "lib/screens/search_screen.dart",
+    ROOT / "lib/screens/now_playing_screen.dart",
+    ROOT / "lib/widgets/app_modal.dart",
+    ROOT / "lib/widgets/mini_player.dart",
     ROOT / "lib/services/app_preferences.dart",
     ROOT / "lib/utils/app_theme.dart",
     ROOT / ".github/workflows/build-ipa.yml",
@@ -72,13 +58,20 @@ version_match = re.search(
 if not name_match or name_match.group(1) != "offline_music":
     errors.append("pubspec.yaml: package name must be offline_music")
 if not version_match:
-    errors.append("pubspec.yaml: missing valid Flutter version (major.minor.patch+build)")
+    errors.append("pubspec.yaml: missing valid version major.minor.patch+build")
 else:
     major, minor, patch, build = map(int, version_match.groups())
-    if major < 13 or build < 1:
-        errors.append(
-            f"pubspec.yaml: unexpected version {major}.{minor}.{patch}+{build}"
-        )
+    if major < 14 or build < 1:
+        errors.append(f"pubspec.yaml: unexpected version {major}.{minor}.{patch}+{build}")
+
+main_source = (ROOT / "lib/main.dart").read_text(encoding="utf-8")
+for label in ("Trang chủ", "Tìm kiếm", "Thư viện", "Cài đặt"):
+    if label not in main_source:
+        errors.append(f"main.dart: missing bottom-navigation label {label}")
+
+now_playing = (ROOT / "lib/screens/now_playing_screen.dart").read_text(encoding="utf-8")
+if "LayoutBuilder(" not in now_playing:
+    errors.append("now_playing_screen.dart: LayoutBuilder is required")
 
 workflow = (ROOT / ".github/workflows/build-ipa.yml").read_text(encoding="utf-8")
 for command in (

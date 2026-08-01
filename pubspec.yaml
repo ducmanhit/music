@@ -1,7 +1,7 @@
 name: offline_music
-description: Trình phát nhạc offline giao diện Dark Rounded, hỗ trợ sáng tối, phát nền và đóng gói IPA chưa ký bằng GitHub Actions.
+description: Trình phát nhạc offline giao diện Dark Rounded Premium, hỗ trợ sáng tối, phát nền và đóng gói IPA chưa ký bằng GitHub Actions.
 publish_to: "none"
-version: 13.1.1+15
+version: 14.0.0+16
 
 environment:
   sdk: ">=3.10.0 <4.0.0"

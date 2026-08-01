@@ -4,7 +4,7 @@ import 'package:just_audio_background/just_audio_background.dart';
 
 import 'screens/home_screen.dart';
 import 'screens/library_screen.dart';
-import 'screens/quality_screen.dart';
+import 'screens/search_screen.dart';
 import 'screens/settings_screen.dart';
 import 'services/app_preferences.dart';
 import 'services/library_service.dart';
@@ -42,7 +42,7 @@ class _OfflineMusicAppState extends State<OfflineMusicApp> {
   late final LibraryService libraryService;
   late final PlayerController playerController;
   bool ready = false;
-  Object? error;
+  Object? startupError;
 
   @override
   void initState() {
@@ -58,9 +58,9 @@ class _OfflineMusicAppState extends State<OfflineMusicApp> {
       await playerController.initialize();
       if (!mounted) return;
       setState(() => ready = true);
-    } catch (exception) {
+    } catch (error) {
       if (!mounted) return;
-      setState(() => error = exception);
+      setState(() => startupError = error);
     }
   }
 
@@ -76,38 +76,43 @@ class _OfflineMusicAppState extends State<OfflineMusicApp> {
   Widget build(BuildContext context) {
     return AnimatedBuilder(
       animation: widget.preferences,
-      builder: (context, _) => MaterialApp(
-        debugShowCheckedModeBanner: false,
-        title: 'Offline Music',
-        theme: buildLightTheme(),
-        darkTheme: buildDarkTheme(),
-        themeMode: widget.preferences.themeMode,
-        builder: (context, child) {
-          final dark = Theme.of(context).brightness == Brightness.dark;
-          final style = SystemUiOverlayStyle(
-            statusBarColor: Colors.transparent,
-            statusBarIconBrightness: dark ? Brightness.light : Brightness.dark,
-            statusBarBrightness: dark ? Brightness.dark : Brightness.light,
-            systemNavigationBarColor: context.tokens.canvas,
-            systemNavigationBarIconBrightness:
-                dark ? Brightness.light : Brightness.dark,
-            systemNavigationBarDividerColor: Colors.transparent,
-          );
-          return AnnotatedRegion<SystemUiOverlayStyle>(
-            value: style,
-            child: child ?? const SizedBox.shrink(),
-          );
-        },
-        home: error != null
-            ? _StartupError(message: error.toString())
-            : ready
-                ? HomeShell(
-                    preferences: widget.preferences,
-                    libraryService: libraryService,
-                    playerController: playerController,
-                  )
-                : const _StartupLoading(),
-      ),
+      builder: (context, _) {
+        return MaterialApp(
+          debugShowCheckedModeBanner: false,
+          title: 'Offline Music',
+          theme: buildLightTheme(),
+          darkTheme: buildDarkTheme(),
+          themeMode: widget.preferences.themeMode,
+          themeAnimationDuration: const Duration(milliseconds: 220),
+          themeAnimationCurve: Curves.easeOutCubic,
+          builder: (context, child) {
+            final dark = Theme.of(context).brightness == Brightness.dark;
+            final style = SystemUiOverlayStyle(
+              statusBarColor: Colors.transparent,
+              statusBarIconBrightness:
+                  dark ? Brightness.light : Brightness.dark,
+              statusBarBrightness: dark ? Brightness.dark : Brightness.light,
+              systemNavigationBarColor: context.tokens.background,
+              systemNavigationBarIconBrightness:
+                  dark ? Brightness.light : Brightness.dark,
+              systemNavigationBarDividerColor: Colors.transparent,
+            );
+            return AnnotatedRegion<SystemUiOverlayStyle>(
+              value: style,
+              child: child ?? const SizedBox.shrink(),
+            );
+          },
+          home: startupError != null
+              ? _StartupError(message: startupError.toString())
+              : ready
+                  ? HomeShell(
+                      preferences: widget.preferences,
+                      libraryService: libraryService,
+                      playerController: playerController,
+                    )
+                  : const _StartupLoading(),
+        );
+      },
     );
   }
 }
@@ -129,11 +134,11 @@ class HomeShell extends StatefulWidget {
 }
 
 class _HomeShellState extends State<HomeShell> {
-  int index = 0;
+  int selectedIndex = 0;
 
-  void navigate(int value) {
-    if (value == index) return;
-    setState(() => index = value);
+  void _selectTab(int index) {
+    if (index == selectedIndex) return;
+    setState(() => selectedIndex = index);
   }
 
   @override
@@ -142,13 +147,13 @@ class _HomeShellState extends State<HomeShell> {
       HomeScreen(
         libraryService: widget.libraryService,
         playerController: widget.playerController,
-        onNavigate: navigate,
+        onNavigate: _selectTab,
       ),
-      LibraryScreen(
+      SearchScreen(
         libraryService: widget.libraryService,
         playerController: widget.playerController,
       ),
-      QualityScreen(
+      LibraryScreen(
         libraryService: widget.libraryService,
         playerController: widget.playerController,
       ),
@@ -160,49 +165,65 @@ class _HomeShellState extends State<HomeShell> {
     ];
 
     return Scaffold(
-      backgroundColor: context.tokens.canvas,
-      body: IndexedStack(index: index, children: pages),
+      backgroundColor: context.tokens.background,
+      body: IndexedStack(index: selectedIndex, children: pages),
       bottomNavigationBar: SafeArea(
         top: false,
-        child: Padding(
-          padding: const EdgeInsets.fromLTRB(12, 0, 12, 12),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              MiniPlayer(
+        minimum: const EdgeInsets.only(bottom: 8),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              child: MiniPlayer(
                 libraryService: widget.libraryService,
                 playerController: widget.playerController,
               ),
-              const SizedBox(height: 10),
-              _RoundedDock(
-                selectedIndex: index,
-                onSelected: navigate,
+            ),
+            const SizedBox(height: 8),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              child: _AppBottomNavigation(
+                selectedIndex: selectedIndex,
+                onSelected: _selectTab,
               ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );
   }
 }
 
-class _RoundedDock extends StatelessWidget {
-  const _RoundedDock({required this.selectedIndex, required this.onSelected});
+class _AppBottomNavigation extends StatelessWidget {
+  const _AppBottomNavigation({
+    required this.selectedIndex,
+    required this.onSelected,
+  });
 
   final int selectedIndex;
   final ValueChanged<int> onSelected;
 
+  static const _items = <({IconData icon, IconData active, String label})>[
+    (icon: Icons.home_outlined, active: Icons.home_rounded, label: 'Trang chủ'),
+    (icon: Icons.search_rounded, active: Icons.search_rounded, label: 'Tìm kiếm'),
+    (
+      icon: Icons.library_music_outlined,
+      active: Icons.library_music_rounded,
+      label: 'Thư viện',
+    ),
+    (
+      icon: Icons.settings_outlined,
+      active: Icons.settings_rounded,
+      label: 'Cài đặt',
+    ),
+  ];
+
   @override
   Widget build(BuildContext context) {
-    const items = <({IconData icon, IconData activeIcon, String label})>[
-      (icon: Icons.home_outlined, activeIcon: Icons.home_rounded, label: 'Trang chủ'),
-      (icon: Icons.library_music_outlined, activeIcon: Icons.library_music_rounded, label: 'Thư viện'),
-      (icon: Icons.graphic_eq_outlined, activeIcon: Icons.graphic_eq_rounded, label: 'Âm thanh'),
-      (icon: Icons.settings_outlined, activeIcon: Icons.settings_rounded, label: 'Cài đặt'),
-    ];
-
     return Container(
-      padding: const EdgeInsets.all(8),
+      height: 66,
+      padding: const EdgeInsets.all(6),
       decoration: BoxDecoration(
         color: context.tokens.surface,
         borderRadius: BorderRadius.circular(28),
@@ -210,14 +231,12 @@ class _RoundedDock extends StatelessWidget {
       ),
       child: Row(
         children: [
-          for (var i = 0; i < items.length; i++)
+          for (var index = 0; index < _items.length; index++)
             Expanded(
-              child: _DockItem(
-                icon: items[i].icon,
-                activeIcon: items[i].activeIcon,
-                label: items[i].label,
-                selected: selectedIndex == i,
-                onTap: () => onSelected(i),
+              child: _NavigationItem(
+                item: _items[index],
+                selected: selectedIndex == index,
+                onTap: () => onSelected(index),
               ),
             ),
         ],
@@ -226,57 +245,54 @@ class _RoundedDock extends StatelessWidget {
   }
 }
 
-class _DockItem extends StatelessWidget {
-  const _DockItem({
-    required this.icon,
-    required this.activeIcon,
-    required this.label,
+class _NavigationItem extends StatelessWidget {
+  const _NavigationItem({
+    required this.item,
     required this.selected,
     required this.onTap,
   });
 
-  final IconData icon;
-  final IconData activeIcon;
-  final String label;
+  final ({IconData icon, IconData active, String label}) item;
   final bool selected;
   final VoidCallback onTap;
 
   @override
   Widget build(BuildContext context) {
-    final dark = Theme.of(context).brightness == Brightness.dark;
-    return Material(
-      color: selected ? context.tokens.surfaceStrong : Colors.transparent,
-      borderRadius: BorderRadius.circular(22),
-      child: InkWell(
-        onTap: onTap,
-        borderRadius: BorderRadius.circular(22),
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 10),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Icon(
-                selected ? activeIcon : icon,
-                size: 22,
-                color: selected
-                    ? (dark ? Colors.white : const Color(0xFF17181C))
-                    : context.tokens.textMuted,
-              ),
-              const SizedBox(height: 4),
-              Text(
-                label,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                style: TextStyle(
-                  fontSize: 11.5,
-                  fontWeight: selected ? FontWeight.w700 : FontWeight.w600,
-                  color: selected
-                      ? (dark ? Colors.white : const Color(0xFF17181C))
-                      : context.tokens.textMuted,
-                ),
-              ),
-            ],
-          ),
+    return PressableScale(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(20),
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 180),
+        curve: Curves.easeOutCubic,
+        decoration: BoxDecoration(
+          color: selected ? context.tokens.surfaceHigh : Colors.transparent,
+          borderRadius: BorderRadius.circular(20),
+        ),
+        padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 6),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(
+              selected ? item.active : item.icon,
+              size: 22,
+              color: selected
+                  ? context.tokens.textPrimary
+                  : context.tokens.textTertiary,
+            ),
+            const SizedBox(height: 3),
+            Text(
+              item.label,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                    color: selected
+                        ? context.tokens.textPrimary
+                        : context.tokens.textTertiary,
+                    fontWeight:
+                        selected ? FontWeight.w700 : FontWeight.w600,
+                  ),
+            ),
+          ],
         ),
       ),
     );
@@ -288,21 +304,9 @@ class _StartupLoading extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return AppPage(
-      safeBottom: true,
-      child: Center(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            const CircularProgressIndicator(),
-            const SizedBox(height: 16),
-            Text(
-              'Đang chuẩn bị thư viện nhạc...',
-              style: Theme.of(context).textTheme.bodyLarge,
-            ),
-          ],
-        ),
-      ),
+    return Scaffold(
+      backgroundColor: context.tokens.background,
+      body: const Center(child: CircularProgressIndicator()),
     );
   }
 }
@@ -314,27 +318,13 @@ class _StartupError extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return AppPage(
-      child: Center(
-        child: Padding(
-          padding: const EdgeInsets.all(24),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              const Icon(Icons.error_outline_rounded, size: 56),
-              const SizedBox(height: 12),
-              Text(
-                'Không thể khởi tạo ứng dụng',
-                style: Theme.of(context).textTheme.titleLarge,
-              ),
-              const SizedBox(height: 8),
-              Text(
-                message,
-                textAlign: TextAlign.center,
-                style: Theme.of(context).textTheme.bodyMedium,
-              ),
-            ],
-          ),
+    return Scaffold(
+      backgroundColor: context.tokens.background,
+      body: SafeArea(
+        child: EmptyState(
+          icon: Icons.error_outline_rounded,
+          title: 'Không thể khởi động ứng dụng',
+          message: message,
         ),
       ),
     );

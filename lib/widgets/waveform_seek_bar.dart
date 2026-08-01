@@ -24,29 +24,32 @@ class WaveformSeekBar extends StatelessWidget {
     final maximum = math.max(1, duration.inMilliseconds).toDouble();
     final value = position.inMilliseconds.clamp(0, maximum.toInt()).toDouble();
     return Column(
+      mainAxisSize: MainAxisSize.min,
       children: [
         Slider(
           min: 0,
           max: maximum,
           value: value,
-          onChanged: (next) => onSeek(Duration(milliseconds: next.round())),
+          onChanged: (next) {
+            onSeek(Duration(milliseconds: next.round()));
+          },
         ),
         Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 4),
+          padding: const EdgeInsets.symmetric(horizontal: 3),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
                 formatDuration(position),
-                style: Theme.of(context).textTheme.labelMedium?.copyWith(
-                  color: context.tokens.textMuted,
-                ),
+                style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                      color: context.tokens.textTertiary,
+                    ),
               ),
               Text(
                 formatDuration(duration),
-                style: Theme.of(context).textTheme.labelMedium?.copyWith(
-                  color: context.tokens.textMuted,
-                ),
+                style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                      color: context.tokens.textTertiary,
+                    ),
               ),
             ],
           ),
