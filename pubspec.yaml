@@ -1,0 +1,29 @@
+name: offline_music
+description: Trình phát nhạc offline giao diện Dark Rounded, hỗ trợ sáng tối, phát nền và đóng gói IPA chưa ký bằng GitHub Actions.
+publish_to: "none"
+version: 13.1.1+15
+
+environment:
+  sdk: ">=3.10.0 <4.0.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+  cupertino_icons: ^1.0.8
+  just_audio: ^0.10.6
+  just_audio_background: ^0.0.1-beta.17
+  audio_session: ^0.2.4
+  file_picker: ^11.0.2
+  path_provider: ^2.1.6
+  path: ^1.9.1
+  audio_metadata_reader: ^1.7.0
+  http: ^1.6.0
+  image_picker: ^1.2.3
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^6.0.0
+
+flutter:
+  uses-material-design: true
