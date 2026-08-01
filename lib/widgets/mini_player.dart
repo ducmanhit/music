@@ -45,19 +45,19 @@ class MiniPlayer extends StatelessWidget {
               ),
             ),
           ),
-          borderRadius: BorderRadius.circular(24),
+          borderRadius: BorderRadius.circular(26),
           child: Container(
-            height: 68,
+            height: 74,
             clipBehavior: Clip.antiAlias,
             decoration: BoxDecoration(
-              color: context.tokens.surface,
-              borderRadius: BorderRadius.circular(24),
+              color: Theme.of(context).brightness == Brightness.dark ? context.tokens.accent : context.tokens.surface,
+              borderRadius: BorderRadius.circular(26),
               border: Border.all(color: context.tokens.border),
             ),
             child: Stack(
               children: [
                 Padding(
-                  padding: const EdgeInsets.fromLTRB(10, 9, 9, 9),
+                  padding: const EdgeInsets.fromLTRB(10, 9, 10, 9),
                   child: Row(
                     children: [
                       SongArtwork(
@@ -76,14 +76,14 @@ class MiniPlayer extends StatelessWidget {
                               song.title,
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis,
-                              style: Theme.of(context).textTheme.titleMedium,
+                              style: Theme.of(context).textTheme.titleMedium?.copyWith(color: Theme.of(context).brightness == Brightness.dark ? context.tokens.accentText : null),
                             ),
                             const SizedBox(height: 3),
                             Text(
                               song.artist,
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis,
-                              style: Theme.of(context).textTheme.bodySmall,
+                              style: Theme.of(context).textTheme.bodySmall?.copyWith(color: Theme.of(context).brightness == Brightness.dark ? context.tokens.accentText.withValues(alpha: 0.62) : null),
                             ),
                           ],
                         ),
@@ -119,9 +119,9 @@ class MiniPlayer extends StatelessWidget {
                     child: LinearProgressIndicator(
                       minHeight: 2,
                       value: progress,
-                      backgroundColor: context.tokens.divider,
+                      backgroundColor: Theme.of(context).brightness == Brightness.dark ? context.tokens.accentText.withValues(alpha: 0.14) : context.tokens.divider,
                       valueColor: AlwaysStoppedAnimation<Color>(
-                        context.tokens.textPrimary,
+                        Theme.of(context).brightness == Brightness.dark ? context.tokens.accentText : context.tokens.textPrimary,
                       ),
                     ),
                   ),
@@ -156,11 +156,12 @@ class _MiniControl extends StatelessWidget {
         onPressed: onPressed,
         padding: EdgeInsets.zero,
         style: IconButton.styleFrom(
-          backgroundColor:
-              filled ? context.tokens.accent : Colors.transparent,
+          backgroundColor: filled
+              ? (Theme.of(context).brightness == Brightness.dark ? context.tokens.accentText : context.tokens.accent)
+              : Colors.transparent,
           foregroundColor: filled
-              ? context.tokens.accentText
-              : context.tokens.textPrimary,
+              ? (Theme.of(context).brightness == Brightness.dark ? context.tokens.accent : context.tokens.accentText)
+              : (Theme.of(context).brightness == Brightness.dark ? context.tokens.accentText : context.tokens.textPrimary),
           shape: const CircleBorder(),
         ),
         icon: Icon(icon, size: filled ? 23 : 22),

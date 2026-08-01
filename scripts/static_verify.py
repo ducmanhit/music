@@ -11,10 +11,10 @@ LIB = ROOT / "lib"
 errors: list[str] = []
 
 forbidden = {
-    "LinearGradient(": "gradient is not allowed in V14",
-    "RadialGradient(": "gradient is not allowed in V14",
-    "SweepGradient(": "gradient is not allowed in V14",
-    "BackdropFilter(": "glass blur is not allowed in V14",
+    "LinearGradient(": "gradient is not allowed in V15",
+    "RadialGradient(": "gradient is not allowed in V15",
+    "SweepGradient(": "gradient is not allowed in V15",
+    "BackdropFilter(": "glass blur is not allowed in V15",
     "<<<<<<<": "unresolved merge marker",
     "=======": "unresolved merge marker",
     ">>>>>>>": "unresolved merge marker",
@@ -61,7 +61,7 @@ if not version_match:
     errors.append("pubspec.yaml: missing valid version major.minor.patch+build")
 else:
     major, minor, patch, build = map(int, version_match.groups())
-    if major < 14 or build < 1:
+    if major < 15 or build < 1:
         errors.append(f"pubspec.yaml: unexpected version {major}.{minor}.{patch}+{build}")
 
 main_source = (ROOT / "lib/main.dart").read_text(encoding="utf-8")

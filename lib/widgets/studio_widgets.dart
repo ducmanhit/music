@@ -35,7 +35,7 @@ class PressableScale extends StatefulWidget {
     super.key,
     required this.child,
     required this.onTap,
-    this.borderRadius = const BorderRadius.all(Radius.circular(18)),
+    this.borderRadius = const BorderRadius.all(Radius.circular(20)),
     this.enabled = true,
     this.behavior = HitTestBehavior.opaque,
   });
@@ -87,7 +87,7 @@ class RoundedSurface extends StatelessWidget {
     super.key,
     required this.child,
     this.padding = const EdgeInsets.all(18),
-    this.radius = 26,
+    this.radius = 28,
     this.color,
     this.borderColor,
     this.onTap,
@@ -129,7 +129,7 @@ class SurfaceCard extends RoundedSurface {
     super.key,
     required super.child,
     super.padding = const EdgeInsets.all(18),
-    super.radius = 26,
+    super.radius = 28,
     super.color,
     super.borderColor,
     super.onTap,
@@ -246,7 +246,7 @@ class CircleIconButton extends StatelessWidget {
     required this.icon,
     required this.onPressed,
     this.tooltip,
-    this.size = 42,
+    this.size = 44,
     this.iconSize = 21,
     this.selected = false,
     this.danger = false,
@@ -295,7 +295,7 @@ class FlatIconButton extends CircleIconButton {
     required super.icon,
     required super.onPressed,
     super.tooltip,
-    super.size = 42,
+    super.size = 44,
     super.iconSize = 21,
     super.selected = false,
     super.danger = false,
@@ -502,7 +502,7 @@ class SettingsRow extends StatelessWidget {
                         color: destructive
                             ? context.tokens.danger.withValues(alpha: 0.1)
                             : context.tokens.surfaceHigh,
-                        borderRadius: BorderRadius.circular(11),
+                        borderRadius: BorderRadius.circular(12),
                       ),
                       child: Icon(
                         icon,

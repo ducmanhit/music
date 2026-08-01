@@ -1,6 +1,6 @@
-# Offline Music V14 — Dark Rounded Premium
+# Offline Music V15 — Dark Album Premium
 
-Trình phát nhạc offline bằng Flutter dành cho iPhone. Bản V14 được xây lại theo một hệ giao diện tối, phẳng, bo tròn và đồng bộ; không dùng gradient, kính mờ hoặc hiệu ứng neon.
+Trình phát nhạc offline bằng Flutter dành cho iPhone. Bản V15 được xây lại theo một hệ giao diện tối, phẳng, bo tròn và đồng bộ; không dùng gradient, kính mờ hoặc hiệu ứng neon.
 
 ## Chức năng
 
@@ -15,9 +15,9 @@ Trình phát nhạc offline bằng Flutter dành cho iPhone. Bản V14 được 
 - Chọn ảnh từ Photos/Files hoặc tìm ảnh bìa online.
 - Ba chế độ giao diện: Theo hệ thống, Sáng và Tối.
 
-## Thiết kế V14
+## Thiết kế V15
 
-- Dark Rounded Premium là giao diện mặc định.
+- Dark Album Premium là giao diện mặc định.
 - Không gradient, không BackdropFilter, không neon.
 - Bottom navigation 4 tab: Trang chủ, Tìm kiếm, Thư viện, Cài đặt.
 - Mini Player 68 px, bo 24 px, có tiến trình phát.

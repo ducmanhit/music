@@ -45,19 +45,19 @@ class AppTokens extends ThemeExtension<AppTokens> {
   Color get warning => const Color(0xFFFF9F0A);
 
   static const dark = AppTokens(
-    background: Color(0xFF09090B),
-    backgroundRaised: Color(0xFF0E0E11),
-    surface: Color(0xFF141417),
-    surfaceHigh: Color(0xFF1B1B20),
-    surfacePressed: Color(0xFF232329),
-    divider: Color(0xFF29292F),
-    border: Color(0xFF303037),
+    background: Color(0xFF0A1020),
+    backgroundRaised: Color(0xFF0D1426),
+    surface: Color(0xFF111827),
+    surfaceHigh: Color(0xFF182132),
+    surfacePressed: Color(0xFF202A3F),
+    divider: Color(0xFF263044),
+    border: Color(0xFF22304B),
     textPrimary: Color(0xFFF7F7F8),
-    textSecondary: Color(0xFFA4A4AD),
-    textTertiary: Color(0xFF707079),
-    disabled: Color(0xFF4B4B52),
-    accent: Color(0xFFF5F5F7),
-    accentText: Color(0xFF111114),
+    textSecondary: Color(0xFFA6AFC0),
+    textTertiary: Color(0xFF6E778A),
+    disabled: Color(0xFF465166),
+    accent: Color(0xFFF6F6F4),
+    accentText: Color(0xFF111723),
     danger: Color(0xFFFF453A),
     success: Color(0xFF32D74B),
   );
@@ -274,7 +274,7 @@ ThemeData _buildTheme(AppTokens tokens, Brightness brightness) {
       surfaceTintColor: Colors.transparent,
       elevation: 0,
       margin: EdgeInsets.zero,
-      shape: rounded(26, border: tokens.border),
+      shape: rounded(28, border: tokens.border),
     ),
     dividerTheme: DividerThemeData(
       color: tokens.divider,
@@ -283,26 +283,26 @@ ThemeData _buildTheme(AppTokens tokens, Brightness brightness) {
     ),
     inputDecorationTheme: InputDecorationTheme(
       filled: true,
-      fillColor: tokens.surface,
+      fillColor: tokens.surfaceHigh,
       hintStyle: TextStyle(color: tokens.textTertiary),
       labelStyle: TextStyle(color: tokens.textSecondary),
       prefixIconColor: tokens.textSecondary,
       suffixIconColor: tokens.textSecondary,
       contentPadding: const EdgeInsets.symmetric(horizontal: 18, vertical: 15),
       border: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(18),
+        borderRadius: BorderRadius.circular(20),
         borderSide: BorderSide(color: tokens.border),
       ),
       enabledBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(18),
+        borderRadius: BorderRadius.circular(20),
         borderSide: BorderSide(color: tokens.border),
       ),
       focusedBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(18),
+        borderRadius: BorderRadius.circular(20),
         borderSide: BorderSide(color: tokens.textSecondary, width: 1.2),
       ),
       errorBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(18),
+        borderRadius: BorderRadius.circular(20),
         borderSide: BorderSide(color: tokens.danger),
       ),
     ),
@@ -316,7 +316,7 @@ ThemeData _buildTheme(AppTokens tokens, Brightness brightness) {
         shadowColor: Colors.transparent,
         minimumSize: const Size(0, 48),
         padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
-        shape: rounded(16),
+        shape: rounded(18),
         textStyle: const TextStyle(fontWeight: FontWeight.w700),
       ),
     ),
@@ -329,7 +329,7 @@ ThemeData _buildTheme(AppTokens tokens, Brightness brightness) {
         minimumSize: const Size(0, 48),
         padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
         side: BorderSide(color: tokens.border),
-        shape: rounded(16),
+        shape: rounded(18),
         textStyle: const TextStyle(fontWeight: FontWeight.w700),
       ),
     ),
@@ -337,7 +337,7 @@ ThemeData _buildTheme(AppTokens tokens, Brightness brightness) {
       style: TextButton.styleFrom(
         foregroundColor: tokens.textPrimary,
         padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-        shape: rounded(14),
+        shape: rounded(16),
       ),
     ),
     iconButtonTheme: IconButtonThemeData(
@@ -373,7 +373,7 @@ ThemeData _buildTheme(AppTokens tokens, Brightness brightness) {
         fontWeight: FontWeight.w600,
       ),
       behavior: SnackBarBehavior.floating,
-      shape: rounded(16),
+      shape: rounded(18),
       elevation: 0,
     ),
     sliderTheme: SliderThemeData(
@@ -381,8 +381,8 @@ ThemeData _buildTheme(AppTokens tokens, Brightness brightness) {
       inactiveTrackColor: tokens.divider,
       thumbColor: tokens.textPrimary,
       overlayColor: tokens.textPrimary.withValues(alpha: 0.08),
-      trackHeight: 3,
-      thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 6),
+      trackHeight: 2.5,
+      thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 5),
       overlayShape: const RoundSliderOverlayShape(overlayRadius: 16),
     ),
     switchTheme: SwitchThemeData(
@@ -408,7 +408,7 @@ ThemeData _buildTheme(AppTokens tokens, Brightness brightness) {
       indicatorSize: TabBarIndicatorSize.tab,
       indicator: BoxDecoration(
         color: tokens.surfaceHigh,
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(18),
       ),
     ),
   );
