@@ -1,10 +1,10 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:just_audio/just_audio.dart';
 
-import '../screens/now_playing_screen.dart';
 import '../services/library_service.dart';
 import '../services/player_controller.dart';
 import '../utils/app_theme.dart';
+import '../screens/now_playing_screen.dart';
 import 'song_artwork.dart';
 
 class MiniPlayer extends StatelessWidget {
@@ -20,180 +20,104 @@ class MiniPlayer extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return AnimatedBuilder(
-      animation: Listenable.merge([libraryService, playerController]),
+      animation: playerController,
       builder: (context, _) {
-        final queued = playerController.currentSong;
-        if (queued == null) return const SizedBox.shrink();
-        final song = libraryService.songById(queued.id) ?? queued;
-        final duration = playerController.player.duration ?? song.duration;
-        final position = playerController.player.position;
+        final song = playerController.currentSong;
+        if (song == null) return const SizedBox.shrink();
+        final player = playerController.player;
+        final duration = player.duration ?? song.duration;
+        final position = player.position;
         final progress = duration.inMilliseconds <= 0
             ? 0.0
             : (position.inMilliseconds / duration.inMilliseconds)
-                .clamp(0.0, 1.0);
+                .clamp(0.0, 1.0)
+                .toDouble();
 
-        return Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 4),
-          child: GlassPanel(
-            borderRadius: 25,
-            blur: 46,
-            opacity: .02,
-            shadow: false,
-            highlight: false,
-            onTap: () => _openNowPlaying(context),
-            child: SizedBox(
-              height: 66,
-              child: Stack(
-                children: [
-                  Positioned(
-                    left: 17,
-                    right: 17,
-                    bottom: 3,
-                    child: ClipRRect(
-                      borderRadius: BorderRadius.circular(10),
-                      child: LinearProgressIndicator(
-                        value: progress,
-                        minHeight: 1.7,
-                        backgroundColor: const Color(0x163C3C43),
-                        valueColor: const AlwaysStoppedAnimation(
-                          AppColors.accent,
+        return Material(
+          color: context.tokens.surface,
+          child: InkWell(
+            onTap: () => Navigator.of(context).push(
+              MaterialPageRoute<void>(
+                builder: (_) => NowPlayingScreen(
+                  libraryService: libraryService,
+                  playerController: playerController,
+                ),
+              ),
+            ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                LinearProgressIndicator(
+                  minHeight: 2,
+                  value: progress,
+                  backgroundColor: context.tokens.surfaceStrong,
+                  valueColor: AlwaysStoppedAnimation<Color>(
+                    Theme.of(context).colorScheme.primary,
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(14, 8, 8, 8),
+                  child: Row(
+                    children: [
+                      SongArtwork(song: song, size: 48, borderRadius: 12),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              song.title,
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: Theme.of(context).textTheme.titleMedium,
+                            ),
+                            const SizedBox(height: 3),
+                            Text(
+                              song.artist,
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                                color: context.tokens.textMuted,
+                              ),
+                            ),
+                          ],
                         ),
                       ),
-                    ),
+                      IconButton(
+                        onPressed: playerController.previous,
+                        tooltip: 'Bài trước',
+                        icon: const Icon(Icons.skip_previous_rounded),
+                      ),
+                      IconButton.filled(
+                        onPressed: playerController.playOrPause,
+                        tooltip: player.playing ? 'Tạm dừng' : 'Phát',
+                        style: IconButton.styleFrom(
+                          backgroundColor: Theme.of(context).colorScheme.primary,
+                          foregroundColor: Theme.of(context).colorScheme.onPrimary,
+                          minimumSize: const Size(42, 42),
+                        ),
+                        icon: Icon(
+                          player.playing
+                              ? Icons.pause_rounded
+                              : player.processingState == ProcessingState.loading ||
+                                      player.processingState == ProcessingState.buffering
+                                  ? Icons.hourglass_top_rounded
+                                  : Icons.play_arrow_rounded,
+                        ),
+                      ),
+                      IconButton(
+                        onPressed: playerController.next,
+                        tooltip: 'Bài tiếp theo',
+                        icon: const Icon(Icons.skip_next_rounded),
+                      ),
+                    ],
                   ),
-                  Padding(
-                    padding: const EdgeInsets.fromLTRB(8, 7, 7, 7),
-                    child: Row(
-                      children: [
-                        Hero(
-                          tag: 'now-playing-art-${song.id}',
-                          child: SongArtwork(
-                            song: song,
-                            size: 50,
-                            borderRadius: 14,
-                          ),
-                        ),
-                        const SizedBox(width: 11),
-                        Expanded(
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                song.title,
-                                maxLines: 1,
-                                overflow: TextOverflow.ellipsis,
-                                style: const TextStyle(
-                                  fontSize: 14.5,
-                                  fontWeight: FontWeight.w600,
-                                  letterSpacing: -.24,
-                                ),
-                              ),
-                              const SizedBox(height: 3),
-                              Text(
-                                song.artist,
-                                maxLines: 1,
-                                overflow: TextOverflow.ellipsis,
-                                style: const TextStyle(
-                                  color: AppColors.muted,
-                                  fontSize: 12,
-                                  fontWeight: FontWeight.w500,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                        _MiniButton(
-                          onPressed: playerController.playOrPause,
-                          icon: playerController.player.playing
-                              ? CupertinoIcons.pause_fill
-                              : CupertinoIcons.play_fill,
-                          primary: true,
-                        ),
-                        const SizedBox(width: 5),
-                        _MiniButton(
-                          onPressed: playerController.next,
-                          icon: Icons.skip_next_rounded,
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
+                ),
+              ],
             ),
           ),
         );
       },
-    );
-  }
-
-  void _openNowPlaying(BuildContext context) {
-    Navigator.of(context).push(
-      PageRouteBuilder<void>(
-        transitionDuration: const Duration(milliseconds: 420),
-        reverseTransitionDuration: const Duration(milliseconds: 300),
-        pageBuilder: (_, animation, secondaryAnimation) => NowPlayingScreen(
-          libraryService: libraryService,
-          playerController: playerController,
-        ),
-        transitionsBuilder: (_, animation, __, child) {
-          final curved = CurvedAnimation(
-            parent: animation,
-            curve: Curves.easeOutCubic,
-            reverseCurve: Curves.easeInCubic,
-          );
-          return FadeTransition(
-            opacity: curved,
-            child: ScaleTransition(
-              scale: Tween<double>(begin: .985, end: 1).animate(curved),
-              child: SlideTransition(
-                position: Tween<Offset>(
-                  begin: const Offset(0, .028),
-                  end: Offset.zero,
-                ).animate(curved),
-                child: child,
-              ),
-            ),
-          );
-        },
-      ),
-    );
-  }
-}
-
-class _MiniButton extends StatelessWidget {
-  const _MiniButton({
-    required this.onPressed,
-    required this.icon,
-    this.primary = false,
-  });
-
-  final VoidCallback onPressed;
-  final IconData icon;
-  final bool primary;
-
-  @override
-  Widget build(BuildContext context) {
-    final size = primary ? 40.0 : 36.0;
-    return SizedBox.square(
-      dimension: size,
-      child: Material(
-        color: primary
-            ? AppColors.accent.withValues(alpha: .10)
-            : const Color(0x0F3C3C43),
-        shape: const CircleBorder(),
-        child: InkWell(
-          customBorder: const CircleBorder(),
-          onTap: onPressed,
-          child: Center(
-            child: Icon(
-              icon,
-              size: primary ? 19 : 18,
-              color: primary ? AppColors.accent : AppColors.graphite,
-            ),
-          ),
-        ),
-      ),
     );
   }
 }

@@ -1,10 +1,13 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
+import '../models/song.dart';
 import '../services/library_service.dart';
 import '../services/player_controller.dart';
 import '../utils/app_theme.dart';
 import '../utils/formatters.dart';
+import '../widgets/app_modal.dart';
+import '../widgets/song_artwork.dart';
+import '../widgets/studio_widgets.dart';
 
 class QualityScreen extends StatelessWidget {
   const QualityScreen({
@@ -18,218 +21,264 @@ class QualityScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return AppBackdrop(
-      child: SafeArea(
-        bottom: false,
-        child: AnimatedBuilder(
-          animation: Listenable.merge([libraryService, playerController]),
-          builder: (context, _) {
-            final queued = playerController.currentSong;
-            final song = queued == null
-                ? null
-                : libraryService.songById(queued.id) ?? queued;
+    return AppPage(
+      child: AnimatedBuilder(
+        animation: Listenable.merge(<Listenable>[libraryService, playerController]),
+        builder: (context, _) {
+          final song = playerController.currentSong;
+          return CustomScrollView(
+            key: const PageStorageKey<String>('quality-scroll'),
+            slivers: [
+              const SliverToBoxAdapter(
+                child: PageHeader(
+                  eyebrow: 'Playback',
+                  title: 'Âm thanh',
+                  subtitle: 'Thông tin file và điều khiển phát nhạc.',
+                ),
+              ),
+              SliverPadding(
+                padding: const EdgeInsets.fromLTRB(20, 8, 20, 0),
+                sliver: SliverToBoxAdapter(
+                  child: song == null
+                      ? const EmptyState(
+                          icon: Icons.graphic_eq_rounded,
+                          title: 'Chưa có bài hát đang phát',
+                          message: 'Phát một bài hát để xem thông tin âm thanh.',
+                          compact: true,
+                        )
+                      : _CurrentTrackCard(song: song),
+                ),
+              ),
+              const SliverToBoxAdapter(
+                child: SectionHeader(
+                  title: 'Điều khiển',
+                  subtitle: 'Các cài đặt áp dụng ngay cho phiên nghe hiện tại',
+                ),
+              ),
+              SliverPadding(
+                padding: const EdgeInsets.symmetric(horizontal: 20),
+                sliver: SliverToBoxAdapter(
+                  child: SurfaceCard(
+                    child: Column(
+                      children: [
+                        _VolumeControl(playerController: playerController),
+                        const Divider(height: 25),
+                        SettingsRow(
+                          icon: Icons.timer_outlined,
+                          title: 'Hẹn giờ tắt nhạc',
+                          subtitle: _sleepTimerText(playerController.sleepEndsAt),
+                          onTap: () => _chooseSleepTimer(context),
+                        ),
+                        const Divider(height: 1, indent: 64),
+                        SettingsRow(
+                          icon: Icons.shuffle_rounded,
+                          title: 'Phát ngẫu nhiên',
+                          subtitle: playerController.shuffleEnabled ? 'Đang bật' : 'Đang tắt',
+                          trailing: Switch(
+                            value: playerController.shuffleEnabled,
+                            onChanged: (_) => playerController.toggleShuffle(),
+                          ),
+                          onTap: playerController.toggleShuffle,
+                        ),
+                        const Divider(height: 1, indent: 64),
+                        SettingsRow(
+                          icon: Icons.repeat_rounded,
+                          title: 'Chế độ lặp',
+                          subtitle: _loopModeLabel(playerController.loopMode.name),
+                          onTap: playerController.cycleLoopMode,
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+              const SliverToBoxAdapter(
+                child: SectionHeader(
+                  title: 'Khả năng phát',
+                  subtitle: 'Ứng dụng giữ nguyên file gốc và dùng bộ giải mã hệ thống',
+                ),
+              ),
+              SliverPadding(
+                padding: const EdgeInsets.fromLTRB(20, 0, 20, 28),
+                sliver: SliverToBoxAdapter(
+                  child: SurfaceCard(
+                    child: Column(
+                      children: [
+                        const _CapabilityRow(
+                          icon: Icons.offline_bolt_outlined,
+                          title: 'Phát hoàn toàn offline',
+                          detail: 'Không cần mạng sau khi nhập file',
+                        ),
+                        const Divider(height: 25),
+                        const _CapabilityRow(
+                          icon: Icons.lock_clock_outlined,
+                          title: 'Phát nền và màn hình khóa',
+                          detail: 'Điều khiển bằng Control Center và tai nghe',
+                        ),
+                        const Divider(height: 25),
+                        _CapabilityRow(
+                          icon: Icons.audio_file_outlined,
+                          title: 'Định dạng thư viện',
+                          detail: LibraryService.supportedExtensions
+                              .map((extension) => extension.toUpperCase())
+                              .join(', '),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          );
+        },
+      ),
+    );
+  }
 
-            return ListView(
-              physics: const BouncingScrollPhysics(),
-              padding: const EdgeInsets.fromLTRB(20, 18, 20, 160),
-              children: [
-                const _Header(),
-                const SizedBox(height: 28),
-                GlassPanel(
-                  padding: const EdgeInsets.fromLTRB(18, 17, 18, 17),
-                  borderRadius: 30,
-                  blur: 38,
-                  opacity: .085,
-                  shadow: false,
-                  child: Row(
-                    children: [
-                      Container(
-                        width: 58,
-                        height: 58,
-                        decoration: BoxDecoration(
-                          color: Colors.white.withValues(alpha: .24),
-                          borderRadius: BorderRadius.circular(21),
-                          border: Border.all(
-                            color: Colors.white.withValues(alpha: .88),
-                          ),
-                        ),
-                        child: const Icon(
-                          CupertinoIcons.waveform,
-                          color: AppColors.accent,
-                          size: 28,
-                        ),
-                      ),
-                      const SizedBox(width: 16),
-                      const Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              'Phát âm thanh gốc',
-                              style: TextStyle(
-                                fontSize: 18,
-                                fontWeight: FontWeight.w800,
-                                letterSpacing: -.25,
-                              ),
-                            ),
-                            SizedBox(height: 5),
-                            Text(
-                              'Không áp dụng EQ hoặc hiệu ứng giả lập.',
-                              style: TextStyle(
-                                color: AppColors.muted,
-                                height: 1.35,
-                                fontSize: 13.5,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                      const Icon(
-                        CupertinoIcons.check_mark_circled_solid,
-                        color: AppColors.success,
-                        size: 24,
-                      ),
-                    ],
-                  ),
-                ),
-                const SizedBox(height: 24),
-                const _InfoGroup(
-                  title: 'ĐƯỜNG TÍN HIỆU',
+  Future<void> _chooseSleepTimer(BuildContext context) async {
+    final selected = await showAppSelectionSheet<String>(
+      context: context,
+      title: 'Hẹn giờ tắt nhạc',
+      options: const [
+        AppSelectionOption(value: '10', title: '10 phút', icon: Icons.timer_outlined),
+        AppSelectionOption(value: '20', title: '20 phút', icon: Icons.timer_outlined),
+        AppSelectionOption(value: '30', title: '30 phút', icon: Icons.timer_outlined),
+        AppSelectionOption(value: '45', title: '45 phút', icon: Icons.timer_outlined),
+        AppSelectionOption(value: '60', title: '60 phút', icon: Icons.timer_outlined),
+        AppSelectionOption(value: 'off', title: 'Tắt hẹn giờ', icon: Icons.timer_off_outlined),
+      ],
+    );
+    if (selected == null) return;
+    if (selected == 'off') {
+      playerController.setSleepTimer(null);
+    } else {
+      playerController.setSleepTimer(Duration(minutes: int.parse(selected)));
+    }
+  }
+
+  String _sleepTimerText(DateTime? end) {
+    if (end == null) return 'Đang tắt';
+    final remaining = end.difference(DateTime.now());
+    if (remaining.isNegative) return 'Đang tắt';
+    return 'Còn khoảng ${remaining.inMinutes + 1} phút';
+  }
+
+  String _loopModeLabel(String value) => switch (value) {
+        'one' => 'Lặp một bài',
+        'all' => 'Lặp danh sách',
+        _ => 'Không lặp',
+      };
+}
+
+class _CurrentTrackCard extends StatelessWidget {
+  const _CurrentTrackCard({required this.song});
+
+  final Song song;
+
+  @override
+  Widget build(BuildContext context) {
+    return SurfaceCard(
+      padding: const EdgeInsets.all(16),
+      child: Column(
+        children: [
+          Row(
+            children: [
+              SongArtwork(song: song, size: 82, borderRadius: 18),
+              const SizedBox(width: 16),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    _SignalRow(
-                      icon: CupertinoIcons.slider_horizontal_3,
-                      label: 'Equalizer',
-                      value: 'Không áp dụng',
+                    Text(
+                      song.title,
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                      style: Theme.of(context).textTheme.titleLarge,
                     ),
-                    _RowDivider(),
-                    _SignalRow(
-                      icon: CupertinoIcons.waveform,
-                      label: 'Audio engine',
-                      value: 'Hệ thống iOS',
-                    ),
-                    _RowDivider(),
-                    _SignalRow(
-                      icon: CupertinoIcons.speaker_2,
-                      label: 'Âm lượng',
-                      value: 'Theo ứng dụng',
+                    const SizedBox(height: 5),
+                    Text(
+                      song.artist,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                        color: context.tokens.textMuted,
+                      ),
                     ),
                   ],
                 ),
-                const SizedBox(height: 24),
-                _InfoGroup(
-                  title: 'BÀI ĐANG PHÁT',
-                  children: song == null
-                      ? const [
-                          Padding(
-                            padding: EdgeInsets.all(18),
-                            child: Align(
-                              alignment: Alignment.centerLeft,
-                              child: Text(
-                                'Chưa có bài đang phát',
-                                style: TextStyle(color: AppColors.muted),
-                              ),
-                            ),
-                          ),
-                        ]
-                      : [
-                          _DetailRow(label: 'Bài hát', value: song.title),
-                          const _RowDivider(),
-                          _DetailRow(
-                            label: 'Định dạng',
-                            value: song.extension.isEmpty
-                                ? 'Không rõ'
-                                : song.extension,
-                          ),
-                          const _RowDivider(),
-                          _DetailRow(
-                            label: 'Bitrate',
-                            value: song.bitrateKbps == null
-                                ? 'Không rõ'
-                                : '${song.bitrateKbps} kbps',
-                          ),
-                          const _RowDivider(),
-                          _DetailRow(
-                            label: 'Sample rate',
-                            value: song.sampleRate == null
-                                ? 'Không rõ'
-                                : '${(song.sampleRate! / 1000).toStringAsFixed(1)} kHz',
-                          ),
-                          const _RowDivider(),
-                          _DetailRow(
-                            label: 'Dung lượng',
-                            value: formatBytes(song.fileSize),
-                          ),
-                        ],
+              ),
+            ],
+          ),
+          const SizedBox(height: 16),
+          Row(
+            children: [
+              Expanded(
+                child: _DataCell(
+                  label: 'Định dạng',
+                  value: song.extension.isEmpty ? '—' : song.extension,
                 ),
-                const SizedBox(height: 24),
-                const _InfoGroup(
-                  title: 'ĐẦU RA',
-                  children: [
-                    _DetailRow(label: 'Thiết bị', value: 'Do iOS quản lý'),
-                    _RowDivider(),
-                    _DetailRow(
-                      label: 'AirPlay / Bluetooth',
-                      value: 'Chọn trong Control Center',
-                    ),
-                  ],
+              ),
+              Expanded(
+                child: _DataCell(
+                  label: 'Bitrate',
+                  value: song.bitrateKbps == null ? '—' : '${song.bitrateKbps}\nkbps',
                 ),
-                const SizedBox(height: 18),
-                const Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 5),
-                  child: Text(
-                    'Bitrate và sample rate được đọc từ metadata của file. Một số bài có thể không lưu đầy đủ dữ liệu.',
-                    style: TextStyle(
-                      color: AppColors.muted,
-                      fontSize: 13,
-                      height: 1.45,
-                    ),
-                  ),
+              ),
+              Expanded(
+                child: _DataCell(
+                  label: 'Sample rate',
+                  value: song.sampleRate == null
+                      ? '—'
+                      : '${(song.sampleRate! / 1000).toStringAsFixed(1)}\nkHz',
                 ),
-              ],
-            );
-          },
-        ),
+              ),
+              Expanded(
+                child: _DataCell(
+                  label: 'Thời lượng',
+                  value: formatDuration(song.duration),
+                ),
+              ),
+            ],
+          ),
+        ],
       ),
     );
   }
 }
 
-class _Header extends StatelessWidget {
-  const _Header();
+class _DataCell extends StatelessWidget {
+  const _DataCell({required this.label, required this.value});
+
+  final String label;
+  final String value;
 
   @override
   Widget build(BuildContext context) {
-    return const Padding(
-      padding: EdgeInsets.symmetric(horizontal: 3),
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 3),
+      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 12),
+      decoration: BoxDecoration(
+        color: context.tokens.surfaceMuted,
+        borderRadius: BorderRadius.circular(13),
+      ),
       child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'ÂM THANH',
-            style: TextStyle(
-              color: AppColors.muted,
-              fontSize: 11,
-              fontWeight: FontWeight.w700,
-              letterSpacing: 1.15,
-            ),
-          ),
-          SizedBox(height: 5),
-          Text(
-            'Chất lượng',
-            style: TextStyle(
-              fontSize: 34,
-              height: 1,
+            value,
+            maxLines: 2,
+            textAlign: TextAlign.center,
+            style: Theme.of(context).textTheme.titleSmall?.copyWith(
               fontWeight: FontWeight.w800,
-              letterSpacing: -1.25,
+              height: 1.05,
             ),
           ),
-          SizedBox(height: 10),
+          const SizedBox(height: 5),
           Text(
-            'Thông tin nguồn phát và đường tín hiệu âm thanh.',
-            style: TextStyle(
-              color: AppColors.muted,
-              fontSize: 15,
-              height: 1.35,
+            label,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: Theme.of(context).textTheme.labelSmall?.copyWith(
+              color: context.tokens.textMuted,
             ),
           ),
         ],
@@ -238,129 +287,69 @@ class _Header extends StatelessWidget {
   }
 }
 
-class _InfoGroup extends StatelessWidget {
-  const _InfoGroup({required this.title, required this.children});
+class _VolumeControl extends StatelessWidget {
+  const _VolumeControl({required this.playerController});
 
-  final String title;
-  final List<Widget> children;
+  final PlayerController playerController;
 
   @override
   Widget build(BuildContext context) {
+    final volume = playerController.player.volume;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Padding(
-          padding: const EdgeInsets.fromLTRB(6, 0, 6, 9),
-          child: Text(
-            title,
-            style: const TextStyle(
-              color: AppColors.muted,
-              fontSize: 11,
-              fontWeight: FontWeight.w700,
-              letterSpacing: 1.1,
-            ),
-          ),
+        Row(
+          children: [
+            const Icon(Icons.volume_up_outlined),
+            const SizedBox(width: 12),
+            Expanded(child: Text('Âm lượng', style: Theme.of(context).textTheme.titleMedium)),
+            Text('${(volume * 100).round()}%', style: TextStyle(color: context.tokens.textMuted)),
+          ],
         ),
-        GlassPanel(
-          padding: EdgeInsets.zero,
-          borderRadius: 28,
-          blur: 36,
-          opacity: .075,
-          shadow: false,
-          child: Column(children: children),
-        ),
+        Slider(value: volume, onChanged: playerController.setVolume),
       ],
     );
   }
 }
 
-class _SignalRow extends StatelessWidget {
-  const _SignalRow({
-    required this.icon,
-    required this.label,
-    required this.value,
-  });
+class _CapabilityRow extends StatelessWidget {
+  const _CapabilityRow({required this.icon, required this.title, required this.detail});
 
   final IconData icon;
-  final String label;
-  final String value;
+  final String title;
+  final String detail;
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-      child: Row(
-        children: [
-          Container(
-            width: 38,
-            height: 38,
-            decoration: BoxDecoration(
-              color: Colors.white.withValues(alpha: .24),
-              borderRadius: BorderRadius.circular(14),
-              border: Border.all(color: Colors.white.withValues(alpha: .82)),
-            ),
-            child: Icon(icon, color: AppColors.graphite, size: 19),
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Container(
+          width: 42,
+          height: 42,
+          decoration: BoxDecoration(
+            color: context.tokens.accentSoft,
+            borderRadius: BorderRadius.circular(12),
           ),
-          const SizedBox(width: 13),
-          Expanded(
-            child: Text(
-              label,
-              style: const TextStyle(fontWeight: FontWeight.w600),
-            ),
+          child: Icon(icon, color: Theme.of(context).colorScheme.primary),
+        ),
+        const SizedBox(width: 13),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(title, style: Theme.of(context).textTheme.titleMedium),
+              const SizedBox(height: 3),
+              Text(
+                detail,
+                style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                  color: context.tokens.textMuted,
+                ),
+              ),
+            ],
           ),
-          Text(
-            value,
-            style: const TextStyle(
-              color: AppColors.muted,
-              fontWeight: FontWeight.w600,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _DetailRow extends StatelessWidget {
-  const _DetailRow({required this.label, required this.value});
-
-  final String label;
-  final String value;
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 17, vertical: 14),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Expanded(
-            child: Text(label, style: const TextStyle(color: AppColors.muted)),
-          ),
-          const SizedBox(width: 18),
-          Flexible(
-            child: Text(
-              value,
-              maxLines: 2,
-              overflow: TextOverflow.ellipsis,
-              textAlign: TextAlign.right,
-              style: const TextStyle(fontWeight: FontWeight.w700),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _RowDivider extends StatelessWidget {
-  const _RowDivider();
-
-  @override
-  Widget build(BuildContext context) {
-    return const Padding(
-      padding: EdgeInsets.only(left: 68),
-      child: Divider(height: 1),
+        ),
+      ],
     );
   }
 }

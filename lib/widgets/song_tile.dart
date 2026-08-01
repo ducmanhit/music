@@ -12,73 +12,84 @@ class SongTile extends StatelessWidget {
     required this.onTap,
     this.onMore,
     this.dense = false,
+    this.selected = false,
   });
 
   final Song song;
   final VoidCallback onTap;
   final VoidCallback? onMore;
   final bool dense;
+  final bool selected;
 
   @override
   Widget build(BuildContext context) {
+    final primary = Theme.of(context).colorScheme.primary;
+    final radius = BorderRadius.circular(15);
     return Material(
-      color: Colors.transparent,
+      color: selected ? context.tokens.accentSoft : Colors.transparent,
+      shape: RoundedRectangleBorder(borderRadius: radius),
+      clipBehavior: Clip.antiAlias,
       child: InkWell(
         onTap: onTap,
-        borderRadius: BorderRadius.circular(17),
         child: Padding(
-          padding: EdgeInsets.symmetric(horizontal: 8, vertical: dense ? 7 : 9),
+          padding: EdgeInsets.symmetric(horizontal: 10, vertical: dense ? 7 : 9),
           child: Row(
             children: [
               SongArtwork(
                 song: song,
-                size: dense ? 48 : 56,
-                borderRadius: dense ? 12 : 14,
+                size: dense ? 46 : 54,
+                borderRadius: dense ? 11 : 13,
               ),
               const SizedBox(width: 13),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
-                      song.title,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: TextStyle(
-                        color: AppColors.text,
-                        fontSize: dense ? 15 : 16,
-                        fontWeight: FontWeight.w700,
-                      ),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: Text(
+                            song.title,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                              color: selected ? primary : null,
+                            ),
+                          ),
+                        ),
+                        if (song.isFavorite) ...[
+                          const SizedBox(width: 6),
+                          Icon(Icons.favorite_rounded, size: 15, color: context.tokens.danger),
+                        ],
+                      ],
                     ),
                     const SizedBox(height: 4),
                     Text(
-                      '${song.artist} • ${song.extension.isEmpty ? 'AUDIO' : song.extension}',
+                      '${song.artist} · ${song.extension.isEmpty ? 'AUDIO' : song.extension}',
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
-                      style: const TextStyle(
-                        color: AppColors.muted,
-                        fontSize: 13,
+                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                        color: context.tokens.textMuted,
                       ),
                     ),
                   ],
                 ),
               ),
-              if (song.durationMs > 0)
+              if (song.durationMs > 0) ...[
+                const SizedBox(width: 10),
                 Text(
                   formatDuration(song.duration),
-                  style: const TextStyle(
-                    color: AppColors.muted,
-                    fontSize: 13,
+                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                    color: context.tokens.textMuted,
                   ),
                 ),
+              ],
               if (onMore != null)
                 IconButton(
                   onPressed: onMore,
+                  tooltip: 'Tùy chọn',
                   visualDensity: VisualDensity.compact,
-                  icon: const Icon(
-                    Icons.more_horiz_rounded,
-                    color: AppColors.muted,
-                  ),
+                  icon: Icon(Icons.more_horiz_rounded, color: context.tokens.textMuted),
                 ),
             ],
           ),
