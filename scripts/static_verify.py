@@ -64,8 +64,31 @@ for path in required:
         errors.append(f"missing required file: {path.relative_to(ROOT)}")
 
 pubspec = (ROOT / "pubspec.yaml").read_text(encoding="utf-8")
-if "version: 12.0.0+12" not in pubspec:
-    errors.append("pubspec.yaml: expected version 12.0.0+12")
+name_match = re.search(r"(?m)^name:\s*([a-z0-9_]+)\s*$", pubspec)
+version_match = re.search(
+    r"(?m)^version:\s*(\d+)\.(\d+)\.(\d+)\+(\d+)\s*$",
+    pubspec,
+)
+if not name_match or name_match.group(1) != "offline_music":
+    errors.append("pubspec.yaml: package name must be offline_music")
+if not version_match:
+    errors.append("pubspec.yaml: missing valid Flutter version (major.minor.patch+build)")
+else:
+    major, minor, patch, build = map(int, version_match.groups())
+    if major < 13 or build < 1:
+        errors.append(
+            f"pubspec.yaml: unexpected version {major}.{minor}.{patch}+{build}"
+        )
+
+workflow = (ROOT / ".github/workflows/build-ipa.yml").read_text(encoding="utf-8")
+for command in (
+    "flutter analyze",
+    "flutter test",
+    "flutter build ios --release --no-codesign",
+    "actions/upload-artifact@v4",
+):
+    if command not in workflow:
+        errors.append(f"workflow missing required step: {command}")
 
 if errors:
     print("Static verification failed:\n")

@@ -1,7 +1,7 @@
 name: offline_music
-description: Trình phát nhạc offline phong cách Studio phẳng, hỗ trợ giao diện sáng tối và đóng gói IPA bằng GitHub Actions.
+description: Trình phát nhạc offline giao diện Dark Rounded, hỗ trợ sáng tối, phát nền và đóng gói IPA chưa ký bằng GitHub Actions.
 publish_to: "none"
-version: 13.0.0+13
+version: 13.1.0+14
 
 environment:
   sdk: ">=3.10.0 <4.0.0"
@@ -14,7 +14,7 @@ dependencies:
   just_audio_background: ^0.0.1-beta.17
   audio_session: ^0.2.4
   file_picker: ^11.0.2
-  path_provider: ^2.1.5
+  path_provider: ^2.1.6
   path: ^1.9.1
   audio_metadata_reader: ^1.7.0
   http: ^1.6.0

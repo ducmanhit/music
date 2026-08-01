@@ -57,7 +57,7 @@ class _LibraryScreenState extends State<LibraryScreen> {
       child: DefaultTabController(
         length: 5,
         child: AnimatedBuilder(
-          animation: widget.libraryService,
+          animation: Listenable.merge(<Listenable>[widget.libraryService, widget.playerController]),
           builder: (context, _) {
             final songs = _sortedSongs();
             return Column(
