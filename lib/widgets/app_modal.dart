@@ -1,15 +1,8 @@
-import 'dart:ui';
-
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 import '../utils/app_theme.dart';
 
-/// Opens one consistent, keyboard-safe and Safe Area-aware sheet.
-///
-/// Every popup in the app should use this helper so spacing, animation,
-/// dismiss behavior and surface treatment remain identical.
 Future<T?> showAppSheet<T>({
   required BuildContext context,
   required WidgetBuilder builder,
@@ -21,36 +14,30 @@ Future<T?> showAppSheet<T>({
   return showModalBottomSheet<T>(
     context: context,
     useRootNavigator: useRootNavigator,
+    useSafeArea: true,
     isScrollControlled: true,
-    useSafeArea: false,
     isDismissible: isDismissible,
     enableDrag: enableDrag,
     backgroundColor: Colors.transparent,
-    barrierColor: const Color(0x24000000),
+    barrierColor: Colors.black.withValues(alpha: .42),
     elevation: 0,
-    clipBehavior: Clip.none,
     builder: (sheetContext) {
       final media = MediaQuery.of(sheetContext);
-      final maxHeight = (media.size.height -
-              media.padding.top -
-              media.padding.bottom -
-              media.viewInsets.bottom -
-              12)
-          .clamp(160.0, media.size.height)
+      final availableHeight = (media.size.height - media.viewInsets.bottom)
+          .clamp(220.0, media.size.height)
           .toDouble();
       return AnimatedPadding(
-        duration: const Duration(milliseconds: 220),
+        duration: const Duration(milliseconds: 180),
         curve: Curves.easeOutCubic,
         padding: EdgeInsets.only(bottom: media.viewInsets.bottom),
-        child: SafeArea(
-          top: false,
-          minimum: const EdgeInsets.fromLTRB(8, 0, 8, 8),
-          child: Align(
-            alignment: Alignment.bottomCenter,
-            child: ConstrainedBox(
-              constraints: BoxConstraints(maxWidth: 620, maxHeight: maxHeight),
-              child: AppSheetSurface(child: builder(sheetContext)),
+        child: Align(
+          alignment: Alignment.bottomCenter,
+          child: ConstrainedBox(
+            constraints: BoxConstraints(
+              maxWidth: 680,
+              maxHeight: availableHeight * .90,
             ),
+            child: AppSheetSurface(child: builder(sheetContext)),
           ),
         ),
       );
@@ -58,15 +45,12 @@ Future<T?> showAppSheet<T>({
   );
 }
 
-/// Flat iOS-style sheet surface. It keeps a small amount of backdrop blur,
-/// but deliberately avoids shine, gradients, fake reflections and heavy
-/// shadows that can make popup edges look dirty or unstable.
 class AppSheetSurface extends StatelessWidget {
   const AppSheetSurface({
     super.key,
     required this.child,
     this.padding = EdgeInsets.zero,
-    this.radius = 28,
+    this.radius = 26,
   });
 
   final Widget child;
@@ -75,23 +59,16 @@ class AppSheetSurface extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final borderRadius = BorderRadius.circular(radius);
-    return ClipRRect(
-      borderRadius: borderRadius,
-      child: BackdropFilter(
-        filter: ImageFilter.blur(sigmaX: 30, sigmaY: 30),
-        child: Material(
-          color: const Color(0xF7FFFFFF),
-          surfaceTintColor: Colors.transparent,
-          elevation: 0,
-          clipBehavior: Clip.antiAlias,
-          shape: RoundedRectangleBorder(
-            borderRadius: borderRadius,
-            side: const BorderSide(color: Color(0x1A3C3C43), width: .65),
-          ),
-          child: Padding(padding: padding, child: child),
-        ),
+    return Material(
+      color: context.tokens.surface,
+      surfaceTintColor: Colors.transparent,
+      elevation: 0,
+      clipBehavior: Clip.antiAlias,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(radius)),
+        side: BorderSide(color: context.tokens.border),
       ),
+      child: Padding(padding: padding, child: child),
     );
   }
 }
@@ -103,7 +80,7 @@ class AppSheetHeader extends StatelessWidget {
     this.subtitle,
     this.trailing,
     this.showHandle = true,
-    this.padding = const EdgeInsets.fromLTRB(20, 10, 14, 12),
+    this.padding = const EdgeInsets.fromLTRB(20, 10, 16, 14),
   });
 
   final String title;
@@ -121,10 +98,9 @@ class AppSheetHeader extends StatelessWidget {
         children: [
           if (showHandle) ...[
             const Center(child: AppSheetHandle()),
-            const SizedBox(height: 15),
+            const SizedBox(height: 16),
           ],
           Row(
-            crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               Expanded(
                 child: Column(
@@ -134,14 +110,7 @@ class AppSheetHeader extends StatelessWidget {
                       title,
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
-                      style: const TextStyle(
-                        color: AppColors.text,
-                        fontFamily: '.SF Pro Display',
-                        fontSize: 23,
-                        fontWeight: FontWeight.w700,
-                        letterSpacing: -.55,
-                        height: 1.12,
-                      ),
+                      style: Theme.of(context).textTheme.titleLarge,
                     ),
                     if (subtitle != null && subtitle!.trim().isNotEmpty) ...[
                       const SizedBox(height: 5),
@@ -149,10 +118,8 @@ class AppSheetHeader extends StatelessWidget {
                         subtitle!,
                         maxLines: 3,
                         overflow: TextOverflow.ellipsis,
-                        style: const TextStyle(
-                          color: AppColors.muted,
-                          fontSize: 13.5,
-                          height: 1.35,
+                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                          color: context.tokens.textMuted,
                         ),
                       ),
                     ],
@@ -177,10 +144,10 @@ class AppSheetHandle extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      width: 36,
-      height: 5,
+      width: 42,
+      height: 4,
       decoration: BoxDecoration(
-        color: const Color(0x493C3C43),
+        color: context.tokens.surfaceStrong,
         borderRadius: BorderRadius.circular(99),
       ),
     );
@@ -211,9 +178,12 @@ class AppSheetAction extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final foreground = destructive ? AppColors.danger : AppColors.text;
+    final primary = Theme.of(context).colorScheme.primary;
+    final foreground = destructive
+        ? context.tokens.danger
+        : Theme.of(context).colorScheme.onSurface;
     return Opacity(
-      opacity: enabled ? 1 : .42,
+      opacity: enabled ? 1 : .45,
       child: Material(
         color: Colors.transparent,
         child: InkWell(
@@ -227,61 +197,55 @@ class AppSheetAction extends StatelessWidget {
                   onTap!();
                 }
               : null,
-          borderRadius: BorderRadius.circular(16),
-          splashColor: AppColors.accent.withValues(alpha: .05),
-          highlightColor: const Color(0x0A3C3C43),
           child: ConstrainedBox(
-            constraints: const BoxConstraints(minHeight: 62),
+            constraints: const BoxConstraints(minHeight: 64),
             child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+              padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 9),
               child: Row(
                 children: [
                   Container(
-                    width: 38,
-                    height: 38,
+                    width: 40,
+                    height: 40,
                     decoration: BoxDecoration(
                       color: destructive
-                          ? AppColors.danger.withValues(alpha: .09)
-                          : const Color(0xFFF2F2F7),
+                          ? context.tokens.danger.withValues(alpha: .10)
+                          : selected
+                              ? context.tokens.accentSoft
+                              : context.tokens.surfaceMuted,
                       borderRadius: BorderRadius.circular(12),
                     ),
                     child: Icon(
                       icon,
-                      size: 20,
+                      size: 21,
                       color: destructive
-                          ? AppColors.danger
+                          ? context.tokens.danger
                           : selected
-                              ? AppColors.accent
-                              : AppColors.graphite,
+                              ? primary
+                              : context.tokens.textMuted,
                     ),
                   ),
-                  const SizedBox(width: 12),
+                  const SizedBox(width: 13),
                   Expanded(
                     child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
                       crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         Text(
                           title,
                           maxLines: 2,
                           overflow: TextOverflow.ellipsis,
-                          style: TextStyle(
+                          style: Theme.of(context).textTheme.titleMedium?.copyWith(
                             color: foreground,
-                            fontSize: 16,
-                            fontWeight: FontWeight.w600,
-                            letterSpacing: -.18,
                           ),
                         ),
                         if (subtitle != null && subtitle!.trim().isNotEmpty) ...[
-                          const SizedBox(height: 2),
+                          const SizedBox(height: 3),
                           Text(
                             subtitle!,
                             maxLines: 2,
                             overflow: TextOverflow.ellipsis,
-                            style: const TextStyle(
-                              color: AppColors.muted,
-                              fontSize: 13,
-                              height: 1.25,
+                            style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                              color: context.tokens.textMuted,
                             ),
                           ),
                         ],
@@ -291,11 +255,9 @@ class AppSheetAction extends StatelessWidget {
                   const SizedBox(width: 8),
                   trailing ??
                       Icon(
-                        selected
-                            ? CupertinoIcons.check_mark_circled_solid
-                            : CupertinoIcons.chevron_forward,
-                        size: selected ? 21 : 17,
-                        color: selected ? AppColors.accent : AppColors.mutedSoft,
+                        selected ? Icons.check_circle_rounded : Icons.chevron_right_rounded,
+                        color: selected ? primary : context.tokens.textFaint,
+                        size: selected ? 22 : 21,
                       ),
                 ],
               ),
@@ -308,13 +270,13 @@ class AppSheetAction extends StatelessWidget {
 }
 
 class AppSheetDivider extends StatelessWidget {
-  const AppSheetDivider({super.key, this.indent = 62});
+  const AppSheetDivider({super.key, this.indent = 71});
 
   final double indent;
 
   @override
   Widget build(BuildContext context) {
-    return Divider(indent: indent, endIndent: 12, height: 1);
+    return Divider(height: 1, indent: indent, endIndent: 18);
   }
 }
 
@@ -322,52 +284,31 @@ Future<bool> showAppConfirmation({
   required BuildContext context,
   required String title,
   required String message,
-  String cancelLabel = 'Hủy',
   String confirmLabel = 'Xác nhận',
+  String cancelLabel = 'Hủy',
   bool destructive = false,
 }) async {
   FocusManager.instance.primaryFocus?.unfocus();
-  final result = await showGeneralDialog<bool>(
+  final result = await showDialog<bool>(
     context: context,
     useRootNavigator: true,
-    barrierDismissible: true,
-    barrierLabel: 'Đóng',
-    barrierColor: const Color(0x30000000),
-    transitionDuration: const Duration(milliseconds: 210),
-    transitionBuilder: (context, animation, secondaryAnimation, child) {
-      final curved = CurvedAnimation(
-        parent: animation,
-        curve: Curves.easeOutCubic,
-        reverseCurve: Curves.easeInCubic,
-      );
-      return FadeTransition(
-        opacity: curved,
-        child: ScaleTransition(
-          scale: Tween<double>(begin: .96, end: 1).animate(curved),
-          child: child,
+    barrierColor: Colors.black.withValues(alpha: .46),
+    builder: (dialogContext) => AppAlertDialog(
+      title: title,
+      message: message,
+      actions: [
+        AppDialogAction(
+          label: cancelLabel,
+          onPressed: () => Navigator.pop(dialogContext, false),
         ),
-      );
-    },
-    pageBuilder: (dialogContext, animation, secondaryAnimation) {
-      return _DialogHost(
-        child: AppAlertDialog(
-          title: title,
-          message: message,
-          actions: [
-            AppDialogAction(
-              label: cancelLabel,
-              onPressed: () => Navigator.pop(dialogContext, false),
-            ),
-            AppDialogAction(
-              label: confirmLabel,
-              destructive: destructive,
-              emphasized: !destructive,
-              onPressed: () => Navigator.pop(dialogContext, true),
-            ),
-          ],
+        AppDialogAction(
+          label: confirmLabel,
+          destructive: destructive,
+          emphasized: true,
+          onPressed: () => Navigator.pop(dialogContext, true),
         ),
-      );
-    },
+      ],
+    ),
   );
   return result ?? false;
 }
@@ -376,49 +317,30 @@ Future<String?> showAppTextPrompt({
   required BuildContext context,
   required String title,
   String? message,
-  String initialValue = '',
   String placeholder = '',
-  String cancelLabel = 'Hủy',
+  String initialValue = '',
   String confirmLabel = 'Lưu',
+  String cancelLabel = 'Hủy',
   int maxLength = 80,
 }) async {
   FocusManager.instance.primaryFocus?.unfocus();
   final controller = TextEditingController(text: initialValue);
   final focusNode = FocusNode();
   try {
-    return await showGeneralDialog<String>(
+    return await showDialog<String>(
       context: context,
       useRootNavigator: true,
-      barrierDismissible: true,
-      barrierLabel: 'Đóng',
-      barrierColor: const Color(0x30000000),
-      transitionDuration: const Duration(milliseconds: 210),
-      transitionBuilder: (context, animation, secondaryAnimation, child) {
-        final curved = CurvedAnimation(
-          parent: animation,
-          curve: Curves.easeOutCubic,
-          reverseCurve: Curves.easeInCubic,
-        );
-        return FadeTransition(
-          opacity: curved,
-          child: ScaleTransition(
-            scale: Tween<double>(begin: .96, end: 1).animate(curved),
-            child: child,
-          ),
-        );
-      },
-      pageBuilder: (dialogContext, animation, secondaryAnimation) {
-        return _TextPromptDialog(
-          controller: controller,
-          focusNode: focusNode,
-          title: title,
-          message: message,
-          placeholder: placeholder,
-          cancelLabel: cancelLabel,
-          confirmLabel: confirmLabel,
-          maxLength: maxLength,
-        );
-      },
+      barrierColor: Colors.black.withValues(alpha: .46),
+      builder: (dialogContext) => _TextPromptDialog(
+        title: title,
+        message: message,
+        placeholder: placeholder,
+        confirmLabel: confirmLabel,
+        cancelLabel: cancelLabel,
+        maxLength: maxLength,
+        controller: controller,
+        focusNode: focusNode,
+      ),
     );
   } finally {
     controller.dispose();
@@ -428,24 +350,24 @@ Future<String?> showAppTextPrompt({
 
 class _TextPromptDialog extends StatefulWidget {
   const _TextPromptDialog({
-    required this.controller,
-    required this.focusNode,
     required this.title,
     required this.placeholder,
-    required this.cancelLabel,
     required this.confirmLabel,
+    required this.cancelLabel,
     required this.maxLength,
+    required this.controller,
+    required this.focusNode,
     this.message,
   });
 
-  final TextEditingController controller;
-  final FocusNode focusNode;
   final String title;
   final String? message;
   final String placeholder;
-  final String cancelLabel;
   final String confirmLabel;
+  final String cancelLabel;
   final int maxLength;
+  final TextEditingController controller;
+  final FocusNode focusNode;
 
   @override
   State<_TextPromptDialog> createState() => _TextPromptDialogState();
@@ -462,95 +384,37 @@ class _TextPromptDialogState extends State<_TextPromptDialog> {
 
   @override
   Widget build(BuildContext context) {
-    return _DialogHost(
-      child: AppAlertDialog(
-        title: widget.title,
-        message: widget.message,
-        content: Padding(
-          padding: const EdgeInsets.fromLTRB(18, 4, 18, 16),
-          child: TextField(
-            controller: widget.controller,
-            focusNode: widget.focusNode,
-            autofocus: true,
-            maxLength: widget.maxLength,
-            textInputAction: TextInputAction.done,
-            autocorrect: false,
-            enableSuggestions: false,
-            onChanged: (_) => setState(() {}),
-            onSubmitted: (_) => _submit(),
-            decoration: InputDecoration(
-              hintText: widget.placeholder,
-              counterText: '',
-              filled: true,
-              fillColor: const Color(0xFFF2F2F7),
-              contentPadding: const EdgeInsets.symmetric(
-                horizontal: 14,
-                vertical: 13,
-              ),
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(13),
-                borderSide: BorderSide.none,
-              ),
-              enabledBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(13),
-                borderSide: const BorderSide(
-                  color: Color(0x163C3C43),
-                  width: .7,
-                ),
-              ),
-              focusedBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(13),
-                borderSide: const BorderSide(
-                  color: AppColors.accent,
-                  width: 1,
-                ),
-              ),
-            ),
-          ),
-        ),
-        actions: [
-          AppDialogAction(
-            label: widget.cancelLabel,
-            onPressed: () => Navigator.pop(context),
-          ),
-          AppDialogAction(
-            label: widget.confirmLabel,
-            enabled: _valid,
-            emphasized: true,
-            onPressed: _valid ? _submit : null,
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _DialogHost extends StatelessWidget {
-  const _DialogHost({required this.child});
-
-  final Widget child;
-
-  @override
-  Widget build(BuildContext context) {
-    final media = MediaQuery.of(context);
-    return Material(
-      type: MaterialType.transparency,
-      child: AnimatedPadding(
-        duration: const Duration(milliseconds: 220),
-        curve: Curves.easeOutCubic,
-        padding: EdgeInsets.fromLTRB(
-          20,
-          media.padding.top + 16,
-          20,
-          media.viewInsets.bottom + media.padding.bottom + 16,
-        ),
-        child: Center(
-          child: ConstrainedBox(
-            constraints: const BoxConstraints(maxWidth: 350),
-            child: child,
+    return AppAlertDialog(
+      title: widget.title,
+      message: widget.message,
+      content: Padding(
+        padding: const EdgeInsets.fromLTRB(20, 2, 20, 18),
+        child: TextField(
+          controller: widget.controller,
+          focusNode: widget.focusNode,
+          autofocus: true,
+          maxLength: widget.maxLength,
+          textInputAction: TextInputAction.done,
+          onChanged: (_) => setState(() {}),
+          onSubmitted: (_) => _submit(),
+          decoration: InputDecoration(
+            hintText: widget.placeholder,
+            counterText: '',
           ),
         ),
       ),
+      actions: [
+        AppDialogAction(
+          label: widget.cancelLabel,
+          onPressed: () => Navigator.pop(context),
+        ),
+        AppDialogAction(
+          label: widget.confirmLabel,
+          enabled: _valid,
+          emphasized: true,
+          onPressed: _valid ? _submit : null,
+        ),
+      ],
     );
   }
 }
@@ -571,52 +435,36 @@ class AppAlertDialog extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ClipRRect(
-      borderRadius: BorderRadius.circular(26),
-      child: BackdropFilter(
-        filter: ImageFilter.blur(sigmaX: 28, sigmaY: 28),
-        child: Material(
-          color: const Color(0xFAFFFFFF),
-          elevation: 0,
-          surfaceTintColor: Colors.transparent,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(26),
-            side: const BorderSide(color: Color(0x1A3C3C43), width: .65),
-          ),
-          clipBehavior: Clip.antiAlias,
+    final media = MediaQuery.of(context);
+    return Dialog(
+      insetPadding: EdgeInsets.fromLTRB(
+        20,
+        media.padding.top + 20,
+        20,
+        media.viewInsets.bottom + media.padding.bottom + 20,
+      ),
+      child: ConstrainedBox(
+        constraints: const BoxConstraints(maxWidth: 390),
+        child: SingleChildScrollView(
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
               Padding(
-                padding: EdgeInsets.fromLTRB(
-                  22,
-                  22,
-                  22,
-                  content == null ? 20 : 12,
-                ),
+                padding: EdgeInsets.fromLTRB(22, 22, 22, content == null ? 20 : 12),
                 child: Column(
                   children: [
                     Text(
                       title,
                       textAlign: TextAlign.center,
-                      style: const TextStyle(
-                        color: AppColors.text,
-                        fontFamily: '.SF Pro Display',
-                        fontSize: 19,
-                        fontWeight: FontWeight.w700,
-                        letterSpacing: -.35,
-                        height: 1.2,
-                      ),
+                      style: Theme.of(context).textTheme.titleLarge,
                     ),
                     if (message != null && message!.trim().isNotEmpty) ...[
                       const SizedBox(height: 8),
                       Text(
                         message!,
                         textAlign: TextAlign.center,
-                        style: const TextStyle(
-                          color: AppColors.muted,
-                          fontSize: 14,
-                          height: 1.38,
+                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                          color: context.tokens.textMuted,
                         ),
                       ),
                     ],
@@ -625,36 +473,29 @@ class AppAlertDialog extends StatelessWidget {
               ),
               if (content != null) content!,
               const Divider(height: 1),
-              LayoutBuilder(
-                builder: (context, constraints) {
-                  final textScale = MediaQuery.textScalerOf(context).scale(1);
-                  final useVertical = textScale > 1.25 || actions.length > 2;
-                  if (useVertical) {
-                    return Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        for (var index = 0; index < actions.length; index++) ...[
-                          SizedBox(width: double.infinity, child: actions[index]),
-                          if (index < actions.length - 1)
-                            const Divider(height: 1),
-                        ],
+              if (actions.length <= 2)
+                IntrinsicHeight(
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      for (var index = 0; index < actions.length; index++) ...[
+                        Expanded(child: actions[index]),
+                        if (index < actions.length - 1)
+                          const VerticalDivider(width: 1),
                       ],
-                    );
-                  }
-                  return IntrinsicHeight(
-                    child: Row(
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      children: [
-                        for (var index = 0; index < actions.length; index++) ...[
-                          Expanded(child: actions[index]),
-                          if (index < actions.length - 1)
-                            const VerticalDivider(width: 1),
-                        ],
-                      ],
-                    ),
-                  );
-                },
-              ),
+                    ],
+                  ),
+                )
+              else
+                Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    for (var index = 0; index < actions.length; index++) ...[
+                      SizedBox(width: double.infinity, child: actions[index]),
+                      if (index < actions.length - 1) const Divider(height: 1),
+                    ],
+                  ],
+                ),
             ],
           ),
         ),
@@ -681,7 +522,8 @@ class AppDialogAction extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final color = destructive ? AppColors.danger : AppColors.accent;
+    final primary = Theme.of(context).colorScheme.primary;
+    final foreground = destructive ? context.tokens.danger : primary;
     return Material(
       color: Colors.transparent,
       child: InkWell(
@@ -696,19 +538,18 @@ class AppDialogAction extends StatelessWidget {
               }
             : null,
         child: ConstrainedBox(
-          constraints: const BoxConstraints(minHeight: 50),
+          constraints: const BoxConstraints(minHeight: 52),
           child: Center(
             child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 10),
+              padding: const EdgeInsets.symmetric(horizontal: 12),
               child: Text(
                 label,
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
                 style: TextStyle(
-                  color: enabled ? color : AppColors.mutedSoft,
-                  fontSize: 16,
-                  fontWeight: emphasized ? FontWeight.w700 : FontWeight.w500,
-                  letterSpacing: -.15,
+                  color: enabled ? foreground : context.tokens.textFaint,
+                  fontSize: 15.5,
+                  fontWeight: emphasized ? FontWeight.w800 : FontWeight.w600,
                 ),
               ),
             ),
@@ -744,36 +585,30 @@ Future<T?> showAppSelectionSheet<T>({
 }) {
   return showAppSheet<T>(
     context: context,
-    builder: (sheetContext) => Padding(
-      padding: const EdgeInsets.fromLTRB(8, 0, 8, 12),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          AppSheetHeader(title: title, subtitle: subtitle),
-          ConstrainedBox(
-            constraints: BoxConstraints(
-              maxHeight: MediaQuery.of(sheetContext).size.height * .62,
-            ),
-            child: ListView.separated(
-              shrinkWrap: true,
-              physics: const BouncingScrollPhysics(),
-              itemCount: options.length,
-              separatorBuilder: (_, __) => const AppSheetDivider(),
-              itemBuilder: (context, index) {
-                final option = options[index];
-                return AppSheetAction(
-                  icon: option.icon,
-                  title: option.title,
-                  subtitle: option.subtitle,
-                  destructive: option.destructive,
-                  selected: option.value == selectedValue,
-                  onTap: () => Navigator.pop(sheetContext, option.value),
-                );
-              },
-            ),
+    builder: (sheetContext) => Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        AppSheetHeader(title: title, subtitle: subtitle),
+        Flexible(
+          child: ListView.separated(
+            shrinkWrap: true,
+            padding: const EdgeInsets.only(bottom: 12),
+            itemCount: options.length,
+            separatorBuilder: (_, __) => const AppSheetDivider(),
+            itemBuilder: (context, index) {
+              final option = options[index];
+              return AppSheetAction(
+                icon: option.icon,
+                title: option.title,
+                subtitle: option.subtitle,
+                destructive: option.destructive,
+                selected: option.value == selectedValue,
+                onTap: () => Navigator.pop(sheetContext, option.value),
+              );
+            },
           ),
-        ],
-      ),
+        ),
+      ],
     ),
   );
 }

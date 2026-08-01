@@ -27,7 +27,7 @@ class OnlineCoverService {
   OnlineCoverService({http.Client? client}) : _client = client ?? http.Client();
 
   static const _userAgent =
-      'OfflineMusic/11.0 (https://github.com/ducmanhit/music)';
+      'OfflineMusic/12.0 (https://github.com/ducmanhit/music)';
 
   final http.Client _client;
 

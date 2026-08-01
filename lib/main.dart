@@ -1,4 +1,3 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:just_audio_background/just_audio_background.dart';
@@ -7,10 +6,12 @@ import 'screens/home_screen.dart';
 import 'screens/library_screen.dart';
 import 'screens/quality_screen.dart';
 import 'screens/settings_screen.dart';
+import 'services/app_preferences.dart';
 import 'services/library_service.dart';
 import 'services/player_controller.dart';
 import 'utils/app_theme.dart';
 import 'widgets/mini_player.dart';
+import 'widgets/studio_widgets.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -19,20 +20,19 @@ Future<void> main() async {
     androidNotificationChannelName: 'Offline Music',
     androidNotificationOngoing: true,
   );
-  await SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
-  SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
-    statusBarColor: Colors.transparent,
-    statusBarIconBrightness: Brightness.dark,
-    statusBarBrightness: Brightness.light,
-    systemNavigationBarColor: Colors.transparent,
-    systemNavigationBarIconBrightness: Brightness.dark,
-    systemNavigationBarDividerColor: Colors.transparent,
-  ));
-  runApp(const OfflineMusicApp());
+  await SystemChrome.setPreferredOrientations(<DeviceOrientation>[
+    DeviceOrientation.portraitUp,
+  ]);
+
+  final preferences = AppPreferences();
+  await preferences.initialize();
+  runApp(OfflineMusicApp(preferences: preferences));
 }
 
 class OfflineMusicApp extends StatefulWidget {
-  const OfflineMusicApp({super.key});
+  const OfflineMusicApp({super.key, required this.preferences});
+
+  final AppPreferences preferences;
 
   @override
   State<OfflineMusicApp> createState() => _OfflineMusicAppState();
@@ -42,7 +42,7 @@ class _OfflineMusicAppState extends State<OfflineMusicApp> {
   late final LibraryService libraryService;
   late final PlayerController playerController;
   bool ready = false;
-  String? error;
+  Object? error;
 
   @override
   void initState() {
@@ -60,7 +60,7 @@ class _OfflineMusicAppState extends State<OfflineMusicApp> {
       setState(() => ready = true);
     } catch (exception) {
       if (!mounted) return;
-      setState(() => error = exception.toString());
+      setState(() => error = exception);
     }
   }
 
@@ -68,29 +68,46 @@ class _OfflineMusicAppState extends State<OfflineMusicApp> {
   void dispose() {
     playerController.dispose();
     libraryService.dispose();
+    widget.preferences.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      title: 'Offline Music',
-      theme: buildLightTheme(),
-      home: error != null
-          ? _StartupError(message: error!)
-          : ready
-              ? HomeShell(
-                  libraryService: libraryService,
-                  playerController: playerController,
-                )
-              : const Scaffold(
-                  body: AppBackdrop(
-                    child: Center(
-                      child: CupertinoActivityIndicator(radius: 14),
-                    ),
-                  ),
-                ),
+    return AnimatedBuilder(
+      animation: widget.preferences,
+      builder: (context, _) => MaterialApp(
+        debugShowCheckedModeBanner: false,
+        title: 'Offline Music',
+        theme: buildLightTheme(),
+        darkTheme: buildDarkTheme(),
+        themeMode: widget.preferences.themeMode,
+        builder: (context, child) {
+          final dark = Theme.of(context).brightness == Brightness.dark;
+          final style = SystemUiOverlayStyle(
+            statusBarColor: Colors.transparent,
+            statusBarIconBrightness: dark ? Brightness.light : Brightness.dark,
+            statusBarBrightness: dark ? Brightness.dark : Brightness.light,
+            systemNavigationBarColor: context.tokens.surface,
+            systemNavigationBarIconBrightness:
+                dark ? Brightness.light : Brightness.dark,
+            systemNavigationBarDividerColor: context.tokens.border,
+          );
+          return AnnotatedRegion<SystemUiOverlayStyle>(
+            value: style,
+            child: child ?? const SizedBox.shrink(),
+          );
+        },
+        home: error != null
+            ? _StartupError(message: error.toString())
+            : ready
+                ? HomeShell(
+                    preferences: widget.preferences,
+                    libraryService: libraryService,
+                    playerController: playerController,
+                  )
+                : const _StartupLoading(),
+      ),
     );
   }
 }
@@ -98,10 +115,12 @@ class _OfflineMusicAppState extends State<OfflineMusicApp> {
 class HomeShell extends StatefulWidget {
   const HomeShell({
     super.key,
+    required this.preferences,
     required this.libraryService,
     required this.playerController,
   });
 
+  final AppPreferences preferences;
   final LibraryService libraryService;
   final PlayerController playerController;
 
@@ -112,157 +131,99 @@ class HomeShell extends StatefulWidget {
 class _HomeShellState extends State<HomeShell> {
   int index = 0;
 
-  void navigate(int value) => setState(() => index = value);
+  void navigate(int value) {
+    if (value == index) return;
+    setState(() => index = value);
+  }
 
   @override
   Widget build(BuildContext context) {
-    final pages = [
+    final pages = <Widget>[
       HomeScreen(
         libraryService: widget.libraryService,
         playerController: widget.playerController,
         onNavigate: navigate,
       ),
-      QualityScreen(
-        libraryService: widget.libraryService,
-        playerController: widget.playerController,
-      ),
       LibraryScreen(
         libraryService: widget.libraryService,
         playerController: widget.playerController,
       ),
+      QualityScreen(
+        libraryService: widget.libraryService,
+        playerController: widget.playerController,
+      ),
       SettingsScreen(
+        preferences: widget.preferences,
         libraryService: widget.libraryService,
         playerController: widget.playerController,
       ),
     ];
 
     return Scaffold(
-      extendBody: true,
-      backgroundColor: Colors.transparent,
+      backgroundColor: context.tokens.canvas,
       body: IndexedStack(index: index, children: pages),
-      bottomNavigationBar: SafeArea(
-        top: false,
-        minimum: const EdgeInsets.fromLTRB(12, 0, 12, 7),
+      bottomNavigationBar: DecoratedBox(
+        decoration: BoxDecoration(
+          color: context.tokens.surface,
+          border: Border(top: BorderSide(color: context.tokens.border)),
+        ),
+        child: SafeArea(
+          top: false,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              MiniPlayer(
+                libraryService: widget.libraryService,
+                playerController: widget.playerController,
+              ),
+              NavigationBar(
+                selectedIndex: index,
+                onDestinationSelected: navigate,
+                destinations: const <NavigationDestination>[
+                  NavigationDestination(
+                    icon: Icon(Icons.home_outlined),
+                    selectedIcon: Icon(Icons.home_rounded),
+                    label: 'Trang chủ',
+                  ),
+                  NavigationDestination(
+                    icon: Icon(Icons.library_music_outlined),
+                    selectedIcon: Icon(Icons.library_music_rounded),
+                    label: 'Thư viện',
+                  ),
+                  NavigationDestination(
+                    icon: Icon(Icons.graphic_eq_outlined),
+                    selectedIcon: Icon(Icons.graphic_eq_rounded),
+                    label: 'Âm thanh',
+                  ),
+                  NavigationDestination(
+                    icon: Icon(Icons.settings_outlined),
+                    selectedIcon: Icon(Icons.settings_rounded),
+                    label: 'Cài đặt',
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _StartupLoading extends StatelessWidget {
+  const _StartupLoading();
+
+  @override
+  Widget build(BuildContext context) {
+    return AppPage(
+      safeBottom: true,
+      child: Center(
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            MiniPlayer(
-              libraryService: widget.libraryService,
-              playerController: widget.playerController,
-            ),
-            const SizedBox(height: 7),
-            _LiquidTabBar(index: index, onChanged: navigate),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class _LiquidTabBar extends StatelessWidget {
-  const _LiquidTabBar({required this.index, required this.onChanged});
-
-  final int index;
-  final ValueChanged<int> onChanged;
-
-  static const items = [
-    (CupertinoIcons.music_note_2, 'Trang chủ'),
-    (CupertinoIcons.waveform, 'Âm thanh'),
-    (CupertinoIcons.music_albums, 'Thư viện'),
-    (CupertinoIcons.gear_alt, 'Cài đặt'),
-  ];
-
-  @override
-  Widget build(BuildContext context) {
-    return GlassPanel(
-      borderRadius: 31,
-      blur: 48,
-      opacity: .012,
-      shadow: false,
-      highlight: false,
-      pressable: false,
-      padding: const EdgeInsets.all(3),
-      child: SizedBox(
-        height: 58,
-        child: LayoutBuilder(
-          builder: (context, constraints) {
-            final itemWidth = constraints.maxWidth / items.length;
-            return Stack(
-              children: [
-                AnimatedPositioned(
-                  duration: const Duration(milliseconds: 280),
-                  curve: Curves.easeOutCubic,
-                  left: itemWidth * index + 3,
-                  top: 3,
-                  width: itemWidth - 6,
-                  height: 52,
-                  child: DecoratedBox(
-                    decoration: BoxDecoration(
-                      color: AppColors.accent.withValues(alpha: .085),
-                      borderRadius: BorderRadius.circular(25),
-                    ),
-                  ),
-                ),
-                Row(
-                  children: [
-                    for (var i = 0; i < items.length; i++)
-                      Expanded(
-                        child: _LiquidTabItem(
-                          icon: items[i].$1,
-                          label: items[i].$2,
-                          selected: i == index,
-                          onTap: () => onChanged(i),
-                        ),
-                      ),
-                  ],
-                ),
-              ],
-            );
-          },
-        ),
-      ),
-    );
-  }
-}
-
-class _LiquidTabItem extends StatelessWidget {
-  const _LiquidTabItem({
-    required this.icon,
-    required this.label,
-    required this.selected,
-    required this.onTap,
-  });
-
-  final IconData icon;
-  final String label;
-  final bool selected;
-  final VoidCallback onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      behavior: HitTestBehavior.opaque,
-      onTap: onTap,
-      child: AnimatedDefaultTextStyle(
-        duration: const Duration(milliseconds: 180),
-        curve: Curves.easeOut,
-        style: TextStyle(
-          color: selected ? AppColors.accent : AppColors.graphiteSoft,
-          fontFamily: '.SF Pro Text',
-          fontSize: 10.5,
-          fontWeight: selected ? FontWeight.w600 : FontWeight.w500,
-          letterSpacing: -.12,
-        ),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(
-              icon,
-              size: 21.5,
-              color: selected ? AppColors.accent : AppColors.graphiteSoft,
-            ),
-            const SizedBox(height: 4),
-            Text(label, maxLines: 1),
+            CircularProgressIndicator(color: Theme.of(context).colorScheme.primary),
+            const SizedBox(height: 18),
+            Text('Đang mở thư viện…', style: Theme.of(context).textTheme.titleMedium),
           ],
         ),
       ),
@@ -277,26 +238,12 @@ class _StartupError extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: AppBackdrop(
-        child: SafeArea(
-          child: Padding(
-            padding: const EdgeInsets.all(24),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                const Icon(CupertinoIcons.exclamationmark_triangle, size: 52),
-                const SizedBox(height: 20),
-                const Text(
-                  'Không thể mở ứng dụng',
-                  style: TextStyle(fontSize: 24, fontWeight: FontWeight.w800),
-                ),
-                const SizedBox(height: 12),
-                Text(message, textAlign: TextAlign.center),
-              ],
-            ),
-          ),
-        ),
+    return AppPage(
+      safeBottom: true,
+      child: EmptyState(
+        icon: Icons.error_outline_rounded,
+        title: 'Không thể mở ứng dụng',
+        message: message,
       ),
     );
   }
