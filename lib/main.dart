@@ -175,33 +175,32 @@ class _LiquidTabBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GlassPanel(
-      borderRadius: 34,
-      blur: 38,
-      opacity: .075,
-      shadow: true,
-      highlight: true,
+      borderRadius: 31,
+      blur: 48,
+      opacity: .012,
+      shadow: false,
+      highlight: false,
       pressable: false,
-      padding: const EdgeInsets.all(4),
+      padding: const EdgeInsets.all(3),
       child: SizedBox(
-        height: 61,
+        height: 58,
         child: LayoutBuilder(
           builder: (context, constraints) {
             final itemWidth = constraints.maxWidth / items.length;
             return Stack(
               children: [
                 AnimatedPositioned(
-                  duration: const Duration(milliseconds: 420),
+                  duration: const Duration(milliseconds: 280),
                   curve: Curves.easeOutCubic,
-                  left: itemWidth * index + 2,
-                  top: 1,
-                  width: itemWidth - 4,
-                  height: 55,
-                  child: const LiquidLens(
-                    borderRadius: 28,
-                    blur: 34,
-                    opacity: .19,
-                    shadow: false,
-                    child: SizedBox.expand(),
+                  left: itemWidth * index + 3,
+                  top: 3,
+                  width: itemWidth - 6,
+                  height: 52,
+                  child: DecoratedBox(
+                    decoration: BoxDecoration(
+                      color: AppColors.accent.withValues(alpha: .085),
+                      borderRadius: BorderRadius.circular(25),
+                    ),
                   ),
                 ),
                 Row(
@@ -245,27 +244,22 @@ class _LiquidTabItem extends StatelessWidget {
       behavior: HitTestBehavior.opaque,
       onTap: onTap,
       child: AnimatedDefaultTextStyle(
-        duration: const Duration(milliseconds: 260),
-        curve: Curves.easeOutCubic,
+        duration: const Duration(milliseconds: 180),
+        curve: Curves.easeOut,
         style: TextStyle(
           color: selected ? AppColors.accent : AppColors.graphiteSoft,
           fontFamily: '.SF Pro Text',
           fontSize: 10.5,
-          fontWeight: selected ? FontWeight.w700 : FontWeight.w500,
-          letterSpacing: -.15,
+          fontWeight: selected ? FontWeight.w600 : FontWeight.w500,
+          letterSpacing: -.12,
         ),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            AnimatedScale(
-              duration: const Duration(milliseconds: 260),
-              curve: Curves.easeOutBack,
-              scale: selected ? 1.055 : 1,
-              child: Icon(
-                icon,
-                size: 22,
-                color: selected ? AppColors.accent : AppColors.graphiteSoft,
-              ),
+            Icon(
+              icon,
+              size: 21.5,
+              color: selected ? AppColors.accent : AppColors.graphiteSoft,
             ),
             const SizedBox(height: 4),
             Text(label, maxLines: 1),

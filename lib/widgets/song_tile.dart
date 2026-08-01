@@ -30,22 +30,10 @@ class SongTile extends StatelessWidget {
           padding: EdgeInsets.symmetric(horizontal: 8, vertical: dense ? 7 : 9),
           child: Row(
             children: [
-              DecoratedBox(
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(13),
-                  boxShadow: const [
-                    BoxShadow(
-                      color: Color(0x1B172B4D),
-                      blurRadius: 12,
-                      offset: Offset(0, 5),
-                    ),
-                  ],
-                ),
-                child: SongArtwork(
-                  song: song,
-                  size: dense ? 48 : 56,
-                  borderRadius: dense ? 12 : 14,
-                ),
+              SongArtwork(
+                song: song,
+                size: dense ? 48 : 56,
+                borderRadius: dense ? 12 : 14,
               ),
               const SizedBox(width: 13),
               Expanded(

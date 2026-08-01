@@ -78,22 +78,10 @@ class _CoverEditorScreenState extends State<CoverEditorScreen> {
                   child: Stack(
                     clipBehavior: Clip.none,
                     children: [
-                      DecoratedBox(
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(26),
-                          boxShadow: const [
-                            BoxShadow(
-                              color: Color(0x30172B4D),
-                              blurRadius: 34,
-                              offset: Offset(0, 18),
-                            ),
-                          ],
-                        ),
-                        child: SongArtwork(
-                          song: song,
-                          size: 250,
-                          borderRadius: 26,
-                        ),
+                      SongArtwork(
+                        song: song,
+                        size: 250,
+                        borderRadius: 24,
                       ),
                       Positioned(
                         right: -8,

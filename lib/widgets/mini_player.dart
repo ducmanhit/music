@@ -35,10 +35,11 @@ class MiniPlayer extends StatelessWidget {
         return Padding(
           padding: const EdgeInsets.symmetric(horizontal: 4),
           child: GlassPanel(
-            borderRadius: 29,
-            blur: 38,
-            opacity: .075,
-            shadow: true,
+            borderRadius: 25,
+            blur: 46,
+            opacity: .02,
+            shadow: false,
+            highlight: false,
             onTap: () => _openNowPlaying(context),
             child: SizedBox(
               height: 66,
@@ -69,7 +70,7 @@ class MiniPlayer extends StatelessWidget {
                           child: SongArtwork(
                             song: song,
                             size: 50,
-                            borderRadius: 16,
+                            borderRadius: 14,
                           ),
                         ),
                         const SizedBox(width: 11),
@@ -176,17 +177,20 @@ class _MiniButton extends StatelessWidget {
     final size = primary ? 40.0 : 36.0;
     return SizedBox.square(
       dimension: size,
-      child: GlassPanel(
-        borderRadius: size / 2,
-        blur: 32,
-        opacity: primary ? .18 : .08,
-        shadow: false,
-        onTap: onPressed,
-        child: Center(
-          child: Icon(
-            icon,
-            size: primary ? 19 : 18,
-            color: primary ? AppColors.accent : AppColors.graphite,
+      child: Material(
+        color: primary
+            ? AppColors.accent.withValues(alpha: .10)
+            : const Color(0x0F3C3C43),
+        shape: const CircleBorder(),
+        child: InkWell(
+          customBorder: const CircleBorder(),
+          onTap: onPressed,
+          child: Center(
+            child: Icon(
+              icon,
+              size: primary ? 19 : 18,
+              color: primary ? AppColors.accent : AppColors.graphite,
+            ),
           ),
         ),
       ),

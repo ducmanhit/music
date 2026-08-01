@@ -3,30 +3,30 @@ import 'dart:ui';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
-/// V9 dùng nền trắng trung tính và vật liệu kính cực trong. Màu xanh hệ thống
-/// chỉ dùng cho trạng thái được chọn và hành động chính.
+/// V10: giao diện sáng, phẳng và trung tính. Kính chỉ tạo độ trong/blur,
+/// không dùng bóng, phản chiếu giả hoặc lớp màu tạo cảm giác 3D.
 abstract final class AppColors {
-  static const background = Color(0xFFF8F8FA);
-  static const backgroundSoft = Color(0xFFFCFCFD);
-  static const surface = Color(0x24FFFFFF);
-  static const surfaceRaised = Color(0x52FFFFFF);
-  static const search = Color(0x32FFFFFF);
-  static const line = Color(0x5EFFFFFF);
-  static const lineStrong = Color(0xCCFFFFFF);
+  static const background = Color(0xFFF7F7F9);
+  static const backgroundSoft = Color(0xFFFBFBFC);
+  static const surface = Color(0x12FFFFFF);
+  static const surfaceRaised = Color(0x8CFFFFFF);
+  static const search = Color(0xA6FFFFFF);
+  static const line = Color(0x183C3C43);
+  static const lineStrong = Color(0x2E3C3C43);
   static const accent = Color(0xFF007AFF);
-  static const accentBright = Color(0xFF4DA3FF);
-  static const accentDark = Color(0x15007AFF);
-  static const graphite = Color(0xFF151517);
-  static const graphiteSoft = Color(0xFF3A3A3C);
+  static const accentBright = Color(0xFF409CFF);
+  static const accentDark = Color(0x12007AFF);
+  static const graphite = Color(0xFF1C1C1E);
+  static const graphiteSoft = Color(0xFF48484A);
 
-  // Tên cũ được giữ để các màn hình hiện tại không bị lỗi khi cập nhật patch.
-  static const cyan = Color(0xFFF1F2F5);
-  static const violet = Color(0xFFEDEEF2);
-  static const pink = Color(0xFFF8F8FA);
+  // Giữ tên cũ để các màn hình không lỗi khi cập nhật patch.
+  static const cyan = Color(0xFFF2F2F7);
+  static const violet = Color(0xFFF2F2F7);
+  static const pink = Color(0xFFF7F7F9);
 
-  static const text = Color(0xFF101012);
+  static const text = Color(0xFF111113);
   static const muted = Color(0xFF6E6E73);
-  static const mutedSoft = Color(0xFF98989E);
+  static const mutedSoft = Color(0xFF9A9AA0);
   static const danger = Color(0xFFFF3B30);
   static const success = Color(0xFF34C759);
   static const ink = Colors.white;
@@ -63,17 +63,17 @@ ThemeData buildLightTheme() {
       displayLarge: textTheme.displayLarge?.copyWith(
         fontFamily: '.SF Pro Display',
         fontWeight: FontWeight.w700,
-        letterSpacing: -1.35,
+        letterSpacing: -1.25,
       ),
       headlineLarge: textTheme.headlineLarge?.copyWith(
         fontFamily: '.SF Pro Display',
         fontWeight: FontWeight.w700,
-        letterSpacing: -1.0,
+        letterSpacing: -.9,
       ),
       titleLarge: textTheme.titleLarge?.copyWith(
         fontFamily: '.SF Pro Display',
         fontWeight: FontWeight.w700,
-        letterSpacing: -.45,
+        letterSpacing: -.4,
       ),
     ),
     cupertinoOverrideTheme: const CupertinoThemeData(
@@ -98,7 +98,7 @@ ThemeData buildLightTheme() {
           fontFamily: '.SF Pro Display',
           fontSize: 34,
           fontWeight: FontWeight.w700,
-          letterSpacing: -1.1,
+          letterSpacing: -1.05,
         ),
       ),
     ),
@@ -114,12 +114,12 @@ ThemeData buildLightTheme() {
         fontFamily: '.SF Pro Display',
         fontSize: 28,
         fontWeight: FontWeight.w700,
-        letterSpacing: -.8,
+        letterSpacing: -.75,
       ),
     ),
     inputDecorationTheme: InputDecorationTheme(
       filled: true,
-      fillColor: Colors.white.withValues(alpha: .34),
+      fillColor: const Color(0xB8FFFFFF),
       hintStyle: const TextStyle(
         color: AppColors.mutedSoft,
         fontWeight: FontWeight.w500,
@@ -127,40 +127,40 @@ ThemeData buildLightTheme() {
       prefixIconColor: AppColors.muted,
       suffixIconColor: AppColors.muted,
       border: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(23),
+        borderRadius: BorderRadius.circular(20),
         borderSide: BorderSide.none,
       ),
       enabledBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(23),
-        borderSide: BorderSide(color: Colors.white.withValues(alpha: .70)),
+        borderRadius: BorderRadius.circular(20),
+        borderSide: const BorderSide(color: Color(0x143C3C43), width: .7),
       ),
       focusedBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(23),
-        borderSide: BorderSide(
-          color: Colors.white.withValues(alpha: .96),
-          width: 1,
-        ),
+        borderRadius: BorderRadius.circular(20),
+        borderSide: const BorderSide(color: AppColors.accent, width: 1),
       ),
-      contentPadding: const EdgeInsets.symmetric(horizontal: 17, vertical: 14),
+      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
     ),
     filledButtonTheme: FilledButtonThemeData(
       style: FilledButton.styleFrom(
         foregroundColor: Colors.white,
         backgroundColor: AppColors.accent,
         disabledBackgroundColor: const Color(0xFFD1D1D6),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
         padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 15),
         textStyle: const TextStyle(fontSize: 15, fontWeight: FontWeight.w700),
         elevation: 0,
+        shadowColor: Colors.transparent,
       ),
     ),
     outlinedButtonTheme: OutlinedButtonThemeData(
       style: OutlinedButton.styleFrom(
         foregroundColor: AppColors.text,
-        side: BorderSide(color: Colors.white.withValues(alpha: .78)),
-        backgroundColor: Colors.white.withValues(alpha: .18),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
+        side: const BorderSide(color: Color(0x1F3C3C43), width: .7),
+        backgroundColor: const Color(0xA8FFFFFF),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
         padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 15),
+        elevation: 0,
+        shadowColor: Colors.transparent,
       ),
     ),
     textButtonTheme: TextButtonThemeData(
@@ -173,8 +173,9 @@ ThemeData buildLightTheme() {
       color: Colors.transparent,
       surfaceTintColor: Colors.transparent,
       elevation: 0,
+      shadowColor: Colors.transparent,
       margin: EdgeInsets.zero,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(28)),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(22)),
     ),
     listTileTheme: const ListTileThemeData(
       iconColor: AppColors.graphiteSoft,
@@ -201,10 +202,10 @@ ThemeData buildLightTheme() {
     ),
     sliderTheme: SliderThemeData(
       activeTrackColor: AppColors.accent,
-      inactiveTrackColor: const Color(0x1A3C3C43),
+      inactiveTrackColor: const Color(0x183C3C43),
       thumbColor: Colors.white,
-      overlayColor: AppColors.accent.withValues(alpha: .06),
-      trackHeight: 3.2,
+      overlayColor: AppColors.accent.withValues(alpha: .05),
+      trackHeight: 3,
       thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 7),
     ),
     bottomSheetTheme: const BottomSheetThemeData(
@@ -212,13 +213,15 @@ ThemeData buildLightTheme() {
       surfaceTintColor: Colors.transparent,
       showDragHandle: false,
       elevation: 0,
+      shadowColor: Colors.transparent,
     ),
     dialogTheme: const DialogThemeData(
-      backgroundColor: Color(0xE6FFFFFF),
+      backgroundColor: Color(0xF2FFFFFF),
       surfaceTintColor: Colors.transparent,
       elevation: 0,
+      shadowColor: Colors.transparent,
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.all(Radius.circular(32)),
+        borderRadius: BorderRadius.all(Radius.circular(26)),
       ),
     ),
     snackBarTheme: const SnackBarThemeData(
@@ -228,10 +231,14 @@ ThemeData buildLightTheme() {
       elevation: 0,
     ),
     popupMenuTheme: PopupMenuThemeData(
-      color: Colors.white.withValues(alpha: .86),
+      color: Colors.white.withValues(alpha: .94),
       surfaceTintColor: Colors.transparent,
+      shadowColor: Colors.transparent,
       elevation: 0,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(28)),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(24),
+        side: const BorderSide(color: Color(0x143C3C43), width: .7),
+      ),
       textStyle: const TextStyle(
         color: AppColors.text,
         fontFamily: '.SF Pro Text',
@@ -249,8 +256,8 @@ ThemeData buildLightTheme() {
   );
 }
 
-/// Nền trắng sạch. Không dùng gradient và không phủ hạt nhiễu. Các mảng mờ
-/// trung tính chỉ tạo đủ chiều sâu để kính có thứ để khúc xạ.
+/// Nền sáng và phẳng. Ảnh bìa chỉ tạo một lớp màu rất nhẹ khi đang phát,
+/// không có mảng gradient hoặc bóng giả.
 class AppBackdrop extends StatelessWidget {
   const AppBackdrop({super.key, required this.child, this.artwork});
 
@@ -264,47 +271,17 @@ class AppBackdrop extends StatelessWidget {
       child: Stack(
         fit: StackFit.expand,
         children: [
-          const Positioned(
-            top: -170,
-            right: -150,
-            child: _AmbientBlur(
-              width: 390,
-              height: 360,
-              color: Color(0xFFFFFFFF),
-              opacity: .90,
-            ),
-          ),
-          const Positioned(
-            left: -210,
-            top: 300,
-            child: _AmbientBlur(
-              width: 430,
-              height: 500,
-              color: Color(0xFFEFF0F4),
-              opacity: .48,
-            ),
-          ),
-          const Positioned(
-            right: -180,
-            bottom: -130,
-            child: _AmbientBlur(
-              width: 390,
-              height: 390,
-              color: Color(0xFFFFFFFF),
-              opacity: .80,
-            ),
-          ),
           if (artwork != null)
             Positioned.fill(
               child: Opacity(
-                opacity: .075,
+                opacity: .028,
                 child: ImageFiltered(
-                  imageFilter: ImageFilter.blur(sigmaX: 76, sigmaY: 76),
+                  imageFilter: ImageFilter.blur(sigmaX: 82, sigmaY: 82),
                   child: ColorFiltered(
                     colorFilter: const ColorFilter.matrix(<double>[
-                      .33, .33, .33, 0, 26,
-                      .33, .33, .33, 0, 26,
-                      .33, .33, .33, 0, 26,
+                      .33, .33, .33, 0, 28,
+                      .33, .33, .33, 0, 28,
+                      .33, .33, .33, 0, 28,
                       0, 0, 0, 1, 0,
                     ]),
                     child: Image(image: artwork!, fit: BoxFit.cover),
@@ -319,14 +296,14 @@ class AppBackdrop extends StatelessWidget {
   }
 }
 
-/// Vật liệu kính V9: blur nền + một lớp trắng rất mỏng + viền phản chiếu.
-/// Không dùng gradient đen/trắng bên trong nên bề mặt sạch và không bị bẩn.
+/// Bề mặt kính phẳng: blur + màu trắng mỏng + viền trung tính. Không bóng,
+/// không phản chiếu cạnh và không tạo cảm giác nổi 3D.
 class GlassPanel extends StatefulWidget {
   const GlassPanel({
     super.key,
     required this.child,
     this.padding,
-    this.borderRadius = 28,
+    this.borderRadius = 24,
     this.blur = 28,
     this.opacity = .18,
     this.onTap,
@@ -363,71 +340,27 @@ class _GlassPanelState extends State<GlassPanel> {
   Widget build(BuildContext context) {
     final radius = BorderRadius.circular(widget.borderRadius);
     final requested = widget.opacity.clamp(0.0, 1.0).toDouble();
-    final materialAlpha = (0.045 + requested * .42).clamp(.06, .34).toDouble();
+    final baseAlpha = (0.035 + requested * .34).clamp(.035, .24).toDouble();
+    final alpha = _pressed ? (baseAlpha + .035).clamp(0.0, .28) : baseAlpha;
     final tint = widget.tint ?? Colors.white;
 
-    Widget surface = AnimatedScale(
-      scale: _pressed ? .986 : 1,
-      duration: const Duration(milliseconds: 145),
-      curve: Curves.easeOutCubic,
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 180),
-        curve: Curves.easeOutCubic,
-        decoration: BoxDecoration(
-          borderRadius: radius,
-          boxShadow: widget.shadow
-              ? [
-                  BoxShadow(
-                    color: const Color(0xFF6B7280).withValues(
-                      alpha: _pressed ? .045 : .065,
-                    ),
-                    blurRadius: _pressed ? 20 : 30,
-                    spreadRadius: -12,
-                    offset: Offset(0, _pressed ? 8 : 14),
-                  ),
-                  BoxShadow(
-                    color: Colors.white.withValues(alpha: .50),
-                    blurRadius: 14,
-                    spreadRadius: -9,
-                    offset: const Offset(-4, -5),
-                  ),
-                ]
-              : null,
-        ),
-        child: ClipRRect(
-          borderRadius: radius,
-          child: BackdropFilter(
-            filter: ImageFilter.blur(sigmaX: widget.blur, sigmaY: widget.blur),
-            child: DecoratedBox(
-              decoration: BoxDecoration(
-                color: tint.withValues(alpha: materialAlpha),
-                borderRadius: radius,
-                border: Border.all(
-                  color: Colors.white.withValues(alpha: .72),
-                  width: .85,
-                ),
-              ),
-              child: Stack(
-                fit: StackFit.passthrough,
-                children: [
-                  if (widget.highlight)
-                    Positioned.fill(
-                      child: IgnorePointer(
-                        child: CustomPaint(
-                          painter: _GlassEdgePainter(
-                            radius: widget.borderRadius,
-                          ),
-                        ),
-                      ),
-                    ),
-                  Padding(
-                    padding: widget.padding ?? EdgeInsets.zero,
-                    child: widget.child,
-                  ),
-                ],
-              ),
+    Widget surface = ClipRRect(
+      borderRadius: radius,
+      child: BackdropFilter(
+        filter: ImageFilter.blur(sigmaX: widget.blur, sigmaY: widget.blur),
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 120),
+          curve: Curves.easeOut,
+          decoration: BoxDecoration(
+            color: tint.withValues(alpha: alpha),
+            borderRadius: radius,
+            border: Border.all(
+              color: const Color(0x183C3C43),
+              width: .65,
             ),
           ),
+          padding: widget.padding ?? EdgeInsets.zero,
+          child: widget.child,
         ),
       ),
     );
@@ -471,8 +404,8 @@ class LiquidLens extends StatelessWidget {
       blur: blur,
       opacity: opacity,
       padding: padding,
-      shadow: shadow,
-      highlight: true,
+      shadow: false,
+      highlight: false,
       pressable: false,
       child: child,
     );
@@ -501,14 +434,15 @@ class GlassIconButton extends StatelessWidget {
       dimension: size,
       child: GlassPanel(
         borderRadius: size / 2,
-        blur: 30,
-        opacity: selected ? .24 : .10,
-        shadow: selected,
+        blur: 32,
+        opacity: selected ? .16 : .035,
+        shadow: false,
+        highlight: false,
         onTap: onPressed,
         child: Center(
           child: Icon(
             icon,
-            size: size * .45,
+            size: size * .44,
             color: selected ? AppColors.accent : AppColors.graphite,
           ),
         ),
@@ -516,97 +450,5 @@ class GlassIconButton extends StatelessWidget {
     );
     if (tooltip != null) result = Tooltip(message: tooltip!, child: result);
     return Opacity(opacity: onPressed == null ? .38 : 1, child: result);
-  }
-}
-
-class _GlassEdgePainter extends CustomPainter {
-  const _GlassEdgePainter({required this.radius});
-
-  final double radius;
-
-  @override
-  void paint(Canvas canvas, Size size) {
-    if (size.isEmpty) return;
-
-    final topPaint = Paint()
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = 1.0
-      ..strokeCap = StrokeCap.round
-      ..color = Colors.white.withValues(alpha: .72);
-    final topPath = Path()
-      ..moveTo(radius * .48, 1.4)
-      ..cubicTo(
-        size.width * .27,
-        .45,
-        size.width * .54,
-        .55,
-        size.width * .74,
-        2.2,
-      );
-    canvas.drawPath(topPath, topPaint);
-
-    final leftPaint = Paint()
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = .75
-      ..strokeCap = StrokeCap.round
-      ..color = Colors.white.withValues(alpha: .38);
-    final leftPath = Path()
-      ..moveTo(1.6, radius * .64)
-      ..cubicTo(.55, size.height * .34, .65, size.height * .57, 2.0, size.height * .75);
-    canvas.drawPath(leftPath, leftPaint);
-
-    final lowerPaint = Paint()
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = .65
-      ..strokeCap = StrokeCap.round
-      ..color = const Color(0xFF8E8E93).withValues(alpha: .10);
-    final lowerPath = Path()
-      ..moveTo(size.width * .38, size.height - 1.4)
-      ..cubicTo(
-        size.width * .58,
-        size.height - .4,
-        size.width * .78,
-        size.height - .7,
-        size.width - radius * .43,
-        size.height - 2.0,
-      );
-    canvas.drawPath(lowerPath, lowerPaint);
-  }
-
-  @override
-  bool shouldRepaint(covariant _GlassEdgePainter oldDelegate) {
-    return oldDelegate.radius != radius;
-  }
-}
-
-class _AmbientBlur extends StatelessWidget {
-  const _AmbientBlur({
-    required this.width,
-    required this.height,
-    required this.color,
-    required this.opacity,
-  });
-
-  final double width;
-  final double height;
-  final Color color;
-  final double opacity;
-
-  @override
-  Widget build(BuildContext context) {
-    return ImageFiltered(
-      imageFilter: ImageFilter.blur(sigmaX: 72, sigmaY: 72),
-      child: Opacity(
-        opacity: opacity,
-        child: Container(
-          width: width,
-          height: height,
-          decoration: BoxDecoration(
-            color: color,
-            borderRadius: BorderRadius.circular(width),
-          ),
-        ),
-      ),
-    );
   }
 }
